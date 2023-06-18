@@ -1,0 +1,3 @@
+[submodule "librime-ahk"]
+	path = librime-ahk
+	url = https://github.com/amorphobia/librime-ahk
