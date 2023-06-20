@@ -94,6 +94,7 @@ menu_str(menu) {
 process_key(session_id, key, code, mask, ch) {
     rime := RimeApi()
     if code {
+        caret_found := CaretGetPos(&caretX, &caretY)
         processed := rime.process_key(session_id, code, mask)
         ; SendInput("[DBG] ch: " . ch . ", proc: " . processed . ", mask: " . mask . ".`r`n")
         if commit := rime.get_commit(session_id) {
@@ -105,7 +106,10 @@ process_key(session_id, key, code, mask, ch) {
         if context := rime.get_context(session_id) {
             if context.composition.length > 0 {
                 ctx := composition_str(context.composition) . "`r`n" . menu_str(context.menu)
-                ToolTip(ctx)
+                if caret_found
+                    ToolTip(ctx, caretX, caretY + 30)
+                else
+                    ToolTip(ctx)
             } else {
                 ToolTip()
             }
