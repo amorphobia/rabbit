@@ -18,9 +18,29 @@
 #Requires AutoHotkey v2.0 32-bit
 #SingleInstance Ignore
 
-#Include "RabbitDeployer.ahk"
+#Include "Lib\RabbitDeployer.ahk"
+#Include "Lib\RabbitKeyHook.ahk"
 
-exit_rabbit(session_id, ExitReason, ExitCode) {
+Run()
+
+Run() {
+    keyboard := DllCall("GetKeyboardLayout", "UInt", 0)
+    SetDefaultKeyboard(0x0409)
+    Deploy()
+    rime := RimeApi()
+    session_id := rime.create_session()
+    if not session_id {
+        MsgBox("未能成功创建 rime 会话。", "错误")
+        ExitApp(1)
+    }
+
+    RegisterKeys(session_id, process_key)
+
+    OnExit(ExitRabbit.Bind(session_id, keyboard & 0xffff))
+}
+
+ExitRabbit(session_id, keyboard, reason, code) {
+    SetDefaultKeyboard(keyboard)
     rime := RimeApi()
     rime.destroy_session(session_id)
     rime.finalize()
@@ -71,10 +91,11 @@ menu_str(menu) {
 }
 
 ; WIP
-process_key(session_id, code, ch) {
+process_key(session_id, key, code, mask, ch) {
     rime := RimeApi()
     if code {
-        rime.process_key(session_id, code, 0)
+        processed := rime.process_key(session_id, code, mask)
+        ; SendInput("[DBG] ch: " . ch . ", proc: " . processed . ", mask: " . mask . ".`r`n")
         if commit := rime.get_commit(session_id) {
             SendText(commit.text)
             ToolTip()
@@ -85,28 +106,17 @@ process_key(session_id, code, ch) {
             if context.composition.length > 0 {
                 ctx := composition_str(context.composition) . "`r`n" . menu_str(context.menu)
                 ToolTip(ctx)
+            } else {
+                ToolTip()
             }
             rime.free_context(context)
         }
+
+        if not processed {
+            if RegExMatch(SubStr(ch, 2), "([\<\>\^\+]+)(.+)", &matched)
+                SendInput(StrReplace(StrReplace(matched[1], "<"), ">") . "{" . matched[2] . "}")
+            else
+                SendInput("{" . key . "}")
+        }
     }
 }
-
-main() {
-    deploy() ; TODO: skip full check if not first time
-    rime := RimeApi()
-    session_id := rime.create_session()
-    if not session_id {
-        MsgBox("未能成功创建 rime 会话。", "错误")
-        ExitApp(1)
-    }
-
-    Loop 26 {
-        code := 96 + A_Index
-        Hotkey(Chr(code), process_key.Bind(session_id, code), "On")
-    }
-    Hotkey("Space", process_key.Bind(session_id, 32), "On")
-
-    OnExit(exit_rabbit.Bind(session_id))
-}
-
-main()

@@ -17,7 +17,9 @@
  */
 #Requires AutoHotkey v2.0 32-bit
 
-#Include "librime-ahk\rime_api.ahk"
+#Include "..\librime-ahk\rime_api.ahk"
+
+global APP_NAME := "玉兔毫"
 
 on_message(context_object, session_id, message_type, message_value) {
     msg_type := StrGet(message_type, "UTF-8")
@@ -25,20 +27,20 @@ on_message(context_object, session_id, message_type, message_value) {
     if msg_type = "deploy" {
         if msg_value = "start" {
             TrayTip()
-            TrayTip("维护中", "玉兔颖")
+            TrayTip("维护中", APP_NAME)
         } else if msg_value = "success" {
             TrayTip()
-            TrayTip("维护完成", "玉兔颖")
+            TrayTip("维护完成", APP_NAME)
             SetTimer(TrayTip, -2000)
         } else {
-            TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", "玉兔颖")
+            TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", APP_NAME)
         }
     } else {
-        TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", "玉兔颖")
+        ; TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", APP_NAME)
     }
 }
 
-deploy(full_check := true) {
+Deploy(full_check := true) {
     rime := RimeApi()
     traits := RimeTraits()
     traits.app_name := "rime.rabbit"
