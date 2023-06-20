@@ -196,6 +196,8 @@ RegisterKeys(session_id, process_key) {
     for key, code in KeyDef.keycode_code {
         ; TODO: hook up events so that chord schemas work
         Hotkey("$" . key, process_key.Bind(session_id, key, code, 0))
+        if key = "Tab"
+            continue
         for index1, mod1 in KeyDef.modifiers {
             Hotkey("$" . KeyDef.modifier_symbol[mod1] . key, process_key.Bind(session_id, key, code, KeyDef.mask[mod1]))
             for index2, mod2 in KeyDef.modifiers {
