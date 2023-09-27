@@ -15,13 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#Requires AutoHotkey v2.0 32-bit
-
-#Include "..\librime-ahk\rime_api.ahk"
+#Include <librime-ahk\rime_api>
 
 global APP_NAME := "玉兔毫"
 
-on_message(context_object, session_id, message_type, message_value) {
+OnMessage(context_object, session_id, message_type, message_value) {
     msg_type := StrGet(message_type, "UTF-8")
     msg_value := StrGet(message_value, "UTF-8")
     if msg_type = "deploy" {
@@ -45,10 +43,10 @@ Deploy(full_check := true) {
     traits := RimeTraits()
     traits.app_name := "rime.rabbit"
     traits.shared_data_dir := "SharedSupport"
-    traits.user_data_dir := "rime"
+    traits.user_data_dir := "Rime"
 
     rime.setup(traits)
-    rime.set_notification_handler(on_message, 0)
+    rime.set_notification_handler(OnMessage, 0)
     rime.initialize(0)
 
     success := rime.start_maintenace(full_check)

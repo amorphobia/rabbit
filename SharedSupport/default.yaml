@@ -4,8 +4,8 @@
 config_version: '0.40'
 
 schema_list:
-  - schema: xkjd6
-  - schema: clover
+  - schema: jiandao
+  - schema: luna_pinyin
 
 switcher:
   caption: 〔方案選單〕

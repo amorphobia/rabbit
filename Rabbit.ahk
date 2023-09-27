@@ -18,109 +18,208 @@
 #Requires AutoHotkey v2.0 32-bit
 #SingleInstance Ignore
 
-#Include "Lib\RabbitDeployer.ahk"
-#Include "Lib\RabbitKeyHook.ahk"
+#Include <RabbitDeployer>
+#Include <RabbitKeyTable>
 
-Run()
+global rime := RimeApi()
+global session_id := 0
 
-Run() {
-    keyboard := DllCall("GetKeyboardLayout", "UInt", 0)
-    SetDefaultKeyboard(0x0409)
+RabbitMain()
+
+RabbitMain() {
+    local layout := DllCall("GetKeyboardLayout", "UInt", 0)
+    SetDefaultKeyboard()
+
     Deploy()
-    rime := RimeApi()
-    session_id := rime.create_session()
+    RegisterHotKeys()
+    global session_id := rime.create_session()
     if not session_id {
-        MsgBox("未能成功创建 rime 会话。", "错误")
-        ExitApp(1)
+        SetDefaultKeyboard(layout)
+        rime.finalize()
+        throw Error("未能成功创建 RIME 会话。")
+    }
+    TrayTip("初始化完成", APP_NAME)
+
+    OnExit(ExitRabbit.Bind(layout))
+}
+
+; https://www.autohotkey.com/boards/viewtopic.php?f=76&t=101183
+SetDefaultKeyboard(locale_id := 0x0409) {
+    local HWND_BROADCAST := 0xffff
+    local LOW_WORD := 0xffff
+    local WM_INPUTLANGCHANGEREQUEST := 0x0050
+    local locale_id_hex := Format("{:08x}", locale_id & LOW_WORD)
+    lang := DllCall("LoadKeyboardLayout", "Str", locale_id_hex, "Int", 0)
+    PostMessage(WM_INPUTLANGCHANGEREQUEST, 0, lang, HWND_BROADCAST)
+}
+
+ExitRabbit(layout, reason, code) {
+    SetDefaultKeyboard(layout)
+    if session_id {
+        rime.destroy_session(session_id)
+        rime.finalize()
+    }
+}
+
+RegisterHotKeys() {
+    local shift := KeyDef.mask["Shift"]
+    local ctrl := KeyDef.mask["Ctrl"]
+    local alt := KeyDef.mask["Alt"]
+    local win := KeyDef.mask["Win"]
+    local up := KeyDef.mask["Up"]
+
+    ; Modifiers
+    for modifier, _ in KeyDef.modifier_code {
+        if modifier = "LWin" or modifier = "RWin"
+            continue ; do not register Win keys for now
+        local mask := KeyDef.mask[modifier]
+        Hotkey("$" . modifier, ProcessKey.Bind(modifier, mask))
+        Hotkey("$" . modifier . " Up", ProcessKey.Bind(modifier, mask | up))
     }
 
-    RegisterKeys(session_id, process_key)
+    ; Plain
+    Loop 2 {
+        local key_map := A_Index = 1 ? KeyDef.plain_keycode : KeyDef.other_keycode
+        for key, _ in key_map {
+            Hotkey("$" . key, ProcessKey.Bind(key, 0))
+            ; need specify left/right to prevent fallback to modifier down/up hotkeys
+            Hotkey("$<^" . key, ProcessKey.Bind(key, ctrl))
+            Hotkey("$<!" . key, ProcessKey.Bind(key, alt))
+            Hotkey("$>^" . key, ProcessKey.Bind(key, ctrl))
+            Hotkey("$>!" . key, ProcessKey.Bind(key, alt))
+            Hotkey("$^!" . key, ProcessKey.Bind(key, ctrl | alt))
+            Hotkey("$!#" . key, ProcessKey.Bind(key, alt | win))
 
-    OnExit(ExitRabbit.Bind(session_id, keyboard & 0xffff))
+            ; Do not register Win keys for now
+            ; Hotkey("$<#" . key, ProcessKey.Bind(key, win))
+            ; Hotkey("$>#" . key, ProcessKey.Bind(key, win))
+            ; Hotkey("$^#" . key, ProcessKey.Bind(key, ctrl | win))
+            ; Hotkey("$^!#" . key, ProcessKey.Bind(key, ctrl | alt | win))
+        }
+    }
+
+    ; Shifted
+    Loop 2 {
+        local key_map := A_Index = 1 ? KeyDef.shifted_keycode : KeyDef.other_keycode
+        for key, _ in key_map {
+            Hotkey("$<+" . key, ProcessKey.Bind(key, shift))
+            Hotkey("$>+" . key, ProcessKey.Bind(key, shift))
+            Hotkey("$+^" . key, ProcessKey.Bind(key, shift | ctrl))
+            Hotkey("$+!" . key, ProcessKey.Bind(key, shift | alt))
+            Hotkey("$+^!" . key, ProcessKey.Bind(key, shift | ctrl | alt))
+
+            ; Do not register Win keys for now
+            ; Hotkey("$+#" . key, ProcessKey.Bind(key, shift | win))
+            ; Hotkey("$+^#" . key, ProcessKey.Bind(key, shift | ctrl | win))
+            ; Hotkey("$+!#" . key, ProcessKey.Bind(key, shift | alt | win))
+            ; Hotkey("$+^!#" . key, ProcessKey.Bind(key, shift | ctrl | alt | win))
+        }
+    }
 }
 
-ExitRabbit(session_id, keyboard, reason, code) {
-    SetDefaultKeyboard(keyboard)
-    rime := RimeApi()
-    rime.destroy_session(session_id)
-    rime.finalize()
+ProcessKey(key, mask, this_hotkey) {
+    if not key
+        return
+
+    local code := 0
+    Loop 4 {
+        local key_map
+        switch A_Index {
+            case 1:
+                key_map := KeyDef.modifier_code
+            case 2:
+                key_map := KeyDef.plain_keycode
+            case 3:
+                key_map := KeyDef.shifted_keycode
+            case 4:
+                key_map := KeyDef.other_keycode
+            default:
+                return
+        }
+        for check_key, check_code in key_map {
+            if key = check_key {
+                code := check_code
+                break
+            }
+        }
+        if code
+            break
+    }
+    if not code
+        return
+
+    caret := CaretGetPos(&caret_x, &caret_y)
+
+    processed := rime.process_key(session_id, code, mask)
+    if commit := rime.get_commit(session_id) {
+        SendText(commit.text)
+        ToolTip()
+        rime.free_commit(commit)
+    }
+
+    if context := rime.get_context(session_id) {
+        if context.composition.length > 0 {
+            context_text := GetCompositionText(context.composition) . "`r`n" . GetMenuText(context.menu)
+            if caret
+                ToolTip(context_text, caret_x, caret_y + 30)
+            else
+                ToolTip(context_text)
+        } else {
+            ToolTip()
+        }
+        rime.free_context(context)
+    }
+
+    if not processed {
+        if RegExMatch(SubStr(this_hotkey, 2), "([\<\>\^\+]+)(.+)", &matched)
+            SendInput(StrReplace(StrReplace(matched[1], "<"), ">") . "{" . matched[2] . "}")
+        else
+            SendInput("{" . key . "}")
+    }
 }
 
-; WIP
-composition_str(composition) {
-    out := ""
+GetCompositionText(composition) {
+    local output := ""
     if not preedit := composition.preedit
-        return out
-    len := StrPut(preedit, "UTF-8")
-    start := composition.sel_start
-    end := composition.sel_end
-    cursor := composition.cursor_pos
-    i := 0
-    Loop Parse preedit {
+        return output
+
+    local len := StrPut(preedit, "UTF-8")
+    local start := composition.sel_start
+    local end := composition.sel_end
+    local cursor := composition.cursor_pos
+    local i := 0
+    Loop parse preedit {
         if start < end {
             if i = start
-                out := out . "["
+                output := output . "["
             else if i = end
-                out := out . "]"
+                output := output . "]"
         }
         if i = cursor
-            out := out . "‸"
+            output := output . "‸"
         if i < len
-            out := out . A_LoopField
+            output := output . A_LoopField
         i := i + StrPut(A_LoopField, "UTF-8") - 1
     }
     if start < end and i = end
-        out := out . "]"
+        output := output . "]"
     if i = cursor
-        out := out . "‸"
-    return out
+        output := output . "‸"
+
+    return output
 }
 
-; WIP
-menu_str(menu) {
-    out := ""
+GetMenuText(menu) {
+    local output := ""
     if menu.num_candidates = 0
-        return out
-    out := "page: " . menu.page_no + 1 . (menu.is_last_page ? "$" : " ") . " (of size " . menu.page_size . ")"
-    cands := menu.candidates
+        return output
+
+    output := "page: " . menu.page_no + 1 . (menu.is_last_page ? "$" : " ") . "(of size " . menu.page_size . ")"
+    local candidates := menu.candidates
     Loop menu.num_candidates {
-        highlighted := A_Index = menu.highlighted_candidate_index + 1
-        out := out . "`r`n" . A_Index . ". " . (highlighted ? "[" : " ") . cands[A_Index].text . (highlighted ? "]" : " ") . cands[A_Index].comment
+        local highlighted := A_Index = menu.highlighted_candidate_index + 1
+        output := output . "`r`n" . A_Index . ". " . (highlighted ? "[" : " ") . candidates[A_Index].text . (highlighted ? "]" : " ") . candidates[A_Index].comment
     }
-    return out
-}
 
-; WIP
-process_key(session_id, key, code, mask, ch) {
-    rime := RimeApi()
-    if code {
-        caret_found := CaretGetPos(&caretX, &caretY)
-        processed := rime.process_key(session_id, code, mask)
-        ; SendInput("[DBG] ch: " . ch . ", proc: " . processed . ", mask: " . mask . ".`r`n")
-        if commit := rime.get_commit(session_id) {
-            SendText(commit.text)
-            ToolTip()
-            rime.free_commit(commit)
-        }
-
-        if context := rime.get_context(session_id) {
-            if context.composition.length > 0 {
-                ctx := composition_str(context.composition) . "`r`n" . menu_str(context.menu)
-                if caret_found
-                    ToolTip(ctx, caretX, caretY + 30)
-                else
-                    ToolTip(ctx)
-            } else {
-                ToolTip()
-            }
-            rime.free_context(context)
-        }
-
-        if not processed {
-            if RegExMatch(SubStr(ch, 2), "([\<\>\^\+]+)(.+)", &matched)
-                SendInput(StrReplace(StrReplace(matched[1], "<"), ">") . "{" . matched[2] . "}")
-            else
-                SendInput("{" . key . "}")
-        }
-    }
+    return output
 }
