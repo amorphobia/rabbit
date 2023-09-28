@@ -1,0 +1,46 @@
+name: Continuous Integration
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+      - dev
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Download Dependencies
+        run: |
+          LIBRIME_TAG=$(curl -s https://api.github.com/repos/rime/librime/releases/latest | jq -r '.tag_name')
+          LIBRIME_SHA=$(curl -s https://api.github.com/repos/rime/librime/tags | jq -r --arg LIBRIME_TAG "${LIBRIME_TAG}" '.[] | select(.name == $LIBRIME_TAG).commit.sha' | cut -c1-7)
+          LIBRIME_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-${LIBRIME_SHA}-Windows-msvc.7z"
+          wget -O librime.7z ${LIBRIME_URL}
+          7z x '-i!dist/lib/rime.dll' librime.7z
+          AHK_VER=$(curl -s https://www.autohotkey.com/download/2.0/version.txt)
+          AHK_URL="https://www.autohotkey.com/download/2.0/AutoHotkey_${AHK_VER}.zip"
+          wget -O ahk.zip ${AHK_URL}
+          unzip -p ahk.zip AutoHotkey32.exe > Rabbit.exe
+
+      - name: Pack Files
+        run: |
+          rm -rf temp && mkdir -p temp/Lib/librime-ahk
+          cp Lib/librime-ahk/rime_api.ahk Lib/librime-ahk/LICENSE temp/Lib/librime-ahk/
+          cp Lib/*.ahk temp/Lib/
+          cp -r SharedSupport temp/
+          cp dist/lib/rime.dll Rabbit.ahk Rabbit.exe LICENSE temp/
+          cd temp && zip -r -q ../rabbit.zip *
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: rabbit-zip
+          path: rabbit.zip
