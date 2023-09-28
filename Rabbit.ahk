@@ -38,7 +38,9 @@ RabbitMain() {
         rime.finalize()
         throw Error("未能成功创建 RIME 会话。")
     }
+    TrayTip()
     TrayTip("初始化完成", APP_NAME)
+    SetTimer(TrayTip, -2000)
 
     OnExit(ExitRabbit.Bind(layout))
 }
@@ -84,7 +86,8 @@ RegisterHotKeys() {
             Hotkey("$" . key, ProcessKey.Bind(key, 0))
             ; need specify left/right to prevent fallback to modifier down/up hotkeys
             Hotkey("$<^" . key, ProcessKey.Bind(key, ctrl))
-            Hotkey("$<!" . key, ProcessKey.Bind(key, alt))
+            if not key = "Tab"
+                Hotkey("$<!" . key, ProcessKey.Bind(key, alt))
             Hotkey("$>^" . key, ProcessKey.Bind(key, ctrl))
             Hotkey("$>!" . key, ProcessKey.Bind(key, alt))
             Hotkey("$^!" . key, ProcessKey.Bind(key, ctrl | alt))
@@ -105,7 +108,8 @@ RegisterHotKeys() {
             Hotkey("$<+" . key, ProcessKey.Bind(key, shift))
             Hotkey("$>+" . key, ProcessKey.Bind(key, shift))
             Hotkey("$+^" . key, ProcessKey.Bind(key, shift | ctrl))
-            Hotkey("$+!" . key, ProcessKey.Bind(key, shift | alt))
+            if not key = "Tab"
+                Hotkey("$+!" . key, ProcessKey.Bind(key, shift | alt))
             Hotkey("$+^!" . key, ProcessKey.Bind(key, shift | ctrl | alt))
 
             ; Do not register Win keys for now
@@ -118,9 +122,6 @@ RegisterHotKeys() {
 }
 
 ProcessKey(key, mask, this_hotkey) {
-    if not key
-        return
-
     local code := 0
     Loop 4 {
         local key_map
