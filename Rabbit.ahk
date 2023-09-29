@@ -20,9 +20,12 @@
 
 #Include <RabbitDeployer>
 #Include <RabbitKeyTable>
+#Include <RabbitCandidateBox>
+#Include <RabbitCaret>
 
 global rime := RimeApi()
 global session_id := 0
+global box := Gui()
 
 RabbitMain()
 
@@ -41,6 +44,14 @@ RabbitMain() {
     TrayTip()
     TrayTip("初始化完成", APP_NAME)
     SetTimer(TrayTip, -2000)
+
+    box.Opt("-Caption +Owner")
+    box.MarginX := 3
+    box.MarginY := 3
+    box.SetFont("S12", "Microsoft YaHei UI")
+    candidates := box.AddEdit("vCandidates -VScroll xm ym w200 ReadOnly r9")
+    candidates.Value := "Hello, Rabbit!`r`n"
+    ; box.Show("AutoSize")
 
     OnExit(ExitRabbit.Bind(layout))
 }
@@ -149,24 +160,35 @@ ProcessKey(key, mask, this_hotkey) {
     if not code
         return
 
-    caret := CaretGetPos(&caret_x, &caret_y)
-
     processed := rime.process_key(session_id, code, mask)
     if commit := rime.get_commit(session_id) {
         SendText(commit.text)
         ToolTip()
+        box.Show("Hide")
         rime.free_commit(commit)
     }
+
+    local caret := GetCaretPos(&caret_x, &caret_y, &caret_w, &caret_h)
 
     if context := rime.get_context(session_id) {
         if context.composition.length > 0 {
             context_text := GetCompositionText(context.composition) . "`r`n" . GetMenuText(context.menu)
-            if caret
-                ToolTip(context_text, caret_x, caret_y + 30)
-            else
-                ToolTip(context_text)
+            if caret {
+                ; ToolTip(context_text, caret_x, caret_y + 30)
+                local caret_loc := "`r`nx: " . caret_x . ", y: " . caret_y . ", w: " . caret_w . ", h: " . caret_h
+                box["Candidates"].Value := context_text . caret_loc
+                box.Show("AutoSize NA x" . (caret_x + caret_w) . " y" . (caret_y + caret_h + 4))
+                WinSetAlwaysOnTop(1, box)
+            } else {
+                ; ToolTip(context_text)
+                local caret_loc := "`r`nx: " . caret_x . ", y: " . caret_y . ", w: " . caret_w . ", h: " . caret_h
+                box["Candidates"].Value := context_text . caret_loc
+                box.Show("AutoSize NA")
+                WinSetAlwaysOnTop(1, box)
+            }
         } else {
             ToolTip()
+            box.Show("Hide")
         }
         rime.free_context(context)
     }
