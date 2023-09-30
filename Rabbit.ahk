@@ -49,7 +49,9 @@ RabbitMain() {
     box.MarginX := 3
     box.MarginY := 3
     box.SetFont("S12", "Microsoft YaHei UI")
-    candidates := box.AddEdit("vCandidates -VScroll xm ym w200 ReadOnly r9")
+    preedit := box.AddEdit("vPreedit -VScroll xm ym w200 ReadOnly r1")
+    preedit.Value := "nihao"
+    candidates := box.AddEdit("vCandidates -VScroll w200 ReadOnly r10")
     candidates.Value := "Hello, Rabbit!`r`n"
     ; box.Show("AutoSize")
 
@@ -172,19 +174,38 @@ ProcessKey(key, mask, this_hotkey) {
 
     if context := rime.get_context(session_id) {
         if context.composition.length > 0 {
-            context_text := GetCompositionText(context.composition) . "`r`n" . GetMenuText(context.menu)
+            has_selected := GetCompositionText(context.composition, &pre_selected, &selected, &post_selected)
+            preedit_text := pre_selected
+            if has_selected
+                preedit_text := preedit_text . "[" . selected "]" . post_selected
+
+            GetTextSize(preedit_text, "S12, Microsoft YaHei UI", &max_width, &height)
+
+            candidate_text_array := GetCandidateTextArray(context.menu, &page_no, &is_last_page)
+
+            local menu_text := ""
+            for candidate_text in candidate_text_array {
+                GetTextSize(candidate_text, "S12, Microsoft YaHei UI", &width)
+                if width > max_width
+                    max_width := width
+                if A_Index > 1
+                    menu_text := menu_text . "`r`n"
+                menu_text := menu_text . candidate_text
+            }
+
             if caret {
-                ; ToolTip(context_text, caret_x, caret_y + 30)
-                local caret_loc := "`r`nx: " . caret_x . ", y: " . caret_y . ", w: " . caret_w . ", h: " . caret_h
-                box["Candidates"].Value := context_text . caret_loc
+                ; local caret_loc := "x: " . caret_x . ", y: " . caret_y . ", w: " . caret_w . ", h: " . caret_h
+                ; GetTextSize(caret_loc, "S12, Microsoft YaHei UI", &width)
+                ; if width > max_width
+                ;     max_width := width
+                box["Preedit"].Value := preedit_text
+                box["Candidates"].Value := menu_text ;. "`r`n" . caret_loc
+                box["Preedit"].Move(, , max_width)
+                box["Candidates"].Move(, , max_width, height * candidate_text_array.Length)
                 box.Show("AutoSize NA x" . (caret_x + caret_w) . " y" . (caret_y + caret_h + 4))
                 WinSetAlwaysOnTop(1, box)
             } else {
-                ; ToolTip(context_text)
-                local caret_loc := "`r`nx: " . caret_x . ", y: " . caret_y . ", w: " . caret_w . ", h: " . caret_h
-                box["Candidates"].Value := context_text . caret_loc
-                box.Show("AutoSize NA")
-                WinSetAlwaysOnTop(1, box)
+                ToolTip(preedit_text . "`r`n" . menu_text)
             }
         } else {
             ToolTip()
@@ -201,48 +222,115 @@ ProcessKey(key, mask, this_hotkey) {
     }
 }
 
-GetCompositionText(composition) {
-    local output := ""
+GetCompositionText(composition, &pre_selected, &selected, &post_selected) {
+    pre_selected := ""
+    selected := ""
+    post_selected := ""
     if not preedit := composition.preedit
-        return output
+        return false
 
-    local len := StrPut(preedit, "UTF-8")
-    local start := composition.sel_start
-    local end := composition.sel_end
-    local cursor := composition.cursor_pos
-    local i := 0
-    Loop parse preedit {
-        if start < end {
-            if i = start
-                output := output . "["
-            else if i = end
-                output := output . "]"
+    static cursor_text := "‸" ; or 𝙸
+    static cursor_size := StrPut(cursor_text, "UTF-8") - 1 ; do not count tailing null
+
+    local preedit_length := StrPut(preedit, "UTF-8")
+    local selected_start := composition.sel_start
+    local selected_end := composition.sel_end
+
+    local preedit_buffer ; insert caret text into preedit text if applicable
+    if 0 <= composition.cursor_pos and composition.cursor_pos <= preedit_length {
+        preedit_buffer := Buffer(preedit_length + cursor_size, 0)
+        local temp_preedit := c_str(preedit)
+        local src := temp_preedit.Ptr
+        local tgt := preedit_buffer.Ptr
+        Loop composition.cursor_pos {
+            byte := NumGet(src, A_Index - 1, "Char")
+            NumPut("Char", byte, tgt, A_Index - 1)
         }
-        if i = cursor
-            output := output . "‸"
-        if i < len
-            output := output . A_LoopField
-        i := i + StrPut(A_LoopField, "UTF-8") - 1
+        src := src + composition.cursor_pos
+        tgt := tgt + composition.cursor_pos
+        StrPut(cursor_text, tgt, "UTF-8")
+        tgt := tgt + cursor_size
+        Loop preedit_length - composition.cursor_pos {
+            byte := NumGet(src, A_Index - 1, "Char")
+            NumPut("Char", byte, tgt, A_Index - 1)
+        }
+        preedit_length := preedit_length + cursor_size
+        if selected_start >= composition.cursor_pos
+            selected_start := selected_start + cursor_size
+        if selected_end > composition.cursor_pos
+            selected_end := selected_end + cursor_size
+    } else {
+        preedit_buffer := Buffer(preedit_length, 0)
+        StrPut(preedit, preedit_buffer, "UTF-8")
     }
-    if start < end and i = end
-        output := output . "]"
-    if i = cursor
-        output := output . "‸"
 
-    return output
+    if 0 <= selected_start and selected_start < selected_end and selected_end <= preedit_length {
+        pre_selected := StrGet(preedit_buffer, selected_start, "UTF-8")
+        selected := StrGet(preedit_buffer.Ptr + selected_start, selected_end - selected_start, "UTF-8")
+        post_selected := StrGet(preedit_buffer.Ptr + selected_end, "UTF-8")
+        return true
+    } else {
+        pre_selected := StrGet(preedit_buffer, "UTF-8")
+        return false
+    }
 }
 
-GetMenuText(menu) {
-    local output := ""
+GetCandidateTextArray(menu, &page_no, &is_last_page) {
+    local candidate_text_array := Array()
     if menu.num_candidates = 0
-        return output
+        return candidate_text_array
 
-    output := "page: " . menu.page_no + 1 . (menu.is_last_page ? "$" : " ") . "(of size " . menu.page_size . ")"
+    page_no := menu.page_no
+    is_last_page := menu.is_last_page
+    ; local page_info := "page: " . page_no + 1 . (is_last_page ? "$" : " ") . "(of size " . menu.page_size . ")"
+    ; candidate_text_array.Push(page_info)
+
     local candidates := menu.candidates
     Loop menu.num_candidates {
-        local highlighted := A_Index = menu.highlighted_candidate_index + 1
-        output := output . "`r`n" . A_Index . ". " . (highlighted ? "[" : " ") . candidates[A_Index].text . (highlighted ? "]" : " ") . candidates[A_Index].comment
+        local is_highlighted := A_Index = menu.highlighted_candidate_index + 1
+        local candidate_text := A_Index . ". " . (is_highlighted ? "[" : " ") . candidates[A_Index].text . (is_highlighted ? "]" : " ") . candidates[A_Index].comment
+        candidate_text_array.Push(candidate_text)
     }
 
-    return output
+    return candidate_text_array
+}
+
+; https://www.autohotkey.com/board/topic/16625-function-gettextsize-calculate-text-dimension/
+GetTextSize(text, font_settings := "", &width := 0, &height := 0) {
+    local dc := DllCall("GetDC", "UInt", 0)
+
+    ; parse font
+    italic := InStr(font_settings, "italic") ? true : false
+    underline := InStr(font_settings, "underline") ? true : false
+    strikeout := InStr(font_settings, "strikeout") ? true : false
+    weight := InStr(font_settings, "bold") ? 700 : 400
+
+    RegExMatch(font_settings, "(?<=[S|s])(\d{1,2})(?=[ ,])", &matched)
+    point := matched ? Integer(matched[1]) : 10
+
+    ; static weasel_root := RegRead("HKEY_LOCAL_MACHINE\Software\Rime\Weasel", "WeaselRoot", "")
+    local log_pixels := RegRead("HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontDPI", "LogPixels", "")
+    point := -DllCall("MulDiv", "Int", point, "Int", log_pixels, "Int", 72)
+    RegExMatch(font_settings, "(?<=,)(.+)", &matched)
+    font_face := matched ? RegExReplace(matched[1], "(^\s*)|(\s*$)") : "MS Sans Serif"
+
+    font := DllCall("CreateFont", "Int", point, "Int", 0, "Int", 0, "Int", 0, "Int", weight, "UInt", italic, "UInt", underline, "UInt", strikeout, "UInt", 0, "UInt", 0, "UInt", 0, "UInt", 0, "UInt", 0, "Str", font_face)
+    old_font := DllCall("SelectObject", "UInt", dc, "UInt", font)
+
+    local size := Buffer(16, 0)
+    DllCall("DrawText", "UInt", dc, "Str", text, "Int", StrLen(text), "UInt", size.Ptr, "UInt", 0x400)
+    DllCall("SelectObject", "UInt", dc, "UInt", old_font)
+    DllCall("DeleteObject", "UInt", font)
+    DllCall("ReleaseDC", "UInt", 0, "UInt", dc)
+
+    width := ExtractInteger(size.Ptr, 8)
+    height := ExtractInteger(size.Ptr, 12)
+}
+
+ExtractInteger(src, offset) {
+    local result := 0
+    Loop 4 {
+        result += NumGet(src, offset + A_Index - 1, "UChar") << 8 * (A_Index - 1)
+    }
+    return result
 }
