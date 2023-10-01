@@ -162,7 +162,39 @@ ProcessKey(key, mask, this_hotkey) {
     if not code
         return
 
+    static STATUS_TOOLTIP := 2
+    local status := rime.get_status(session_id)
+    local old_ascii_mode := status.is_ascii_mode
+    local old_full_shape := status.is_full_shape
+    local old_ascii_punct := status.is_ascii_punct
+    rime.free_status(status)
+
     processed := rime.process_key(session_id, code, mask)
+
+    status := rime.get_status(session_id)
+    local new_ascii_mode := status.is_ascii_mode
+    local new_full_shape := status.is_full_shape
+    local new_ascii_punct := status.is_ascii_punct
+    rime.free_status(status)
+
+    local status_text := ""
+    local status_changed := false
+    if old_ascii_mode != new_ascii_mode {
+        status_changed := true
+        status_text := new_ascii_mode ? "En" : "中"
+    } else if old_full_shape != new_full_shape {
+        status_changed := true
+        status_text := new_full_shape ? "全" : "半"
+    } else if old_ascii_punct != new_ascii_punct {
+        status_changed := true
+        status_text := new_ascii_punct ? ",." : "，。"
+    }
+
+    if status_changed {
+        ToolTip(status_text, , , STATUS_TOOLTIP)
+        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
+    }
+
     if commit := rime.get_commit(session_id) {
         SendText(commit.text)
         ToolTip()

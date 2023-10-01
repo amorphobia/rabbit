@@ -1,4 +1,3 @@
-Rime/build
-Rime/*.userdb*
-Rime/installation.yaml
-Rime/user.yaml
+Rime
+*.exe
+*.dll
