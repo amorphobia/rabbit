@@ -49,11 +49,11 @@ RabbitMain() {
     box.MarginX := 3
     box.MarginY := 3
     box.SetFont("S12", "Microsoft YaHei UI")
-    preedit := box.AddEdit("vPreedit -VScroll xm ym w200 ReadOnly r1")
-    preedit.Value := "nihao"
-    candidates := box.AddEdit("vCandidates -VScroll w200 ReadOnly r10")
+
+    preedit := box.AddText("vPreedit xm ym")
+    preedit.Value := "nkhz"
+    candidates := box.AddText("vCandidates")
     candidates.Value := "Hello, Rabbit!`r`n"
-    ; box.Show("AutoSize")
 
     OnExit(ExitRabbit.Bind(layout))
 }
@@ -211,13 +211,13 @@ ProcessKey(key, mask, this_hotkey) {
             if has_selected
                 preedit_text := preedit_text . "[" . selected "]" . post_selected
 
-            GetTextSize(preedit_text, "S12, Microsoft YaHei UI", &max_width, &height)
+            GetTextSize(preedit_text . "pad", "S12, Microsoft YaHei UI", &max_width, &height)
 
             candidate_text_array := GetCandidateTextArray(context.menu, &page_no, &is_last_page)
 
             local menu_text := ""
             for candidate_text in candidate_text_array {
-                GetTextSize(candidate_text, "S12, Microsoft YaHei UI", &width)
+                GetTextSize(candidate_text . "pad", "S12, Microsoft YaHei UI", &width)
                 if width > max_width
                     max_width := width
                 if A_Index > 1
@@ -225,15 +225,15 @@ ProcessKey(key, mask, this_hotkey) {
                 menu_text := menu_text . candidate_text
             }
 
+            if max_width < 150
+                max_width := 150
+
             if caret {
-                ; local caret_loc := "x: " . caret_x . ", y: " . caret_y . ", w: " . caret_w . ", h: " . caret_h
-                ; GetTextSize(caret_loc, "S12, Microsoft YaHei UI", &width)
-                ; if width > max_width
-                ;     max_width := width
                 box["Preedit"].Value := preedit_text
-                box["Candidates"].Value := menu_text ;. "`r`n" . caret_loc
+                box["Candidates"].Value := menu_text
                 box["Preedit"].Move(, , max_width)
                 box["Candidates"].Move(, , max_width, height * candidate_text_array.Length)
+                box.Show("Hide")
                 box.Show("AutoSize NA x" . (caret_x + caret_w) . " y" . (caret_y + caret_h + 4))
                 WinSetAlwaysOnTop(1, box)
             } else {
