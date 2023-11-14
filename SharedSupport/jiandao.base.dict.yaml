@@ -2,7 +2,7 @@
 # encoding: utf-8
 ---
 name: jiandao.base
-version: v6.1.5
+version: v6.1.8
 sort: original
 ...
 不	b
@@ -482,7 +482,7 @@ sort: original
 僰	blvi
 欂	blvii
 欂	blviia
-僰	blvivi
+僰	blviii
 柏	blvu
 礴	blvui
 柏	blvuia
@@ -5591,6 +5591,8 @@ sort: original
 吽	hyouvv
 哄	hyov
 哄	hyovii
+吰	hyovu
+吰	hyovua
 竑	hyovv
 竑	hyovvu
 訇	hyu
@@ -7017,6 +7019,8 @@ sort: original
 宬	jroo
 憕	jrooa
 憕	jrooao
+噌	jroou
+噌	jroouv
 宬	jroovu
 逞	jrov
 逞	jrovoa
@@ -9594,14 +9598,15 @@ sort: original
 孟	mraiia
 濛	mraiio
 蒙	mri
-虻	mria
+蠓	mria
 蜢	mriaa
 蜢	mriaai
-蠓	mriai
-幪	mriaii
-蟒	mriaii
+幪	mriai
 㠓	mriaii
+蟒	mriaii
 蠓	mriaii
+幪	mriaii
+虻	mriao
 虻	mriaov
 萌	mrii
 瞢	mriii
@@ -9741,8 +9746,8 @@ sort: original
 矛	mzaoai
 瞀	mzaoi
 蝥	mzaoia
-瞀	mzaoia
 蟊	mzaoia
+瞀	mzaoia
 泖	mzau
 泖	mzauau
 冒	mzi
@@ -14468,7 +14473,9 @@ sort: original
 镡	xbiovi
 信	xbiovv
 心	xbo
+䜣	xboa
 心	xboaoo
+䜣	xboauu
 昕	xboi
 昕	xboiuu
 忻	xboo
@@ -16277,8 +16284,8 @@ sort: original
 盈	yga
 缨	ygaa
 缨	ygaaao
-瀴	ygaao
-瀴	ygaaoa
+𰜳	ygaao
+𰜳	ygaaoa
 滢	ygai
 潆	ygaii
 溁	ygaiio
@@ -16549,6 +16556,8 @@ sort: original
 燚	ykouo
 义	ykouoo
 燚	ykouou
+鹢	ykouu
+鹢	ykouua
 衣	ykov
 咦	ykova
 翊	ykovao
@@ -16588,8 +16597,6 @@ sort: original
 刈	ykuoi
 刈	ykuoii
 乂	ykuoo
-鹢	ykuou
-鹢	ykuoua
 臆	ykuovo
 役	ykuu
 舣	ykuuo
@@ -17141,6 +17148,7 @@ sort: original
 耘	ywvv
 云	ywvvao
 韫	ywvvo
+橒	ywvvoa
 运	ywvvoa
 韫	ywvvoi
 耘	ywvvvv
@@ -26544,7 +26552,6 @@ sort: original
 曾荣获	crh
 曾和	crhe
 曾获	crhl
-噌吰	crhy
 蹭车	crje
 曾经	crjg
 层出	crjj
@@ -26682,7 +26689,7 @@ sort: original
 藏头诗	cte
 攒射	ctee
 篡弑	ctek
-窜升	cter
+蹿升	cter
 从图中	ctf
 窜犯	ctff
 爨妇	ctfj
@@ -26692,7 +26699,7 @@ sort: original
 篡国	ctgl
 攒盒	cthe
 蹿火	cthl
-窜红	cthy
+蹿红	cthy
 草薙京	ctj
 窜进	ctjb
 窜出	ctjj
@@ -26723,7 +26730,7 @@ sort: original
 篡位	ctww
 攒心	ctxb
 从天而降	ctxj
-窜稀	ctxk
+蹿稀	ctxk
 窜下	ctxs
 侧投影	cty
 曾提议	ctyo
@@ -28449,7 +28456,6 @@ sort: original
 读书笔记	debj
 德比	debk
 滴水不漏	debl
-的本	debn
 德邦	debp
 的吧	debs
 大事不糊涂	debt
@@ -28583,7 +28589,6 @@ sort: original
 得来	delh
 的路	delj
 电视连续剧	delji
-的卢	delju
 得力	delk
 得利	delku
 德里	delkui
@@ -30349,6 +30354,7 @@ sort: original
 底部	dkbjo
 抵拨	dkbl
 底边	dkbm
+的本	dkbn
 地磅	dkbp
 第八	dkbs
 堤坝	dkbsv
@@ -30576,6 +30582,7 @@ sort: original
 抵赖	dklh
 抵抗力	dkli
 地炉	dklj
+的卢	dklju
 地理	dklk
 地里	dklkv
 地利	dklkvu
@@ -34422,7 +34429,7 @@ sort: original
 到晚	dzwf
 道外	dzwh
 到无	dzwj
-倒饬	dzwk
+捯饬	dzwk
 到我	dzwl
 道床	dzwm
 祷文	dzwn
@@ -44448,7 +44455,7 @@ sort: original
 复眼	fjyfu
 赴宴	fjyfv
 妇婴	fjyg
-浮赢	fjyga
+浮盈	fjyga
 赴约	fjyh
 指甲油	fjyi
 中成药	fjyiv
@@ -60146,6 +60153,7 @@ sort: original
 画风	hqfr
 话锋	hqfro
 画法	hqfs
+花札	hqfsi
 划转	hqft
 花费	hqfw
 化肥	hqfwi
@@ -60275,7 +60283,6 @@ sort: original
 话路	hqlj
 华丽	hqlk
 华里	hqlki
-花札	hqlkiv
 画里	hqlkv
 滑落	hqll
 花落	hqlli
@@ -62400,7 +62407,6 @@ sort: original
 豪车	hzjeo
 好馋	hzjf
 好景	hzjg
-好觉	hzjh
 好处	hzjj
 好记	hzjk
 好几	hzjka
@@ -70256,6 +70262,7 @@ sort: original
 橙黄	jrhx
 城隍	jrhxv
 橙红	jrhy
+噌吰	jrhyo
 称号	jrhz
 乘号	jrhzu
 金融界	jrj
@@ -84441,7 +84448,6 @@ sort: original
 马路边	mlb
 末班	mlbf
 魔板	mlbfo
-模版	mlbfv
 膜拜	mlbh
 陌拜	mlbha
 墨白	mlbhi
@@ -89433,7 +89439,7 @@ sort: original
 拿开	nskh
 那款	nskt
 哪款	nskto
-弄死了	nsl
+那算了	nsl
 拿了	nsle
 纳兰	nslf
 南斯拉夫	nslfu
@@ -89442,8 +89448,8 @@ sort: original
 哪路	nslj
 那里	nslk
 哪里	nslko
-哪里	nslo
 娜拉	nsls
+弄死了	nslv
 那类	nslw
 纳凉	nslx
 那辆	nslxa
@@ -97735,6 +97741,7 @@ sort: original
 珠穆朗玛	qmlmv
 前浪	qmlp
 潜流	qmlq
+钱镠	qmlqi
 牵拉	qmls
 奇美拉	qmlv
 前轮	qmlw
@@ -97745,7 +97752,6 @@ sort: original
 乾隆	qmly
 钱老	qmlz
 真面目	qmm
-钱缪	qmmc
 迁灭	qmmd
 签名	qmmg
 千名	qmmgu
@@ -129829,7 +129835,7 @@ sort: original
 应验	ygyf
 鹰眼	ygyfo
 盈盈	ygyg
-瀴瀴	ygyga
+𰜳𰜳	ygyga
 英英	ygygi
 嘤嘤	ygygo
 一个一个	ygygv
@@ -133436,7 +133442,6 @@ sort: original
 研讨会	ythv
 硬通货	ythva
 亚投行	ythvi
-玉兔毫	ythvu
 冤魂	ythw
 圆谎	ythx
 原红	ythy
@@ -139137,6 +139142,7 @@ https://xkinput.gitee.io	ogw
 https://pingshunhuangalex.gitbook.io/rime-xkjd	ojj
 https://github.com/amorphobia/rime-jiandao	orj
 https://github.com/xkinput/Rime_JD	orj
+https://pingshunhuangalex.gitbook.io/rime-xkjd/learn-xkjd/layouts	otp
 https://docs.qq.com/sheet/BFdiXU0nyc1W1kwuZl3Gx31r2KLm2k3F8YzI4	oyb
 # 邮箱
 @gmail.com	;ag
@@ -139420,8 +139426,6 @@ https://docs.qq.com/sheet/BFdiXU0nyc1W1kwuZl3Gx31r2KLm2k3F8YzI4	oyb
 兛	qmkeuo
 粁	qmmkou
 瓩	qmwsva
-# 其他
-橒	ywvvoa
 不能	ba
 班级	baa
 不了	bai
