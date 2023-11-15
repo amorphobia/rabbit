@@ -27,6 +27,7 @@ global rime := RimeApi()
 global session_id := 0
 global box := Gui()
 
+RegisterHotKeys()
 RabbitMain()
 
 RabbitMain() {
@@ -34,7 +35,6 @@ RabbitMain() {
     SetDefaultKeyboard()
 
     Deploy()
-    RegisterHotKeys()
     global session_id := rime.create_session()
     if not session_id {
         SetDefaultKeyboard(layout)
