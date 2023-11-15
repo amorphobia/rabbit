@@ -85,7 +85,7 @@ RegisterHotKeys() {
 
     ; Modifiers
     for modifier, _ in KeyDef.modifier_code {
-        if modifier = "LWin" or modifier = "RWin"
+        if modifier == "LWin" or modifier == "RWin"
             continue ; do not register Win keys for now
         local mask := KeyDef.mask[modifier]
         Hotkey("$" . modifier, ProcessKey.Bind(modifier, mask))
@@ -121,7 +121,7 @@ RegisterHotKeys() {
             Hotkey("$<+" . key, ProcessKey.Bind(key, shift))
             Hotkey("$>+" . key, ProcessKey.Bind(key, shift))
             Hotkey("$+^" . key, ProcessKey.Bind(key, shift | ctrl))
-            if not key = "Tab"
+            if not key == "Tab"
                 Hotkey("$+!" . key, ProcessKey.Bind(key, shift | alt))
             Hotkey("$+^!" . key, ProcessKey.Bind(key, shift | ctrl | alt))
 
@@ -151,7 +151,7 @@ ProcessKey(key, mask, this_hotkey) {
                 return
         }
         for check_key, check_code in key_map {
-            if key = check_key {
+            if key == check_key {
                 code := check_code
                 break
             }
