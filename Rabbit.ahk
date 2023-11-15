@@ -22,6 +22,7 @@
 #Include <RabbitKeyTable>
 #Include <RabbitCandidateBox>
 #Include <RabbitCaret>
+#Include <RabbitTrayMenu>
 
 global rime := RimeApi()
 global session_id := 0
