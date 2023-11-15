@@ -16,7 +16,7 @@
  *
  */
 
-TraySetIcon("Rabbit.ico")
+TraySetIcon("Rabbit.ico") ; https://www.freepik.com/icon/rabbit_4905239
 A_TrayMenu.Delete()
 A_TrayMenu.add("打开用户文件夹", (*) => Run(A_ScriptDir . "\Rime"))
 A_TrayMenu.add("打开脚本文件夹", (*) => Run(A_ScriptDir))

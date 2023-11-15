@@ -36,7 +36,7 @@ jobs:
           cp Lib/librime-ahk/rime_api.ahk Lib/librime-ahk/LICENSE temp/Lib/librime-ahk/
           cp Lib/*.ahk temp/Lib/
           cp -r SharedSupport temp/
-          cp dist/lib/rime.dll Rabbit.ahk Rabbit.exe LICENSE temp/
+          cp dist/lib/rime.dll Rabbit.ahk Rabbit.exe Rabbit.ico LICENSE temp/
           cd temp && zip -r -q ../rabbit.zip *
 
       - name: Upload Artifacts
