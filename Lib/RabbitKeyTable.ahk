@@ -147,9 +147,9 @@ class KeyDef {
         "Backspace",    0x00ff08,
         "Tab",          0x00ff09,
         "Enter",        0x00ff0d, ; Return
-        "Pause",        0x00ff13,
-        "ScrollLock",   0x00ff14,
-        "Escape",       0x00ff1b,
+        ; "Pause",        0x00ff13,
+        ; "ScrollLock",   0x00ff14,
+        ; "Escape",       0x00ff1b,
         "Home",         0x00ff50,
         "Left",         0x00ff51,
         "Up",           0x00ff52,
@@ -158,10 +158,10 @@ class KeyDef {
         "PgUp",         0x00ff55,
         "PgDn",         0x00ff56,
         "End",          0x00ff57,
-        "Insert",       0x00ff63,
-        "AppsKey",      0x00ff67, ; Menu
-        "Help",         0x00ff6a,
-        "NumLock",      0x00ff7f,
+        ; "Insert",       0x00ff63,
+        ; "AppsKey",      0x00ff67, ; Menu
+        ; "Help",         0x00ff6a,
+        ; "NumLock",      0x00ff7f,
         "NumpadEnter",  0x00ff8d,
         "NumpadHome",   0x00ff95,
         "NumpadLeft",   0x00ff96,
@@ -171,7 +171,7 @@ class KeyDef {
         "NumpadPgUp",   0x00ff9a,
         "NumpadPgDn",   0x00ff9b,
         "NumpadEnd",    0x00ff9c,
-        "NumpadIns",    0x00ff9e,
+        ; "NumpadIns",    0x00ff9e,
         "NumpadDel",    0x00ff9f,
         "NumpadMult",   0x00ffaa,
         "NumpadAdd",    0x00ffab,
@@ -212,7 +212,7 @@ class KeyDef {
         "F22",          0x00ffd3,
         "F23",          0x00ffd4,
         "F24",          0x00ffd5,
-        "CapsLock",     0x00ffe5,
+        ; "CapsLock",     0x00ffe5,
         "Delete",       0x00ffff,
     )
 }
