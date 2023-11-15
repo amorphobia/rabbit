@@ -46,7 +46,7 @@ GetCaretPos(&caret_x?, &caret_y?, &caret_w?, &caret_h?) {
 
     ; Acc caret
     static acc_lib := DllCall("LoadLibrary", "Str", "oleacc", "Ptr")
-    if acc_lib {
+    try {
         local hwnd := WinExist("A")
         local iid := Buffer(16, 0)
         local riid := NumPut("Int64", 0x11CF3C3D618736E0, iid)
@@ -75,7 +75,7 @@ GetCaretPos(&caret_x?, &caret_y?, &caret_w?, &caret_h?) {
 
     ; UIA2
     static uia_lib := ComObject("{e22ad333-b25f-460c-83d0-0581107395c9}", "{34723aff-0c9d-49d0-9896-7ab52df8cd8a}")
-    if uia_lib {
+    try {
         ; https://github.com/tpn/winsdk-10/blob/9b69fd26ac0c7d0b83d378dba01080e93349c2ed/Include/10.0.16299.0/um/UIAutomationClient.h#L15415
         ; GetFocusedElement
         ComCall(8, uia_lib, "Ptr*", &focused_element := 0)
