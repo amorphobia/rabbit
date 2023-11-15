@@ -163,11 +163,12 @@ ProcessKey(key, mask, this_hotkey) {
         return
 
     static STATUS_TOOLTIP := 2
-    local status := rime.get_status(session_id)
-    local old_ascii_mode := status.is_ascii_mode
-    local old_full_shape := status.is_full_shape
-    local old_ascii_punct := status.is_ascii_punct
-    rime.free_status(status)
+    if status := rime.get_status(session_id) {
+        local old_ascii_mode := status.is_ascii_mode
+        local old_full_shape := status.is_full_shape
+        local old_ascii_punct := status.is_ascii_punct
+        rime.free_status(status)
+    }
 
     processed := rime.process_key(session_id, code, mask)
 
@@ -340,7 +341,6 @@ GetTextSize(text, font_settings := "", &width := 0, &height := 0) {
     RegExMatch(font_settings, "(?<=[S|s])(\d{1,2})(?=[ ,])", &matched)
     point := matched ? Integer(matched[1]) : 10
 
-    ; static weasel_root := RegRead("HKEY_LOCAL_MACHINE\Software\Rime\Weasel", "WeaselRoot", "")
     local log_pixels := RegRead("HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontDPI", "LogPixels", "")
     point := -DllCall("MulDiv", "Int", point, "Int", log_pixels, "Int", 72)
     RegExMatch(font_settings, "(?<=,)(.+)", &matched)
