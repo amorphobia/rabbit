@@ -15,9 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #Include <librime-ahk\rime_api>
 
-global APP_NAME := "玉兔毫"
+global rime := RimeApi()
+global RABBIT_IME_NAME := "玉兔毫"
+global RABBIT_CODE_NAME := "Rabbit"
+global RABBIT_VERSION := "0.1.0"
+
+CreateTraits() {
+    traits := RimeTraits()
+    traits.distribution_name := RABBIT_IME_NAME
+    traits.distribution_code_name := RABBIT_CODE_NAME
+    traits.distribution_version := RABBIT_VERSION
+    traits.app_name := "rime.rabbit"
+    traits.shared_data_dir := "SharedSupport"
+    traits.user_data_dir := "Rime"
+
+    return traits
+}
 
 OnMessage(context_object, session_id, message_type, message_value) {
     msg_type := StrGet(message_type, "UTF-8")
@@ -25,32 +41,15 @@ OnMessage(context_object, session_id, message_type, message_value) {
     if msg_type = "deploy" {
         if msg_value = "start" {
             TrayTip()
-            TrayTip("维护中", APP_NAME)
+            TrayTip("维护中", RABBIT_IME_NAME)
         } else if msg_value = "success" {
             TrayTip()
-            TrayTip("维护完成", APP_NAME)
+            TrayTip("维护完成", RABBIT_IME_NAME)
             SetTimer(TrayTip, -2000)
         } else {
-            TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", APP_NAME)
+            TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", RABBIT_IME_NAME)
         }
     } else {
-        ; TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", APP_NAME)
-    }
-}
-
-Deploy(full_check := true) {
-    rime := RimeApi()
-    traits := RimeTraits()
-    traits.app_name := "rime.rabbit"
-    traits.shared_data_dir := "SharedSupport"
-    traits.user_data_dir := "Rime"
-
-    rime.setup(traits)
-    rime.set_notification_handler(OnMessage, 0)
-    rime.initialize(0)
-
-    success := rime.start_maintenace(full_check)
-    if success {
-        rime.join_maintenance_thread()
+        ; TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", RABBIT_IME_NAME)
     }
 }

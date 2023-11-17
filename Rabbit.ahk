@@ -18,13 +18,12 @@
 #Requires AutoHotkey v2.0 32-bit
 #SingleInstance Ignore
 
-#Include <RabbitDeployer>
+#Include <RabbitCommon>
 #Include <RabbitKeyTable>
 #Include <RabbitCandidateBox>
 #Include <RabbitCaret>
 #Include <RabbitTrayMenu>
 
-global rime := RimeApi()
 global session_id := 0
 global box := Gui()
 
@@ -35,16 +34,20 @@ RabbitMain() {
     local layout := DllCall("GetKeyboardLayout", "UInt", 0)
     SetDefaultKeyboard()
 
-    Deploy()
+    rabbit_traits := CreateTraits()
+    global rime
+    rime.setup(rabbit_traits)
+    rime.set_notification_handler(OnMessage, 0)
+    rime.initialize(rabbit_traits)
+    if rime.start_maintenace(true)
+        rime.join_maintenance_thread()
+
     global session_id := rime.create_session()
     if not session_id {
         SetDefaultKeyboard(layout)
         rime.finalize()
         throw Error("未能成功创建 RIME 会话。")
     }
-    TrayTip()
-    TrayTip("初始化完成", APP_NAME)
-    SetTimer(TrayTip, -2000)
 
     box.Opt("-Caption +Owner")
     box.MarginX := 3
