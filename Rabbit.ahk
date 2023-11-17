@@ -234,12 +234,21 @@ ProcessKey(key, mask, this_hotkey) {
                 max_width := 150
 
             if caret {
+                workspace_width := SysGet(16) ; SM_CXFULLSCREEN
+                workspace_height := SysGet(17) ; SM_CYFULLSCREEN
                 box["Preedit"].Value := preedit_text
                 box["Candidates"].Value := menu_text
                 box["Preedit"].Move(, , max_width)
                 box["Candidates"].Move(, , max_width, height * candidate_text_array.Length)
                 box.Show("Hide")
-                box.Show("AutoSize NA x" . (caret_x + caret_w) . " y" . (caret_y + caret_h + 4))
+                box.GetPos(, , &box_width, &box_height)
+                new_x := caret_x + caret_w
+                new_y := caret_y + caret_h + 4
+                if new_x + box_width > workspace_width
+                    new_x := workspace_width - box_width
+                if new_y + box_height > workspace_height
+                    new_y := caret_y - 4 - box_height
+                box.Show("AutoSize NA x" . new_x . " y" . new_y)
                 WinSetAlwaysOnTop(1, box)
             } else {
                 ToolTip(preedit_text . "`r`n" . menu_text)
