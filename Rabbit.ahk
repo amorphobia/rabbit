@@ -89,8 +89,8 @@ RegisterHotKeys() {
 
     ; Modifiers
     for modifier, _ in KeyDef.modifier_code {
-        if modifier == "LWin" or modifier == "RWin"
-            continue ; do not register Win keys for now
+        if modifier == "LWin" or modifier == "RWin" or modifier == "LAlt" or modifier == "RAlt"
+            continue ; do not register Win / Alt keys for now
         local mask := KeyDef.mask[modifier]
         Hotkey("$" . modifier, ProcessKey.Bind(modifier, mask))
         Hotkey("$" . modifier . " Up", ProcessKey.Bind(modifier, mask | up))
@@ -103,10 +103,12 @@ RegisterHotKeys() {
             Hotkey("$" . key, ProcessKey.Bind(key, 0))
             ; need specify left/right to prevent fallback to modifier down/up hotkeys
             Hotkey("$<^" . key, ProcessKey.Bind(key, ctrl))
-            if not key = "Tab"
-                Hotkey("$<!" . key, ProcessKey.Bind(key, alt))
+            ; do not register Alt + single key now
+            ; if not key = "Tab" {
+            ;     Hotkey("$<!" . key, ProcessKey.Bind(key, alt))
+            ;     Hotkey("$>!" . key, ProcessKey.Bind(key, alt))
+            ; }
             Hotkey("$>^" . key, ProcessKey.Bind(key, ctrl))
-            Hotkey("$>!" . key, ProcessKey.Bind(key, alt))
             Hotkey("$^!" . key, ProcessKey.Bind(key, ctrl | alt))
             Hotkey("$!#" . key, ProcessKey.Bind(key, alt | win))
 
