@@ -23,6 +23,7 @@
 #Include <RabbitCandidateBox>
 #Include <RabbitCaret>
 #Include <RabbitTrayMenu>
+#Include <RabbitMonitors>
 
 global session_id := 0
 global box := Gui()
@@ -236,8 +237,6 @@ ProcessKey(key, mask, this_hotkey) {
                 max_width := 150
 
             if caret {
-                workspace_width := SysGet(16) ; SM_CXFULLSCREEN
-                workspace_height := SysGet(17) ; SM_CYFULLSCREEN
                 box["Preedit"].Value := preedit_text
                 box["Candidates"].Value := menu_text
                 box["Preedit"].Move(, , max_width)
@@ -246,10 +245,23 @@ ProcessKey(key, mask, this_hotkey) {
                 box.GetPos(, , &box_width, &box_height)
                 new_x := caret_x + caret_w
                 new_y := caret_y + caret_h + 4
-                if new_x + box_width > workspace_width
-                    new_x := workspace_width - box_width
-                if new_y + box_height > workspace_height
-                    new_y := caret_y - 4 - box_height
+
+                hWnd := WinExist("A")
+                hMon := MonitorManage.MonitorFromWindow(hWnd)
+                info := MonitorManage.GetMonitorInfo(hMon)
+                if info {
+                    if new_x + box_width > info.work.right
+                        new_x := info.work.right - box_width
+                    if new_y + box_height > info.work.bottom
+                        new_y := caret_y - 4 - box_height
+                } else {
+                    workspace_width := SysGet(16) ; SM_CXFULLSCREEN
+                    workspace_height := SysGet(17) ; SM_CYFULLSCREEN
+                    if new_x + box_width > workspace_width
+                        new_x := workspace_width - box_width
+                    if new_y + box_height > workspace_height
+                        new_y := caret_y - 4 - box_height
+                }
                 box.Show("AutoSize NA x" . new_x . " y" . new_y)
                 WinSetAlwaysOnTop(1, box)
             } else {
