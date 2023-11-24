@@ -16,20 +16,38 @@
  *
  */
 
+global TRAY_MENU_GRAYOUT
+
 TraySetIcon("Rabbit.ico") ; https://www.freepik.com/icon/rabbit_4905239
 A_TrayMenu.Delete()
 ; A_TrayMenu.add("输入法设定")
 ; A_TrayMenu.add("用户词典管理")
-A_TrayMenu.add("用户资料同步", (*) => false)
+A_TrayMenu.add("用户资料同步", (*) => Sync())
 A_TrayMenu.add()
 A_TrayMenu.add("用户文件夹", (*) => Run(A_ScriptDir . "\Rime"))
 A_TrayMenu.add("脚本文件夹", (*) => Run(A_ScriptDir))
 A_TrayMenu.add()
 A_TrayMenu.add("仓库主页", (*) => Run("https://github.com/amorphobia/rabbit"))
 A_TrayMenu.add()
-A_TrayMenu.add("重新部署", (*) => Reload())
+A_TrayMenu.add("重新部署", (*) => Deploy())
 A_TrayMenu.add("退出玉兔毫", (*) => ExitApp())
 
-; A_TrayMenu.Disable("输入法设定")
-; A_TrayMenu.Disable("用户词典管理")
-A_TrayMenu.Disable("用户资料同步")
+Sync() {
+    Run(A_AhkPath . " " . A_ScriptDir . "\RabbitDeployer.ahk sync 1")
+    ExitApp()
+}
+Deploy() {
+    Run(A_AhkPath . " " . A_ScriptDir . "\RabbitDeployer.ahk deploy 1")
+    ExitApp()
+}
+
+if TRAY_MENU_GRAYOUT {
+    ; A_TrayMenu.Disable("输入法设定")
+    ; A_TrayMenu.Disable("用户词典管理")
+    A_TrayMenu.Disable("用户资料同步")
+    A_TrayMenu.Disable("用户文件夹")
+    A_TrayMenu.Disable("脚本文件夹")
+    A_TrayMenu.Disable("仓库主页")
+    A_TrayMenu.Disable("重新部署")
+    A_TrayMenu.Disable("退出玉兔毫")
+}

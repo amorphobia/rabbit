@@ -18,6 +18,8 @@
 #Requires AutoHotkey v2.0 32-bit
 #SingleInstance Ignore
 
+global TRAY_MENU_GRAYOUT := false
+
 #Include <RabbitCommon>
 #Include <RabbitKeyTable>
 #Include <RabbitCandidateBox>
@@ -27,21 +29,43 @@
 
 global session_id := 0
 global box := Gui()
+global mutex := RabbitMutex()
+
+global STATUS_TOOLTIP := 2
 
 RegisterHotKeys()
-RabbitMain()
+RabbitMain(A_Args)
 
-RabbitMain() {
+RabbitMain(args) {
     local layout := DllCall("GetKeyboardLayout", "UInt", 0)
     SetDefaultKeyboard()
+
+    fail_count := 0
+    while not mutex.Create() {
+        fail_count++
+        if fail_count > 500 {
+            TrayTip()
+            TrayTip("有其他进程正在使用 RIME，启动失败")
+            Sleep(2000)
+            ExitApp()
+        }
+    }
 
     rabbit_traits := CreateTraits()
     global rime
     rime.setup(rabbit_traits)
     rime.set_notification_handler(OnMessage, 0)
     rime.initialize(rabbit_traits)
-    if rime.start_maintenace(true)
-        rime.join_maintenance_thread()
+
+    local m := (args.Length == 0) ? RABBIT_PARTIAL_MAINTENANCE : args[1]
+    if m != RABBIT_NO_MAINTENANCE {
+        if rime.start_maintenance(m == RABBIT_FULL_MAINTENANCE)
+            rime.join_maintenance_thread()
+    } else {
+        TrayTip()
+        TrayTip("维护完成", RABBIT_IME_NAME)
+        SetTimer(TrayTip, -2000)
+    }
 
     global session_id := rime.create_session()
     if not session_id {
@@ -75,10 +99,15 @@ SetDefaultKeyboard(locale_id := 0x0409) {
 
 ExitRabbit(layout, reason, code) {
     SetDefaultKeyboard(layout)
+    TrayTip()
+    ToolTip()
+    ToolTip(, , , STATUS_TOOLTIP)
     if session_id {
         rime.destroy_session(session_id)
         rime.finalize()
     }
+    if mutex
+        mutex.Close()
 }
 
 RegisterHotKeys() {
@@ -169,7 +198,6 @@ ProcessKey(key, mask, this_hotkey) {
     if not code
         return
 
-    static STATUS_TOOLTIP := 2
     if status := rime.get_status(session_id) {
         local old_ascii_mode := status.is_ascii_mode
         local old_full_shape := status.is_full_shape

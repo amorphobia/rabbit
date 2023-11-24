@@ -16,9 +16,11 @@
  *
  */
 #Requires AutoHotkey v2.0 32-bit
-; #NoTrayIcon
+
+global TRAY_MENU_GRAYOUT := true
 
 #Include <RabbitCommon>
+#Include <RabbitTrayMenu>
 #Include <librime-ahk\rime_levers_api>
 
 global rime
@@ -26,23 +28,43 @@ global ERROR_ALREADY_EXISTS := 183
 global INVALID_FILE_ATTRIBUTES := -1
 global FILE_ATTRIBUTE_DIRECTORY := 0x00000010
 
-arg := A_Args.Length > 0 ? A_Args[1] : ""
-RunDeployer(arg)
+OnExit(ExitRabbitDeployer)
 
-RunDeployer(command) {
+RunDeployer(A_Args)
+
+RunDeployer(args) {
+    TrayTip()
+    TrayTip("维护中", RABBIT_IME_NAME)
+
+    command := args.Length > 0 ? args[1] : ""
     conf := Configurator()
     conf.Initialize()
-    deployment_scheduled := command == "deploy"
-    if deployment_scheduled
-        return conf.UpdateWorkspace()
-    dict_management := command == "dict"
-    if dict_management
-        return 0 ; return conf.DictManagement()
-    sync_user_dict := command == "sync"
-    if sync_user_dict
-        return conf.SyncUserData()
-    installing := command == "install"
-    return conf.Run(installing)
+    switch command {
+        case "deploy":
+            res := conf.UpdateWorkspace()
+            opt := RABBIT_NO_MAINTENANCE
+        case "dict":
+            res := 0 ; conf.DictManagement()
+            opt := RABBIT_PARTIAL_MAINTENANCE
+        case "sync":
+            res := conf.SyncUserData()
+            opt := RABBIT_PARTIAL_MAINTENANCE
+        default:
+            res := conf.Run(command = "install")
+            opt := RABBIT_PARTIAL_MAINTENANCE ; TODO: check if need maintenance
+    }
+
+    if args.Length > 1 {
+        sp := " "
+        target := A_AhkPath . sp . A_ScriptDir . "\Rabbit.ahk"
+        Run(target . sp . opt . sp . String(res))
+        ExitApp()
+    }
+    return res
+}
+
+ExitRabbitDeployer(reason, code) {
+    TrayTip()
 }
 
 CreateFileIfNotExist(filename) {
@@ -87,12 +109,9 @@ class Configurator extends Class {
     }
 
     UpdateWorkspace(report_errors := false) {
-        hMutex := DllCall("CreateMutex", "Ptr", 0, "Int", true, "Str", "RabbitDeployerMutex")
-        if not hMutex {
-            return 1
-        }
-        if DllCall("GetLastError") == ERROR_ALREADY_EXISTS {
-            DllCall("CloseHandle", "Ptr", hMutex)
+        mutex := RabbitMutex()
+        if not mutex.Create() {
+            ; TODO: log error
             return 1
         }
 
@@ -101,7 +120,7 @@ class Configurator extends Class {
             ; rime.deploy_config_file("rabbit.yaml", "config_version")
         }
 
-        DllCall("CloseHandle", "Ptr", hMutex)
+        mutex.Close()
 
         return 0
     }
@@ -109,24 +128,21 @@ class Configurator extends Class {
     ; DictManagement()
 
     SyncUserData() {
-        hMutex := DllCall("CreateMutex", "Ptr", 0, "Int", true, "Str", "RabbitDeployerMutex")
-        if not hMutex {
-            return 1
-        }
-        if DllCall("GetLastError") == ERROR_ALREADY_EXISTS {
-            DllCall("CloseHandle", "Ptr", hMutex)
+        mutex := RabbitMutex()
+        if not mutex.Create() {
+            ; TODO: log error
             return 1
         }
 
         {
             if not rime.sync_user_data() {
-                DllCall("CloseHandle", "Ptr", hMutex)
+                mutex.Close()
                 return 1
             }
             rime.join_maintenance_thread()
         }
 
-        DllCall("CloseHandle", "Ptr", hMutex)
+        mutex.Close()
 
         return 0
     }
