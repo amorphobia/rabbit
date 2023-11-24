@@ -33,7 +33,7 @@ jobs:
       - name: Pack Files
         run: |
           rm -rf temp && mkdir -p temp/Lib/librime-ahk && mkdir -p temp/Rime
-          cp Lib/librime-ahk/rime_api.ahk Lib/librime-ahk/LICENSE temp/Lib/librime-ahk/
+          cp Lib/librime-ahk/rime_api.ahk Lib/librime-ahk/rime_levers_api.ahk Lib/librime-ahk/LICENSE temp/Lib/librime-ahk/
           cp Lib/*.ahk temp/Lib/
           cp -r SharedSupport temp/
           cp dist/lib/rime.dll Rabbit.ahk Rabbit.exe Rabbit.ico RabbitDeployer.ahk LICENSE temp/
