@@ -50,6 +50,6 @@ OnMessage(context_object, session_id, message_type, message_value) {
             TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", RABBIT_IME_NAME)
         }
     } else {
-        TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", RABBIT_IME_NAME)
+        ; TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", RABBIT_IME_NAME)
     }
 }
