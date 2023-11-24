@@ -33,8 +33,8 @@ class Point extends Class {
     }
 
     static x_offset := (*) => 0
-    static y_offset := (*) => Point.x_offset() + INT_SIZE()
-    static struct_size := (*) => Point.y_offset() + INT_SIZE()
+    static y_offset := (*) => Point.x_offset() + A_IntSize
+    static struct_size := (*) => Point.y_offset() + A_IntSize
 
     struct_ptr := (*) => this.buff.Ptr
 
@@ -58,10 +58,10 @@ class Rect extends Class {
     }
 
     static left_offset := (*) => 0
-    static top_offset := (*) => Rect.left_offset() + INT_SIZE()
-    static right_offset := (*) => Rect.top_offset() + INT_SIZE()
-    static bottom_offset := (*) => Rect.right_offset() + INT_SIZE()
-    static struct_size := (*) => Rect.bottom_offset() + INT_SIZE()
+    static top_offset := (*) => Rect.left_offset() + A_IntSize
+    static right_offset := (*) => Rect.top_offset() + A_IntSize
+    static bottom_offset := (*) => Rect.right_offset() + A_IntSize
+    static struct_size := (*) => Rect.bottom_offset() + A_IntSize
 
     struct_ptr := (*) => this.buff.Ptr
 
@@ -97,10 +97,10 @@ class MonitorInfo extends Class {
     }
 
     static size_offset := (*) => 0
-    static monitor_offset := (*) => MonitorInfo.size_offset() + INT_SIZE()
+    static monitor_offset := (*) => MonitorInfo.size_offset() + A_IntSize
     static work_offset := (*) => MonitorInfo.monitor_offset() + Rect.struct_size()
     static flags_offset := (*) => MonitorInfo.work_offset() + Rect.struct_size()
-    static struct_size := (*) => MonitorInfo.flags_offset() + INT_SIZE()
+    static struct_size := (*) => MonitorInfo.flags_offset() + A_IntSize
 
     struct_ptr := (*) => this.buff.Ptr
 
@@ -110,17 +110,17 @@ class MonitorInfo extends Class {
     monitor {
         get => Rect(
             NumGet(this.struct_ptr(), MonitorInfo.monitor_offset(), "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset() + INT_SIZE(), "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset() + INT_SIZE() * 2, "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset() + INT_SIZE() * 3, "Int")
+            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset() + A_IntSize, "Int"),
+            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset() + A_IntSize * 2, "Int"),
+            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset() + A_IntSize * 3, "Int")
         )
     }
     work {
         get => Rect(
             NumGet(this.struct_ptr(), MonitorInfo.work_offset(), "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.work_offset() + INT_SIZE(), "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.work_offset() + INT_SIZE() * 2, "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.work_offset() + INT_SIZE() * 3, "Int")
+            NumGet(this.struct_ptr(), MonitorInfo.work_offset() + A_IntSize, "Int"),
+            NumGet(this.struct_ptr(), MonitorInfo.work_offset() + A_IntSize * 2, "Int"),
+            NumGet(this.struct_ptr(), MonitorInfo.work_offset() + A_IntSize * 3, "Int")
         )
     }
     flags {
@@ -134,7 +134,7 @@ class MonitorInfoEx extends MonitorInfo {
         NumPut("Int", MonitorInfoEx.struct_size(), this.struct_ptr())
     }
 
-    static device_offset := (*) => MonitorInfoEx.flags_offset() + INT_SIZE()
+    static device_offset := (*) => MonitorInfoEx.flags_offset() + A_IntSize
     static struct_size := (*) => MonitorInfoEx.device_offset() + WCHAR_SIZE() * CCHDEVICENAME
 
     device {

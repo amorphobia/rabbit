@@ -33,7 +33,7 @@ GetCompositionText(composition, &pre_selected, &selected, &post_selected) {
     local preedit_buffer ; insert caret text into preedit text if applicable
     if 0 <= composition.cursor_pos and composition.cursor_pos <= preedit_length {
         preedit_buffer := Buffer(preedit_length + cursor_size, 0)
-        local temp_preedit := c_str(preedit)
+        local temp_preedit := RimeStruct.c_str(preedit)
         local src := temp_preedit.Ptr
         local tgt := preedit_buffer.Ptr
         Loop composition.cursor_pos {
