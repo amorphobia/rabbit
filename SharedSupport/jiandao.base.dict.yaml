@@ -2,7 +2,7 @@
 # encoding: utf-8
 ---
 name: jiandao.base
-version: v6.1.8
+version: v6.1.9
 sort: original
 ...
 不	b
@@ -40559,7 +40559,7 @@ sort: original
 沙漠	esml
 沙门	esmn
 沙玛	esms
-傻冒	esmz
+傻帽	esmz
 十四年	esn
 沙南	esnf
 杀你	esnk
@@ -62901,7 +62901,8 @@ sort: original
 进宫	jbgyv
 进贡	jbgyvv
 浸膏	jbgz
-煎饼果子	jbgzo
+煎饼馃子	jbgzo
+煎饼果子	jbgzou
 基本工资	jbgzv
 就不会	jbh
 绝不会	jbha
@@ -71127,7 +71128,6 @@ sort: original
 倦鸟	jtnc
 具体内容	jtnr
 吉他谱	jtp
-吉它谱	jtpv
 惊涛拍岸	jtpx
 几天前	jtq
 倦勤	jtqb
