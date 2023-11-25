@@ -17,6 +17,7 @@
  */
 
 #Include <librime-ahk\rime_api>
+#Include <librime-ahk\rime_levers_api>
 
 global rime := RimeApi()
 global RABBIT_IME_NAME := "玉兔毫"
@@ -26,7 +27,7 @@ global RABBIT_NO_MAINTENANCE := "0"
 global RABBIT_PARTIAL_MAINTENANCE := "1"
 global RABBIT_FULL_MAINTENANCE := "2"
 
-global ERROR_ALREADY_EXISTS := 183
+global ERROR_ALREADY_EXISTS := 183 ; https://learn.microsoft.com/windows/win32/debug/system-error-codes--0-499-
 
 class RabbitMutex {
     handle := 0
@@ -34,7 +35,7 @@ class RabbitMutex {
     Create() {
         this.errmsg := ""
         this.handle := DllCall("CreateMutex", "Ptr", 0, "Int", true, "Str", "RabbitDeployerMutex")
-        if DllCall("GetLastError") == ERROR_ALREADY_EXISTS {
+        if A_LastError == ERROR_ALREADY_EXISTS {
             this.Close()
             this.errmsg := "mutex already exists"
         }

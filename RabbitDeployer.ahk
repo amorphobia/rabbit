@@ -21,10 +21,8 @@ global TRAY_MENU_GRAYOUT := true
 
 #Include <RabbitCommon>
 #Include <RabbitTrayMenu>
-#Include <librime-ahk\rime_levers_api>
 
 global rime
-global ERROR_ALREADY_EXISTS := 183
 global INVALID_FILE_ATTRIBUTES := -1
 global FILE_ATTRIBUTE_DIRECTORY := 0x00000010
 
