@@ -28,7 +28,7 @@ global TRAY_MENU_GRAYOUT := false
 #Include <RabbitMonitors>
 
 global session_id := 0
-global box := Gui()
+global box := CandidateBox()
 global mutex := RabbitMutex()
 
 global STATUS_TOOLTIP := 2
@@ -73,16 +73,6 @@ RabbitMain(args) {
         rime.finalize()
         throw Error("未能成功创建 RIME 会话。")
     }
-
-    box.Opt("-Caption +Owner")
-    box.MarginX := 3
-    box.MarginY := 3
-    box.SetFont("S12", "Microsoft YaHei UI")
-
-    preedit := box.AddText("vPreedit xm ym")
-    preedit.Value := "nkhz"
-    candidates := box.AddText("vCandidates")
-    candidates.Value := "Hello, Rabbit!`r`n"
 
     OnExit(ExitRabbit.Bind(layout))
 }
@@ -238,38 +228,10 @@ ProcessKey(key, mask, this_hotkey) {
         rime.free_commit(commit)
     }
 
-    local caret := GetCaretPos(&caret_x, &caret_y, &caret_w, &caret_h)
-
     if context := rime.get_context(session_id) {
         if context.composition.length > 0 {
-            has_selected := GetCompositionText(context.composition, &pre_selected, &selected, &post_selected)
-            preedit_text := pre_selected
-            if has_selected
-                preedit_text := preedit_text . "[" . selected "]" . post_selected
-
-            GetTextSize(preedit_text . "pad", "S12, Microsoft YaHei UI", &max_width, &height)
-
-            candidate_text_array := GetCandidateTextArray(context.menu, &page_no, &is_last_page)
-
-            local menu_text := ""
-            for candidate_text in candidate_text_array {
-                GetTextSize(candidate_text . "pad", "S12, Microsoft YaHei UI", &width)
-                if width > max_width
-                    max_width := width
-                if A_Index > 1
-                    menu_text := menu_text . "`r`n"
-                menu_text := menu_text . candidate_text
-            }
-
-            if max_width < 150
-                max_width := 150
-
-            if caret {
-                box["Preedit"].Value := preedit_text
-                box["Candidates"].Value := menu_text
-                box["Preedit"].Move(, , max_width)
-                box["Candidates"].Move(, , max_width, height * candidate_text_array.Length)
-                box.Show("Hide")
+            if GetCaretPos(&caret_x, &caret_y, &caret_w, &caret_h) {
+                box.Build(context)
                 box.GetPos(, , &box_width, &box_height)
                 new_x := caret_x + caret_w
                 new_y := caret_y + caret_h + 4
@@ -291,9 +253,12 @@ ProcessKey(key, mask, this_hotkey) {
                         new_y := caret_y - 4 - box_height
                 }
                 box.Show("AutoSize NA x" . new_x . " y" . new_y)
-                WinSetAlwaysOnTop(1, box)
             } else {
-                ToolTip(preedit_text . "`r`n" . menu_text)
+                has_selected := GetCompositionText(context.composition, &pre_selected, &selected, &post_selected)
+                preedit_text := pre_selected
+                if has_selected
+                    preedit_text := preedit_text . "[" . selected "]" . post_selected
+                ToolTip(preedit_text . "`r`n" . GetMenuText(context.menu))
             }
         } else {
             ToolTip()

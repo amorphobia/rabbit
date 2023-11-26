@@ -16,6 +16,80 @@
  *
  */
 
+global LVM_GETCOLUMNWIDTH := 0x101D
+
+class CandidateBox extends Gui {
+    static min_width := 150
+    static num_col := 3
+
+    __New() {
+        super.__New(, , this)
+        this.Opt("-Caption +Owner AlwaysOnTop")
+        this.MarginX := 3
+        this.MarginY := 3
+        this.SetFont("S12", "Microsoft YaHei UI")
+
+        this.pre := this.AddText(, "p")
+        this.pre.GetPos(, , , &h)
+        this.preedit_height := h
+        this.lv := this.AddListView("-Multi -Hdr -E0x200 LV0x40", ["i", "c", "m"])
+        DllCall("uxtheme\SetWindowTheme", "ptr", this.lv.hwnd, "WStr", "Explorer", "Ptr", 0)
+
+        this.dummy_lv1 := this.AddListView("-Multi -Hdr -E0x200 LV0x40 Hidden R1", ["p"])
+        this.dummy_lv2 := this.AddListView("-Multi -Hdr -E0x200 LV0x40 Hidden R2", ["p"])
+        this.dummy_lv1.GetPos(, , , &dh1)
+        this.dummy_lv2.GetPos(, , , &dh2)
+        this.row_height := dh2 - dh1
+        this.row_padding := dh1 - this.row_height
+    }
+
+    Build(context) {
+        local has_selected := GetCompositionText(context.composition, &pre_selected, &selected, &post_selected)
+        local cands := context.menu.candidates
+        local lv_height := this.row_height * context.menu.num_candidates + this.row_padding
+
+        preedit_text := pre_selected
+        if has_selected
+            preedit_text := preedit_text . "[" . selected "]" . post_selected
+
+        this.pre.Value := preedit_text
+        this.dummy_lv1.Delete()
+        this.dummy_lv1.Add(, preedit_text)
+        this.dummy_lv1.ModifyCol()
+        preedit_width := SendMessage(LVM_GETCOLUMNWIDTH, 0, 0, this.dummy_lv1)
+
+        this.lv.Delete()
+        Loop context.menu.num_candidates {
+            opt := (A_Index == context.menu.highlighted_candidate_index + 1) ? "Select" : ""
+            this.lv.Add(opt, A_Index . ". ", cands[A_Index].text, cands[A_Index].comment)
+        }
+
+        total_width := 0
+        this.lv.ModifyCol()
+        this.lv.GetPos(, , , &cands_height)
+        Loop CandidateBox.num_col {
+            width := SendMessage(LVM_GETCOLUMNWIDTH, A_Index - 1, 0, this.lv)
+            total_width += width
+            if A_Index == CandidateBox.num_col
+                last_width := width
+        }
+
+        max_width := Max(preedit_width, total_width)
+        if not last_width
+            last_width := SendMessage(0x101D, CandidateBox.num_col - 1, 0, this.lv)
+
+        if max_width < CandidateBox.min_width {
+            this.lv.ModifyCol(CandidateBox.num_col, last_width + CandidateBox.min_width - max_width)
+            max_width := CandidateBox.min_width
+        }
+
+        this.lv.Move(, , max_width, lv_height)
+        this.pre.Move(, , max_width)
+
+        this.Show("Hide w" . (max_width + 6) . " h" . (this.preedit_height + lv_height + this.MarginY))
+    }
+}
+
 GetCompositionText(composition, &pre_selected, &selected, &post_selected) {
     pre_selected := ""
     selected := ""
@@ -69,61 +143,22 @@ GetCompositionText(composition, &pre_selected, &selected, &post_selected) {
     }
 }
 
-GetCandidateTextArray(menu, &page_no, &is_last_page) {
-    local candidate_text_array := Array()
-    if menu.num_candidates = 0
-        return candidate_text_array
-
-    page_no := menu.page_no
-    is_last_page := menu.is_last_page
-    ; local page_info := "page: " . page_no + 1 . (is_last_page ? "$" : " ") . "(of size " . menu.page_size . ")"
-    ; candidate_text_array.Push(page_info)
-
-    local candidates := menu.candidates
+GetMenuText(menu) {
+    local text := ""
+    if menu.num_candidates == 0
+        return text
+    local cands := menu.candidates
     Loop menu.num_candidates {
-        local is_highlighted := A_Index = menu.highlighted_candidate_index + 1
-        local candidate_text := A_Index . ". " . (is_highlighted ? "[" : " ") . candidates[A_Index].text . (is_highlighted ? "]" : " ") . candidates[A_Index].comment
-        candidate_text_array.Push(candidate_text)
+        local is_highlighted := (A_Index == menu.highlighted_candidate_index + 1)
+        if A_Index > 1
+            text := text . "`r`n"
+        text := text . Format("{}. {}{}{}{}",
+                              A_Index,
+                              (is_highlighted ? "[" : " "),
+                              cands[A_Index].text,
+                              (is_highlighted ? "]" : " "),
+                              cands[A_Index].comment
+        )
     }
-
-    return candidate_text_array
-}
-
-; https://www.autohotkey.com/board/topic/16625-function-gettextsize-calculate-text-dimension/
-GetTextSize(text, font_settings := "", &width := 0, &height := 0) {
-    local dc := DllCall("GetDC", "UInt", 0)
-
-    ; parse font
-    italic := InStr(font_settings, "italic") ? true : false
-    underline := InStr(font_settings, "underline") ? true : false
-    strikeout := InStr(font_settings, "strikeout") ? true : false
-    weight := InStr(font_settings, "bold") ? 700 : 400
-
-    RegExMatch(font_settings, "(?<=[S|s])(\d{1,2})(?=[ ,])", &matched)
-    point := matched ? Integer(matched[1]) : 10
-
-    local log_pixels := RegRead("HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontDPI", "LogPixels", "")
-    point := -DllCall("MulDiv", "Int", point, "Int", log_pixels, "Int", 72)
-    RegExMatch(font_settings, "(?<=,)(.+)", &matched)
-    font_face := matched ? RegExReplace(matched[1], "(^\s*)|(\s*$)") : "MS Sans Serif"
-
-    font := DllCall("CreateFont", "Int", point, "Int", 0, "Int", 0, "Int", 0, "Int", weight, "UInt", italic, "UInt", underline, "UInt", strikeout, "UInt", 0, "UInt", 0, "UInt", 0, "UInt", 0, "UInt", 0, "Str", font_face)
-    old_font := DllCall("SelectObject", "UInt", dc, "UInt", font)
-
-    local size := Buffer(16, 0)
-    DllCall("DrawText", "UInt", dc, "Str", text, "Int", StrLen(text), "UInt", size.Ptr, "UInt", 0x400)
-    DllCall("SelectObject", "UInt", dc, "UInt", old_font)
-    DllCall("DeleteObject", "UInt", font)
-    DllCall("ReleaseDC", "UInt", 0, "UInt", dc)
-
-    width := ExtractInteger(size.Ptr, 8)
-    height := ExtractInteger(size.Ptr, 12)
-}
-
-ExtractInteger(src, offset) {
-    local result := 0
-    Loop 4 {
-        result += NumGet(src, offset + A_Index - 1, "UChar") << 8 * (A_Index - 1)
-    }
-    return result
+    return text
 }
