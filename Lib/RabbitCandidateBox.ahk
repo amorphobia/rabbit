@@ -82,14 +82,12 @@ class CandidateBox extends Gui {
                 cand_width := width
         }
 
-        max_width := Max(preedit_width, total_width)
         if not cand_width
             cand_width := SendMessage(LVM_GETCOLUMNWIDTH, CandidateBox.cand_col - 1, 0, this.lv)
 
-        if max_width < CandidateBox.min_width {
-            this.lv.ModifyCol(CandidateBox.cand_col, cand_width + CandidateBox.min_width - max_width)
-            max_width := CandidateBox.min_width
-        }
+        max_width := Max(preedit_width, total_width, CandidateBox.min_width)
+        if total_width < max_width
+            this.lv.ModifyCol(CandidateBox.cand_col, cand_width + max_width - total_width)
 
         this.lv.Move(, , max_width, lv_height)
         this.pre.Move(, , max_width)
