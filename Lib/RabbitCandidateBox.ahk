@@ -20,6 +20,9 @@ global LVM_GETCOLUMNWIDTH := 0x101D
 
 class CandidateBox extends Gui {
     static min_width := 150
+    static idx_col := 1
+    static cand_col := 2
+    static comment_col := 3
     static num_col := 3
 
     __New() {
@@ -59,27 +62,32 @@ class CandidateBox extends Gui {
         preedit_width := SendMessage(LVM_GETCOLUMNWIDTH, 0, 0, this.dummy_lv1)
 
         this.lv.Delete()
+        has_comment := false
         Loop context.menu.num_candidates {
             opt := (A_Index == context.menu.highlighted_candidate_index + 1) ? "Select" : ""
-            this.lv.Add(opt, A_Index . ". ", cands[A_Index].text, cands[A_Index].comment)
+            if comment := cands[A_Index].comment
+                has_comment := true
+            this.lv.Add(opt, A_Index . ". ", cands[A_Index].text, comment)
         }
 
         total_width := 0
         this.lv.ModifyCol()
+        if not has_comment
+            this.lv.ModifyCol(CandidateBox.comment_col, 0)
         this.lv.GetPos(, , , &cands_height)
         Loop CandidateBox.num_col {
             width := SendMessage(LVM_GETCOLUMNWIDTH, A_Index - 1, 0, this.lv)
             total_width += width
-            if A_Index == CandidateBox.num_col
-                last_width := width
+            if A_Index == CandidateBox.cand_col
+                cand_width := width
         }
 
         max_width := Max(preedit_width, total_width)
-        if not last_width
-            last_width := SendMessage(0x101D, CandidateBox.num_col - 1, 0, this.lv)
+        if not cand_width
+            cand_width := SendMessage(LVM_GETCOLUMNWIDTH, CandidateBox.cand_col - 1, 0, this.lv)
 
         if max_width < CandidateBox.min_width {
-            this.lv.ModifyCol(CandidateBox.num_col, last_width + CandidateBox.min_width - max_width)
+            this.lv.ModifyCol(CandidateBox.cand_col, cand_width + CandidateBox.min_width - max_width)
             max_width := CandidateBox.min_width
         }
 
