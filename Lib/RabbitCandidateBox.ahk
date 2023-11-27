@@ -46,7 +46,7 @@ class CandidateBox extends Gui {
         this.row_padding := dh1 - this.row_height
     }
 
-    Build(context) {
+    Build(context, &width, &height) {
         local has_selected := GetCompositionText(context.composition, &pre_selected, &selected, &post_selected)
         local cands := context.menu.candidates
         local lv_height := this.row_height * context.menu.num_candidates + this.row_padding
@@ -91,8 +91,10 @@ class CandidateBox extends Gui {
 
         this.lv.Move(, , max_width, lv_height)
         this.pre.Move(, , max_width)
+        this.lv.Redraw()
 
-        this.Show("Hide w" . (max_width + 6) . " h" . (this.preedit_height + lv_height + this.MarginY))
+        width := max_width + 6
+        height := this.preedit_height + lv_height + this.MarginY
     }
 }
 

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#Requires AutoHotkey v2.0 32-bit
+#Requires AutoHotkey v2.0
 #SingleInstance Ignore
 
 global TRAY_MENU_GRAYOUT := false
@@ -231,8 +231,7 @@ ProcessKey(key, mask, this_hotkey) {
     if context := rime.get_context(session_id) {
         if context.composition.length > 0 {
             if GetCaretPos(&caret_x, &caret_y, &caret_w, &caret_h) {
-                box.Build(context)
-                box.GetPos(, , &box_width, &box_height)
+                box.Build(context, &box_width, &box_height)
                 new_x := caret_x + caret_w
                 new_y := caret_y + caret_h + 4
 

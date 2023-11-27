@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-#Requires AutoHotkey v2.0 32-bit
+#Requires AutoHotkey v2.0
 
 global TRAY_MENU_GRAYOUT := true
 
