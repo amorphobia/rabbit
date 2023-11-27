@@ -11,6 +11,7 @@
 - [librime](https://github.com/rime/librime)
 - [librime-ahk](https://github.com/amorphobia/librime-ahk)
 - [GetCaretPos](https://github.com/Descolada/AHK-v2-libraries)
+- [rime-prelude](https://github.com/rime/rime-prelude)
 - [🌟️星空键道](https://github.com/amorphobia/rime-jiandao)
 - [朙月拼音](https://github.com/rime/rime-luna-pinyin)
 

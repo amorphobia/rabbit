@@ -20,30 +20,57 @@ jobs:
 
       - name: Download Dependencies
         run: |
+          WORK=`pwd`
           LIBRIME_TAG=$(curl -s https://api.github.com/repos/rime/librime/releases/latest | jq -r '.tag_name')
           LIBRIME_SHA=$(curl -s https://api.github.com/repos/rime/librime/tags | jq -r --arg LIBRIME_TAG "${LIBRIME_TAG}" '.[] | select(.name == $LIBRIME_TAG).commit.sha' | cut -c1-7)
           LIBRIME_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-${LIBRIME_SHA}-Windows-msvc.7z"
+          LIBRIME_DEPS_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-deps-${LIBRIME_SHA}-Windows-msvc.7z"
           wget -O librime.7z ${LIBRIME_URL}
+          wget -O librime-deps.7z ${LIBRIME_DEPS_URL}
           7z x '-i!dist/lib/rime.dll' librime.7z
+          cp dist/lib/rime.dll ${WORK}/
+          7z x '-i!share/opencc' librime-deps.7z
           AHK_VER=$(curl -s https://www.autohotkey.com/download/2.0/version.txt)
           AHK_URL="https://www.autohotkey.com/download/2.0/AutoHotkey_${AHK_VER}.zip"
           wget -O ahk.zip ${AHK_URL}
           unzip -p ahk.zip AutoHotkey32.exe > Rabbit.exe
+          JIANDAO_TAG=$(curl -s https://api.github.com/repos/amorphobia/rime-jiandao/releases/latest | jq -r '.tag_name')
+          JIANDAO_URL="https://github.com/amorphobia/rime-jiandao/releases/download/${JIANDAO_TAG}/jiandao-${JIANDAO_TAG}.zip"
+          wget -O jiandao.zip ${JIANDAO_URL}
+          rm -rf ${WORK}/schemas/jiandao && mkdir ${WORK}/schemas/jiandao
+          unzip jiandao.zip -d ${WORK}/schemas/jiandao/
 
-      - name: Pack Files
+      - name: Prepare SharedSupport
         run: |
-          rm -rf temp && mkdir -p temp/Lib/librime-ahk && mkdir -p temp/Rime
-          cp Lib/librime-ahk/rime_api.ahk Lib/librime-ahk/rime_levers_api.ahk Lib/librime-ahk/LICENSE temp/Lib/librime-ahk/
-          cp Lib/*.ahk temp/Lib/
-          cp -r SharedSupport temp/
-          cp dist/lib/rime.dll Rabbit.ahk Rabbit.exe Rabbit.ico RabbitDeployer.ahk LICENSE temp/
-          cd temp && zip -r -q ../rabbit.zip *
+          WORK=`pwd`
+          SCHEMAS=${WORK}/schemas
+          SHARED=${WORK}/SharedSupport
+          rm -rf ${SHARED} && mkdir -p ${SHARED}
+          cp ${SCHEMAS}/prelude/*.yaml ${SHARED}/
+          cp ${SCHEMAS}/default.yaml ${SHARED}/
+          cp ${SCHEMAS}/luna-pinyin/*.yaml ${SHARED}/
+          cp -r ${SCHEMAS}/jiandao/* ${SHARED}/
+          cp share/opencc/* ${SHARED}/opencc/
 
-      - name: Upload Artifacts
+      - name: Upload SharedSupport to Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: rabbit-zip
-          path: rabbit.zip
+          name: SharedSupport
+          path: SharedSupport
+
+      - name: Upload Rabbit to Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Rabbit
+          path: |
+            Lib/librime-ahk/*.ahk
+            Lib/librime-ahk/LICENSE
+            Lib/*.ahk
+            rime.dll
+            Rabbit.exe
+            Rabbit.ico
+            *.ahk
+            LICENSE
 
   release:
     name: Release
