@@ -61,7 +61,7 @@ CreateTraits() {
     return traits
 }
 
-OnMessage(context_object, session_id, message_type, message_value) {
+OnRimeMessage(context_object, session_id, message_type, message_value) {
     msg_type := StrGet(message_type, "UTF-8")
     msg_value := StrGet(message_value, "UTF-8")
     if msg_type = "deploy" {

@@ -54,7 +54,7 @@ RabbitMain(args) {
     rabbit_traits := CreateTraits()
     global rime
     rime.setup(rabbit_traits)
-    rime.set_notification_handler(OnMessage, 0)
+    rime.set_notification_handler(OnRimeMessage, 0)
     rime.initialize(rabbit_traits)
 
     local m := (args.Length == 0) ? RABBIT_PARTIAL_MAINTENANCE : args[1]
