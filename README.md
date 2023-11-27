@@ -9,6 +9,7 @@
 ## 使用的开源项目
 
 - [librime](https://github.com/rime/librime)
+- [OpenCC](https://github.com/BYVoid/OpenCC)
 - [librime-ahk](https://github.com/amorphobia/librime-ahk)
 - [GetCaretPos](https://github.com/Descolada/AHK-v2-libraries)
 - [rime-prelude](https://github.com/rime/rime-prelude)
@@ -19,14 +20,11 @@
 
 ## ⚠️正在施工⚠️
 
-目前仅实现了一个原型，上下文界面使用 [ToolTip](https://www.autohotkey.com/docs/v2/lib/ToolTip.htm) 简单显示，但已经可以用来输入了，此 README 文件就是使用玉兔毫部署的[星空键道](https://github.com/amorphobia/rime-jiandao)方案编写。可以在 Actions 里找到自动打包的文件，解压后运行 `Rabbit.exe` 即可。
+现在已经可轻量地使用，遇到问题可以在 [Issues](https://github.com/amorphobia/rime-jiandao/issues/new/choose) 反馈。
 
 ## 已知问题
 
-- 尚未实现足够多的图形界面，无合适的候选框
-- 尚未实现基础设置功能，如重新部署、同步等（在搞定多线程问题之前，重新部署使用 `Reload` 作为临时方案）
-- 某些窗口拿不到输入光标所在的坐标，ToolTip 会跟随鼠标光标的位置显示
-- 注册热键的问题，例如，热键冲突（Alt + 单一按键无法返回给系统继续处理，因此暂时不注册 Alt + 单一按键）等
-- 并非使用系统的输入法接口，而是用热键的方式获取按键，可能导致一些问题，如，需要保留一个英文输入语言；退出玉兔毫时，可能无法恢复先前的输入法语言等
-- 管理员权限打开的窗口应该不起作用
-- Windows 远程桌面连接中，不应拦截切换 ascii mode 的热键，而是交给远程桌面控制
+- 候选框图形界面较为简陋，有闪烁等问题
+- 某些情况无法获得输入光标的坐标
+- 因热键冲突而取消了一些按键注册
+- 与某些软件适配较差

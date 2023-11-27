@@ -71,6 +71,7 @@ jobs:
             Rabbit.ico
             *.ahk
             LICENSE
+            README.md
 
   release:
     name: Release
@@ -84,13 +85,17 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: rabbit-zip
+          path: release
 
-      - name: Rename Zip
-        run: mv rabbit.zip rabbit-${{ github.ref_name }}.zip
+      - name: Pack Release Zip
+        working-directory: release
+        run: |
+          cp -r Rabbit/* ./ && rm -rf Rabbit
+          mkdir Rime && zip -r -q ../rabbit-${{ github.ref_name }}.zip *
 
       - name: Create Release and Upload Assets
         uses: softprops/action-gh-release@v1
         with:
+          prerelease: true
           files: |
             rabbit-${{ github.ref_name }}.zip
