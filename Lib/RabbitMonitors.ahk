@@ -16,9 +16,7 @@
  *
  */
 
-WCHAR_SIZE() {
-    return 2
-}
+A_WCharSize := 2
 
 global CCHDEVICENAME := 32
 global MONITOR_DEFAULTTONULL := 0
@@ -135,7 +133,7 @@ class MonitorInfoEx extends MonitorInfo {
     }
 
     static device_offset := (*) => MonitorInfoEx.flags_offset() + A_IntSize
-    static struct_size := (*) => MonitorInfoEx.device_offset() + WCHAR_SIZE() * CCHDEVICENAME
+    static struct_size := (*) => MonitorInfoEx.device_offset() + A_WCharSize * CCHDEVICENAME
 
     device {
         get => StrGet(this.struct_ptr() + MonitorInfoEx.device_offset(), CCHDEVICENAME)
