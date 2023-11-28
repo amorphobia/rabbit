@@ -40,6 +40,11 @@ jobs:
           rm -rf ${WORK}/schemas/jiandao && mkdir ${WORK}/schemas/jiandao
           unzip jiandao.zip -d ${WORK}/schemas/jiandao/
 
+      - name: Make Icon
+        run: |
+          sudo apt-get install -y imagemagick
+          convert -background transparent -define 'icon:auto-resize=16,24,32,64,128,256' icon.svg Rabbit.ico
+
       - name: Prepare SharedSupport
         run: |
           WORK=`pwd`
