@@ -2,6 +2,18 @@
 
 由 [AutoHotkey](https://www.autohotkey.com/) 实现的 [Rime 输入法引擎](https://github.com/rime/librime)前端
 
+## 下载体验
+
+### Action 版
+
+需要先登录你的 GitHub 账号。前往 [Actions 页面](https://github.com/amorphobia/rabbit/actions) 找到最近成功构建的一次，在生成的 Artifacts 中点击 `Rabbit` 和 `SharedSupport` 下载。将 `Rabbit.zip` 的内容解压到新建目录中，并在这个目录里新建一个 `SharedSupport` 目录，放入从 `SharedSupport.zip` 解压的内容，运行 `Rabbit.exe` 即可。（之后更新时可只下载 `Rabbit.zip` 覆盖）
+
+一般来说，Action 版比 Release 版更新，可能会修复一些问题，也可能会引入更多问题（我太菜了😭️）
+
+### Release 版
+
+发行版会在 [Release 页面](https://github.com/amorphobia/rabbit/releases) 的 Assets 中，下载最新的 `rabbit-v<版本号>.zip`，解压到一个新建文件夹，运行 `Rabbit.exe` 即可。
+
 ## 开源许可
 
 [GPL-3.0](LICENSE)
