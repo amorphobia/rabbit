@@ -311,24 +311,24 @@ UpdateStateLabels() {
     ASCII_MODE_FALSE_LABEL := str ? str : "中文"
     str := rime.get_state_label(session_id, "ascii_mode", true)
     ASCII_MODE_TRUE_LABEL := str ? str : "西文"
-    str := rime.get_state_label_abbreviated(session_id, "ascii_mode", false, true).slice
-    ASCII_MODE_FALSE_LABEL_ABBR := str ? str : "中"
-    str := rime.get_state_label_abbreviated(session_id, "ascii_mode", true, true).slice
-    ASCII_MODE_TRUE_LABEL_ABBR := str ? str : "西"
+    slice := rime.get_state_label_abbreviated(session_id, "ascii_mode", false, true)
+    ASCII_MODE_FALSE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "中"
+    slice := rime.get_state_label_abbreviated(session_id, "ascii_mode", true, true)
+    ASCII_MODE_TRUE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "西"
     str := rime.get_state_label(session_id, "full_shape", false)
     FULL_SHAPE_FALSE_LABEL := str ? str : "半角"
     str := rime.get_state_label(session_id, "full_shape", true)
     FULL_SHAPE_TRUE_LABEL := str ? str : "全角"
-    str := rime.get_state_label_abbreviated(session_id, "full_shape", false, true).slice
-    FULL_SHAPE_FALSE_LABEL_ABBR := str ? str : "半"
-    str := rime.get_state_label_abbreviated(session_id, "full_shape", true, true).slice
-    FULL_SHAPE_TRUE_LABEL_ABBR := str ? str : "全"
+    slice := rime.get_state_label_abbreviated(session_id, "full_shape", false, true)
+    FULL_SHAPE_FALSE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "半"
+    slice := rime.get_state_label_abbreviated(session_id, "full_shape", true, true)
+    FULL_SHAPE_TRUE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "全"
     str := rime.get_state_label(session_id, "ascii_punct", false)
     ASCII_PUNCT_FALSE_LABEL := str ? str : "。，"
     str := rime.get_state_label(session_id, "ascii_punct", true)
     ASCII_PUNCT_TRUE_LABEL := str ? str : "．，"
-    str := rime.get_state_label_abbreviated(session_id, "ascii_punct", false, true).slice
-    ASCII_PUNCT_FALSE_LABEL_ABBR := str ? str : "。"
-    str := rime.get_state_label_abbreviated(session_id, "ascii_punct", true, true).slice
-    ASCII_PUNCT_TRUE_LABEL_ABBR := str ? str : "．"
+    slice := rime.get_state_label_abbreviated(session_id, "ascii_punct", false, true)
+    ASCII_PUNCT_FALSE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "。"
+    slice := rime.get_state_label_abbreviated(session_id, "ascii_punct", true, true)
+    ASCII_PUNCT_TRUE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "．"
 }
