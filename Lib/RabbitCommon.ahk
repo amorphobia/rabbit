@@ -27,6 +27,20 @@ global RABBIT_NO_MAINTENANCE := "0"
 global RABBIT_PARTIAL_MAINTENANCE := "1"
 global RABBIT_FULL_MAINTENANCE := "2"
 
+global STATUS_TOOLTIP := 2
+global ASCII_MODE_FALSE_LABEL := "中文"
+global ASCII_MODE_TRUE_LABEL := "西文"
+global ASCII_MODE_FALSE_LABEL_ABBR := "中"
+global ASCII_MODE_TRUE_LABEL_ABBR := "西"
+global FULL_SHAPE_FALSE_LABEL := "半角"
+global FULL_SHAPE_TRUE_LABEL := "全角"
+global FULL_SHAPE_FALSE_LABEL_ABBR := "半"
+global FULL_SHAPE_TRUE_LABEL_ABBR := "全"
+global ASCII_PUNCT_FALSE_LABEL := "。，"
+global ASCII_PUNCT_TRUE_LABEL := "．，"
+global ASCII_PUNCT_FALSE_LABEL_ABBR := "。"
+global ASCII_PUNCT_TRUE_LABEL_ABBR := "．"
+
 global ERROR_ALREADY_EXISTS := 183 ; https://learn.microsoft.com/windows/win32/debug/system-error-codes--0-499-
 
 class RabbitMutex {

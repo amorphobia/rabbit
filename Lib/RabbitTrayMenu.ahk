@@ -15,10 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-global TRAY_MENU_GRAYOUT
-
-TraySetIcon("Rabbit.ico") ; https://www.freepik.com/icon/rabbit_4905239
+TraySetIcon("Rabbit.ico")
+A_IconTip := "玉兔毫"
 A_TrayMenu.Delete()
 ; A_TrayMenu.add("输入法设定")
 ; A_TrayMenu.add("用户词典管理")

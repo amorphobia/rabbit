@@ -31,8 +31,6 @@ global session_id := 0
 global box := CandidateBox()
 global mutex := RabbitMutex()
 
-global STATUS_TOOLTIP := 2
-
 RegisterHotKeys()
 RabbitMain(A_Args)
 
@@ -72,6 +70,22 @@ RabbitMain(args) {
         SetDefaultKeyboard(layout)
         rime.finalize()
         throw Error("未能成功创建 RIME 会话。")
+    }
+
+    UpdateStateLabels()
+    if status := rime.get_status(session_id) {
+        local new_schema_name := status.schema_name
+        local new_ascii_mode := status.is_ascii_mode
+        local new_full_shape := status.is_full_shape
+        local new_ascii_punct := status.is_ascii_punct
+        rime.free_status(status)
+
+        A_IconTip := Format(
+            "玉兔毫　{}`n{} | {} | {}", new_schema_name,
+            (new_ascii_mode ? ASCII_MODE_TRUE_LABEL : ASCII_MODE_FALSE_LABEL),
+            (new_full_shape ? FULL_SHAPE_TRUE_LABEL : FULL_SHAPE_FALSE_LABEL),
+            (new_ascii_punct ? ASCII_PUNCT_TRUE_LABEL : ASCII_PUNCT_FALSE_LABEL)
+        )
     }
 
     OnExit(ExitRabbit.Bind(layout))
@@ -189,6 +203,7 @@ ProcessKey(key, mask, this_hotkey) {
         return
 
     if status := rime.get_status(session_id) {
+        local old_schema_id := status.schema_id
         local old_ascii_mode := status.is_ascii_mode
         local old_full_shape := status.is_full_shape
         local old_ascii_punct := status.is_ascii_punct
@@ -198,22 +213,35 @@ ProcessKey(key, mask, this_hotkey) {
     processed := rime.process_key(session_id, code, mask)
 
     status := rime.get_status(session_id)
+    local new_schema_id := status.schema_id
+    local new_schema_name := status.schema_name
     local new_ascii_mode := status.is_ascii_mode
     local new_full_shape := status.is_full_shape
     local new_ascii_punct := status.is_ascii_punct
     rime.free_status(status)
 
+    if old_schema_id !== new_schema_id {
+        UpdateStateLabels()
+    }
+
+    A_IconTip := Format(
+        "玉兔毫　{}`n{} | {} | {}", new_schema_name,
+        (new_ascii_mode ? ASCII_MODE_TRUE_LABEL : ASCII_MODE_FALSE_LABEL),
+        (new_full_shape ? FULL_SHAPE_TRUE_LABEL : FULL_SHAPE_FALSE_LABEL),
+        (new_ascii_punct ? ASCII_PUNCT_TRUE_LABEL : ASCII_PUNCT_FALSE_LABEL)
+    )
+
     local status_text := ""
     local status_changed := false
     if old_ascii_mode != new_ascii_mode {
         status_changed := true
-        status_text := new_ascii_mode ? "En" : "中"
+        status_text := new_ascii_mode ? ASCII_MODE_TRUE_LABEL_ABBR : ASCII_MODE_FALSE_LABEL_ABBR
     } else if old_full_shape != new_full_shape {
         status_changed := true
-        status_text := new_full_shape ? "全" : "半"
+        status_text := new_full_shape ? FULL_SHAPE_TRUE_LABEL_ABBR : FULL_SHAPE_FALSE_LABEL_ABBR
     } else if old_ascii_punct != new_ascii_punct {
         status_changed := true
-        status_text := new_ascii_punct ? ",." : "，。"
+        status_text := new_ascii_punct ? ASCII_PUNCT_TRUE_LABEL_ABBR : ASCII_PUNCT_FALSE_LABEL_ABBR
     }
 
     if status_changed {
@@ -272,4 +300,35 @@ ProcessKey(key, mask, this_hotkey) {
         else
             SendInput("{" . key . "}")
     }
+}
+
+UpdateStateLabels() {
+    global rime, session_id, ASCII_MODE_FALSE_LABEL, ASCII_MODE_TRUE_LABEL, ASCII_MODE_FALSE_LABEL_ABBR, ASCII_MODE_TRUE_LABEL_ABBR, FULL_SHAPE_FALSE_LABEL, FULL_SHAPE_TRUE_LABEL, FULL_SHAPE_FALSE_LABEL_ABBR, FULL_SHAPE_TRUE_LABEL_ABBR, ASCII_PUNCT_FALSE_LABEL, ASCII_PUNCT_TRUE_LABEL, ASCII_PUNCT_FALSE_LABEL_ABBR, ASCII_PUNCT_TRUE_LABEL_ABBR
+    if not rime
+        return
+
+    str := rime.get_state_label(session_id, "ascii_mode", false)
+    ASCII_MODE_FALSE_LABEL := str ? str : "中文"
+    str := rime.get_state_label(session_id, "ascii_mode", true)
+    ASCII_MODE_TRUE_LABEL := str ? str : "西文"
+    str := rime.get_state_label_abbreviated(session_id, "ascii_mode", false, true).slice
+    ASCII_MODE_FALSE_LABEL_ABBR := str ? str : "中"
+    str := rime.get_state_label_abbreviated(session_id, "ascii_mode", true, true).slice
+    ASCII_MODE_TRUE_LABEL_ABBR := str ? str : "西"
+    str := rime.get_state_label(session_id, "full_shape", false)
+    FULL_SHAPE_FALSE_LABEL := str ? str : "半角"
+    str := rime.get_state_label(session_id, "full_shape", true)
+    FULL_SHAPE_TRUE_LABEL := str ? str : "全角"
+    str := rime.get_state_label_abbreviated(session_id, "full_shape", false, true).slice
+    FULL_SHAPE_FALSE_LABEL_ABBR := str ? str : "半"
+    str := rime.get_state_label_abbreviated(session_id, "full_shape", true, true).slice
+    FULL_SHAPE_TRUE_LABEL_ABBR := str ? str : "全"
+    str := rime.get_state_label(session_id, "ascii_punct", false)
+    ASCII_PUNCT_FALSE_LABEL := str ? str : "。，"
+    str := rime.get_state_label(session_id, "ascii_punct", true)
+    ASCII_PUNCT_TRUE_LABEL := str ? str : "．，"
+    str := rime.get_state_label_abbreviated(session_id, "ascii_punct", false, true).slice
+    ASCII_PUNCT_FALSE_LABEL_ABBR := str ? str : "。"
+    str := rime.get_state_label_abbreviated(session_id, "ascii_punct", true, true).slice
+    ASCII_PUNCT_TRUE_LABEL_ABBR := str ? str : "．"
 }
