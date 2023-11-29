@@ -79,6 +79,22 @@ jobs:
             LICENSE
             README.md
 
+      - name: Upload Full Zip to Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: Rabbit-Full
+          path: |
+            SharedSupport
+            Lib/librime-ahk/*.ahk
+            Lib/librime-ahk/LICENSE
+            Lib/*.ahk
+            rime.dll
+            Rabbit.exe
+            Rabbit.ico
+            *.ahk
+            LICENSE
+            README.md
+
   release:
     name: Release
     if: startsWith(github.ref, 'refs/tags/v')
@@ -91,12 +107,12 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
+          name: Rabbit-Full
           path: release
 
       - name: Pack Release Zip
         working-directory: release
         run: |
-          cp -r Rabbit/* ./ && rm -rf Rabbit
           mkdir Rime && zip -r -q ../rabbit-${{ github.ref_name }}.zip *
 
       - name: Create Release and Upload Assets
