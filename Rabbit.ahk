@@ -295,10 +295,11 @@ ProcessKey(key, mask, this_hotkey) {
     }
 
     if not processed {
-        if RegExMatch(SubStr(this_hotkey, 2), "([\<\>\^\+]+)(.+)", &matched)
-            SendInput(StrReplace(StrReplace(matched[1], "<"), ">") . "{" . matched[2] . "}")
-        else
-            SendInput("{" . key . "}")
+        local shift := (mask & KeyDef.mask["Shift"]) ? "+" : ""
+        local ctrl := (mask & KeyDef.mask["Ctrl"]) ? "^" : ""
+        local alt := (mask & KeyDef.mask["Alt"]) ? "!" : ""
+        local win := (mask & KeyDef.mask["Win"]) ? "#" : ""
+        SendInput(shift . ctrl . alt . win . "{" . key . "}")
     }
 }
 
