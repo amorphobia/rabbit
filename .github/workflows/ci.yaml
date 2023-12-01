@@ -9,8 +9,8 @@ on:
       - 'v*'
 
 jobs:
-  build:
-    name: Build
+  prepare-dependency:
+    name: Prepare Dependency
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -18,32 +18,56 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Download Dependencies
+      - name: Fetch Jiandao
+        run: |
+          WORK=`pwd`
+          JIANDAO_TAG=$(curl -s https://api.github.com/repos/amorphobia/rime-jiandao/releases/latest | jq -r '.tag_name')
+          JIANDAO_URL="https://github.com/amorphobia/rime-jiandao/releases/download/${JIANDAO_TAG}/jiandao-${JIANDAO_TAG}.zip"
+          wget -O jiandao.zip ${JIANDAO_URL} && \
+            rm -rf ${WORK}/schemas/jiandao && \
+            mkdir ${WORK}/schemas/jiandao && \
+            unzip jiandao.zip -d ${WORK}/schemas/jiandao/ && \
+            rm jiandao.zip
+
+      - name: Fetch AutoHotkey
+        run: |
+          AHK_VER=$(curl -s https://www.autohotkey.com/download/2.0/version.txt)
+          AHK_URL="https://www.autohotkey.com/download/2.0/AutoHotkey_${AHK_VER}.zip"
+          wget -qO ahk.zip ${AHK_URL} && unzip ahk.zip AutoHotkey32.exe AutoHotkey64.exe && rm -f ahk.zip
+
+      - name: Fetch Librime
         run: |
           WORK=`pwd`
           LIBRIME_TAG=$(curl -s https://api.github.com/repos/rime/librime/releases/latest | jq -r '.tag_name')
           LIBRIME_SHA=$(curl -s https://api.github.com/repos/rime/librime/tags | jq -r --arg LIBRIME_TAG "${LIBRIME_TAG}" '.[] | select(.name == $LIBRIME_TAG).commit.sha' | cut -c1-7)
-          LIBRIME_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-${LIBRIME_SHA}-Windows-msvc.7z"
-          LIBRIME_DEPS_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-deps-${LIBRIME_SHA}-Windows-msvc.7z"
-          wget -O librime.7z ${LIBRIME_URL}
-          wget -O librime-deps.7z ${LIBRIME_DEPS_URL}
-          7z x '-i!dist/lib/rime.dll' librime.7z
-          cp dist/lib/rime.dll ${WORK}/
-          7z x '-i!share/opencc' librime-deps.7z
-          AHK_VER=$(curl -s https://www.autohotkey.com/download/2.0/version.txt)
-          AHK_URL="https://www.autohotkey.com/download/2.0/AutoHotkey_${AHK_VER}.zip"
-          wget -O ahk.zip ${AHK_URL}
-          unzip -p ahk.zip AutoHotkey32.exe > Rabbit.exe
-          JIANDAO_TAG=$(curl -s https://api.github.com/repos/amorphobia/rime-jiandao/releases/latest | jq -r '.tag_name')
-          JIANDAO_URL="https://github.com/amorphobia/rime-jiandao/releases/download/${JIANDAO_TAG}/jiandao-${JIANDAO_TAG}.zip"
-          wget -O jiandao.zip ${JIANDAO_URL}
-          rm -rf ${WORK}/schemas/jiandao && mkdir ${WORK}/schemas/jiandao
-          unzip jiandao.zip -d ${WORK}/schemas/jiandao/
+          LIBRIME_MSVC_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-${LIBRIME_SHA}-Windows-msvc.7z"
+          LIBRIME_MSVC_DEPS_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-deps-${LIBRIME_SHA}-Windows-msvc.7z"
+          LIBRIME_CLANG_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-${LIBRIME_SHA}-Windows-clang.7z"
+          mkdir -p ${WORK}/librime-msvc ${WORK}/librime-clang
+          cd ${WORK}/librime-msvc && \
+            wget -O librime.7z ${LIBRIME_MSVC_URL} && \
+            7z x '-i!dist/lib/rime.dll' librime.7z && \
+            cp dist/lib/rime.dll ${WORK}/rime-msvc.dll && \
+            rm -rf librime.7z dist && \
+            wget -O deps.7z ${LIBRIME_MSVC_DEPS_URL} && \
+            7z x '-i!share/opencc' deps.7z && \
+            cp -r share/opencc ${WORK}/ && \
+            rm -rf deps.7z share
+          cd ${WORK}/librime-clang && \
+            wget -O librime.7z ${LIBRIME_CLANG_URL} && \
+            7z x '-i!dist/lib/rime.dll' librime.7z && \
+            cp dist/lib/rime.dll ${WORK}/rime-clang.dll && \
+            rm -rf librime.7z dist
 
-      - name: Make Icon
-        run: |
-          sudo apt-get install -y imagemagick
-          convert -background transparent -define 'icon:auto-resize=16,24,32,64,128,256' icon.svg Rabbit.ico
+      - name: Upload Binaries
+        uses: actions/upload-artifact@v3
+        with:
+          name: Binaries
+          path: |
+            AutoHotkey32.exe
+            AutoHotkey64.exe
+            rime-msvc.dll
+            rime-clang.dll
 
       - name: Prepare SharedSupport
         run: |
@@ -56,18 +80,47 @@ jobs:
           cp ${SCHEMAS}/default.yaml ${SHARED}/
           cp ${SCHEMAS}/luna-pinyin/*.yaml ${SHARED}/
           cp -r ${SCHEMAS}/jiandao/* ${SHARED}/
-          cp share/opencc/* ${SHARED}/opencc/
+          cp ${WORK}/opencc/* ${SHARED}/opencc/
 
-      - name: Upload SharedSupport to Artifacts
+      - name: Upload SharedSupport
         uses: actions/upload-artifact@v3
         with:
           name: SharedSupport
           path: SharedSupport
 
-      - name: Upload Rabbit to Artifacts
+  build-rabbit:
+    strategy:
+      matrix:
+        target: [ x86, x64 ]
+        include:
+          - { target: x86, ahk: AutoHotkey32.exe, rime: rime-msvc.dll }
+          - { target: x64, ahk: AutoHotkey64.exe, rime: rime-clang.dll }
+    name: Build for ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    needs: prepare-dependency
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: 'recursive'
+
+      - name: Download Dependencies
+        uses: actions/download-artifact@v3
+
+      - name: Copy Binaries
+        run: |
+          cp Binaries/${{ matrix.ahk }} Rabbit.exe
+          cp Binaries/${{ matrix.rime }} rime.dll
+
+      - name: Make Icon
+        run: |
+          sudo apt-get install -y imagemagick
+          convert -background transparent -define 'icon:auto-resize=16,24,32,64' icon.svg Rabbit.ico
+
+      - name: Upload Rabbit ${{ matrix.target }}
         uses: actions/upload-artifact@v3
         with:
-          name: Rabbit
+          name: Rabbit-${{ matrix.target }}
           path: |
             Lib/librime-ahk/*.ahk
             Lib/librime-ahk/LICENSE
@@ -79,10 +132,10 @@ jobs:
             LICENSE
             README.md
 
-      - name: Upload Full Zip to Artifacts
+      - name: Upload Full Zip of Rabbit ${{ matrix.target }}
         uses: actions/upload-artifact@v3
         with:
-          name: Rabbit-Full
+          name: Rabbit-Full-${{ matrix.target }}
           path: |
             SharedSupport
             Lib/librime-ahk/*.ahk
@@ -95,11 +148,25 @@ jobs:
             LICENSE
             README.md
 
-  release:
-    name: Release
+  create-release:
+    name: Create Release
     if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-rabbit
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+
+  upload-release:
+    strategy:
+      matrix:
+        target: [ x86, x64 ]
+    name: Upload Release for ${{ matrix.target }}
+    runs-on: ubuntu-latest
+    needs: create-release
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -107,17 +174,17 @@ jobs:
       - name: Download Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: Rabbit-Full
+          name: Rabbit-Full-${{ matrix.target }}
           path: release
 
-      - name: Pack Release Zip
+      - name: Pack Zip
         working-directory: release
         run: |
-          mkdir Rime && zip -r -q ../rabbit-${{ github.ref_name }}.zip *
+          mkdir Rime && zip -r -q ../rabbit-${{ github.ref_name }}-${{ matrix.target }}.zip *
 
-      - name: Create Release and Upload Assets
+      - name: Upload Assets
         uses: softprops/action-gh-release@v1
         with:
           prerelease: true
           files: |
-            rabbit-${{ github.ref_name }}.zip
+            rabbit-${{ github.ref_name }}-${{ matrix.target }}.zip
