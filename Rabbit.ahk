@@ -31,7 +31,6 @@ global session_id := 0
 global box := CandidateBox()
 global mutex := RabbitMutex()
 
-RegisterHotKeys()
 RabbitMain(A_Args)
 
 RabbitMain(args) {
@@ -72,6 +71,7 @@ RabbitMain(args) {
         throw Error("未能成功创建 RIME 会话。")
     }
 
+    RegisterHotKeys()
     UpdateStateLabels()
     if status := rime.get_status(session_id) {
         local new_schema_name := status.schema_name
