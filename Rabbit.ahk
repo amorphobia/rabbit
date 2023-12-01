@@ -74,19 +74,15 @@ RabbitMain(args) {
     RegisterHotKeys()
     UpdateStateLabels()
     if status := rime.get_status(session_id) {
-        local new_schema_name := status.schema_name
-        local new_ascii_mode := status.is_ascii_mode
-        local new_full_shape := status.is_full_shape
-        local new_ascii_punct := status.is_ascii_punct
+        local schema_name := status.schema_name
+        local ascii_mode := status.is_ascii_mode
+        local full_shape := status.is_full_shape
+        local ascii_punct := status.is_ascii_punct
         rime.free_status(status)
 
-        A_IconTip := Format(
-            "玉兔毫　{}`n{} | {} | {}", new_schema_name,
-            (new_ascii_mode ? ASCII_MODE_TRUE_LABEL : ASCII_MODE_FALSE_LABEL),
-            (new_full_shape ? FULL_SHAPE_TRUE_LABEL : FULL_SHAPE_FALSE_LABEL),
-            (new_ascii_punct ? ASCII_PUNCT_TRUE_LABEL : ASCII_PUNCT_FALSE_LABEL)
-        )
+        UpdateTrayTip(schema_name, ascii_mode, full_shape, ascii_punct)
     }
+    OnMessage(AHK_NOTIFYICON, ClickHandler.Bind())
 
     OnExit(ExitRabbit.Bind(layout))
 }
@@ -224,12 +220,7 @@ ProcessKey(key, mask, this_hotkey) {
         UpdateStateLabels()
     }
 
-    A_IconTip := Format(
-        "玉兔毫　{}`n{} | {} | {}", new_schema_name,
-        (new_ascii_mode ? ASCII_MODE_TRUE_LABEL : ASCII_MODE_FALSE_LABEL),
-        (new_full_shape ? FULL_SHAPE_TRUE_LABEL : FULL_SHAPE_FALSE_LABEL),
-        (new_ascii_punct ? ASCII_PUNCT_TRUE_LABEL : ASCII_PUNCT_FALSE_LABEL)
-    )
+    UpdateTrayTip(new_schema_name, new_ascii_mode, new_full_shape, new_ascii_punct)
 
     local status_text := ""
     local status_changed := false
@@ -327,9 +318,9 @@ UpdateStateLabels() {
     str := rime.get_state_label(session_id, "ascii_punct", false)
     ASCII_PUNCT_FALSE_LABEL := str ? str : "。，"
     str := rime.get_state_label(session_id, "ascii_punct", true)
-    ASCII_PUNCT_TRUE_LABEL := str ? str : "．，"
+    ASCII_PUNCT_TRUE_LABEL := str ? str : ". ,"
     slice := rime.get_state_label_abbreviated(session_id, "ascii_punct", false, true)
     ASCII_PUNCT_FALSE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "。"
     slice := rime.get_state_label_abbreviated(session_id, "ascii_punct", true, true)
-    ASCII_PUNCT_TRUE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "．"
+    ASCII_PUNCT_TRUE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "."
 }

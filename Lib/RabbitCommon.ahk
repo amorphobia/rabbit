@@ -19,6 +19,10 @@
 #Include <librime-ahk\rime_api>
 #Include <librime-ahk\rime_levers_api>
 
+global AHK_NOTIFYICON := 0x404
+global WM_LBUTTONDOWN := 0x201
+global WM_LBUTTONUP := 0x202
+
 global rime := RimeApi()
 global RABBIT_IME_NAME := "玉兔毫"
 global RABBIT_CODE_NAME := "Rabbit"
@@ -37,9 +41,9 @@ global FULL_SHAPE_TRUE_LABEL := "全角"
 global FULL_SHAPE_FALSE_LABEL_ABBR := "半"
 global FULL_SHAPE_TRUE_LABEL_ABBR := "全"
 global ASCII_PUNCT_FALSE_LABEL := "。，"
-global ASCII_PUNCT_TRUE_LABEL := "．，"
+global ASCII_PUNCT_TRUE_LABEL := ". ,"
 global ASCII_PUNCT_FALSE_LABEL_ABBR := "。"
-global ASCII_PUNCT_TRUE_LABEL_ABBR := "．"
+global ASCII_PUNCT_TRUE_LABEL_ABBR := "."
 
 global ERROR_ALREADY_EXISTS := 183 ; https://learn.microsoft.com/windows/win32/debug/system-error-codes--0-499-
 

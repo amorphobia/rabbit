@@ -17,6 +17,12 @@
  */
 TraySetIcon("Rabbit.ico")
 A_IconTip := "玉兔毫"
+
+global TRAY_SCHEMA_NAME := ""
+global TRAY_ASCII_MODE := 0
+global TRAY_FULL_SHAPE := 0
+global TRAY_ASCII_PUNCT := 0
+
 A_TrayMenu.Delete()
 ; A_TrayMenu.add("输入法设定")
 ; A_TrayMenu.add("用户词典管理")
@@ -48,4 +54,32 @@ if TRAY_MENU_GRAYOUT {
     A_TrayMenu.Disable("仓库主页")
     A_TrayMenu.Disable("重新部署")
     A_TrayMenu.Disable("退出玉兔毫")
+}
+
+ClickHandler(wParam, lParam, msg, hWnd) {
+    if not rime
+        return
+    if (lParam == WM_LBUTTONUP) {
+        local old_ascii_mode := rime.get_option(session_id, "ascii_mode")
+        rime.set_option(session_id, "ascii_mode", !old_ascii_mode)
+        local new_ascii_mode := rime.get_option(session_id, "ascii_mode")
+        UpdateTrayTip(, new_ascii_mode)
+        status_text := new_ascii_mode ? ASCII_MODE_TRUE_LABEL_ABBR : ASCII_MODE_FALSE_LABEL_ABBR
+        ToolTip(status_text, , , STATUS_TOOLTIP)
+        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
+    }
+}
+
+UpdateTrayTip(schema_name := TRAY_SCHEMA_NAME, ascii_mode := TRAY_ASCII_MODE, full_shape := TRAY_FULL_SHAPE, ascii_punct := TRAY_ASCII_PUNCT) {
+    global TRAY_SCHEMA_NAME, TRAY_ASCII_MODE, TRAY_FULL_SHAPE, TRAY_ASCII_PUNCT
+    TRAY_SCHEMA_NAME := schema_name ? schema_name : TRAY_SCHEMA_NAME
+    TRAY_ASCII_MODE := !!ascii_mode
+    TRAY_FULL_SHAPE := !!full_shape
+    TRAY_ASCII_PUNCT := !!ascii_punct
+    A_IconTip := Format(
+        "玉兔毫　{}`n左键切换模式，右键打开菜单`n{} | {} | {}", TRAY_SCHEMA_NAME,
+        (TRAY_ASCII_MODE ? ASCII_MODE_TRUE_LABEL : ASCII_MODE_FALSE_LABEL),
+        (TRAY_FULL_SHAPE ? FULL_SHAPE_TRUE_LABEL : FULL_SHAPE_FALSE_LABEL),
+        (TRAY_ASCII_PUNCT ? ASCII_PUNCT_TRUE_LABEL : ASCII_PUNCT_FALSE_LABEL)
+    )
 }
