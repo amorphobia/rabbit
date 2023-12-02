@@ -57,9 +57,9 @@ if TRAY_MENU_GRAYOUT {
 }
 
 ClickHandler(wParam, lParam, msg, hWnd) {
-    if not rime
+    if !rime || !IsSet(session_id) || !session_id
         return
-    if (lParam == WM_LBUTTONUP) {
+    if lParam == WM_LBUTTONUP {
         local old_ascii_mode := rime.get_option(session_id, "ascii_mode")
         rime.set_option(session_id, "ascii_mode", !old_ascii_mode)
         local new_ascii_mode := rime.get_option(session_id, "ascii_mode")
