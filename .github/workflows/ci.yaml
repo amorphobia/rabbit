@@ -40,23 +40,23 @@ jobs:
           WORK=`pwd`
           LIBRIME_TAG=$(curl -s https://api.github.com/repos/rime/librime/releases/latest | jq -r '.tag_name')
           LIBRIME_SHA=$(curl -s https://api.github.com/repos/rime/librime/tags | jq -r --arg LIBRIME_TAG "${LIBRIME_TAG}" '.[] | select(.name == $LIBRIME_TAG).commit.sha' | cut -c1-7)
-          LIBRIME_MSVC_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-${LIBRIME_SHA}-Windows-msvc.7z"
-          LIBRIME_MSVC_DEPS_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-deps-${LIBRIME_SHA}-Windows-msvc.7z"
-          LIBRIME_CLANG_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-${LIBRIME_SHA}-Windows-clang.7z"
+          LIBRIME_MSVC_X86_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-${LIBRIME_SHA}-Windows-msvc-x86.7z"
+          LIBRIME_MSVC_X86_DEPS_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-deps-${LIBRIME_SHA}-Windows-msvc-x86.7z"
+          LIBRIME_MSVC_X64_URL="https://github.com/rime/librime/releases/download/${LIBRIME_TAG}/rime-${LIBRIME_SHA}-Windows-msvc-x64.7z"
           mkdir -p ${WORK}/librime-msvc ${WORK}/librime-clang
           cd ${WORK}/librime-msvc && \
-            wget -O librime.7z ${LIBRIME_MSVC_URL} && \
+            wget -O librime.7z ${LIBRIME_MSVC_X86_URL} && \
             7z x '-i!dist/lib/rime.dll' librime.7z && \
-            cp dist/lib/rime.dll ${WORK}/rime-msvc.dll && \
+            cp dist/lib/rime.dll ${WORK}/rime-x86.dll && \
             rm -rf librime.7z dist && \
-            wget -O deps.7z ${LIBRIME_MSVC_DEPS_URL} && \
+            wget -O deps.7z ${LIBRIME_MSVC_X86_DEPS_URL} && \
             7z x '-i!share/opencc' deps.7z && \
             cp -r share/opencc ${WORK}/ && \
             rm -rf deps.7z share
           cd ${WORK}/librime-clang && \
-            wget -O librime.7z ${LIBRIME_CLANG_URL} && \
+            wget -O librime.7z ${LIBRIME_MSVC_X64_URL} && \
             7z x '-i!dist/lib/rime.dll' librime.7z && \
-            cp dist/lib/rime.dll ${WORK}/rime-clang.dll && \
+            cp dist/lib/rime.dll ${WORK}/rime-x64.dll && \
             rm -rf librime.7z dist
 
       - name: Upload Binaries
@@ -66,8 +66,8 @@ jobs:
           path: |
             AutoHotkey32.exe
             AutoHotkey64.exe
-            rime-msvc.dll
-            rime-clang.dll
+            rime-x86.dll
+            rime-x64.dll
 
       - name: Prepare SharedSupport
         run: |
@@ -93,8 +93,8 @@ jobs:
       matrix:
         target: [ x86, x64 ]
         include:
-          - { target: x86, ahk: AutoHotkey32.exe, rime: rime-msvc.dll }
-          - { target: x64, ahk: AutoHotkey64.exe, rime: rime-clang.dll }
+          - { target: x86, ahk: AutoHotkey32.exe, rime: rime-x86.dll }
+          - { target: x64, ahk: AutoHotkey64.exe, rime: rime-x64.dll }
     name: Build for ${{ matrix.target }}
     runs-on: ubuntu-latest
     needs: prepare-dependency
