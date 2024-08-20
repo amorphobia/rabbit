@@ -32,7 +32,7 @@
 - [GetCaretPos](https://github.com/Descolada/AHK-v2-libraries)
 - [rime-prelude](https://github.com/rime/rime-prelude)
 - [🌟️星空键道](https://github.com/amorphobia/rime-jiandao)
-- [朙月拼音](https://github.com/rime/rime-luna-pinyin)
+- [袖珍简化字拼音](https://github.com/rime/rime-pinyin-simp)
 - [八股文](https://github.com/rime/rime-essay)
 
 以及一些代码片段，在注释中注明了来源链接

@@ -4,9 +4,9 @@
 [submodule "schemas/prelude"]
 	path = schemas/prelude
 	url = https://github.com/rime/rime-prelude
-[submodule "schemas/luna-pinyin"]
-	path = schemas/luna-pinyin
-	url = https://github.com/rime/rime-luna-pinyin
 [submodule "schemas/essay"]
 	path = schemas/essay
 	url = https://github.com/rime/rime-essay
+[submodule "schemas/rime-pinyin-simp"]
+	path = schemas/rime-pinyin-simp
+	url = https://github.com/rime/rime-pinyin-simp

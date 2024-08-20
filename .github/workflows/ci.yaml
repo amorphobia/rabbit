@@ -78,7 +78,7 @@ jobs:
           cp ${SCHEMAS}/prelude/*.yaml ${SHARED}/
           cp ${SCHEMAS}/essay/essay.txt ${SHARED}/
           cp ${SCHEMAS}/default.yaml ${SHARED}/
-          cp ${SCHEMAS}/luna-pinyin/*.yaml ${SHARED}/
+          cp ${SCHEMAS}/rime-pinyin-simp/*.yaml ${SHARED}/
           cp -r ${SCHEMAS}/jiandao/* ${SHARED}/
           cp ${WORK}/opencc/* ${SHARED}/opencc/
 
