@@ -9,6 +9,24 @@ on:
       - 'v*'
 
 jobs:
+  prepare-icon:
+    name: Prepare Icon
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Make Icon
+        run: |
+          sudo apt-get install -y imagemagick
+          convert -background transparent -define 'icon:auto-resize=16,24,32,64' icon.svg Rabbit.ico
+
+      - name: Upload Icon
+        uses: actions/upload-artifact@v4
+        with:
+          name: Icon
+          path: Rabbit.ico
+
   prepare-dependency:
     name: Prepare Dependency
     runs-on: ubuntu-latest
@@ -28,12 +46,6 @@ jobs:
             mkdir ${WORK}/schemas/jiandao && \
             unzip jiandao.zip -d ${WORK}/schemas/jiandao/ && \
             rm jiandao.zip
-
-      - name: Fetch AutoHotkey
-        run: |
-          AHK_VER=$(curl -s https://www.autohotkey.com/download/2.0/version.txt)
-          AHK_URL="https://www.autohotkey.com/download/2.0/AutoHotkey_${AHK_VER}.zip"
-          wget -qO ahk.zip ${AHK_URL} && unzip ahk.zip AutoHotkey32.exe AutoHotkey64.exe && rm -f ahk.zip
 
       - name: Fetch Librime
         run: |
@@ -59,13 +71,11 @@ jobs:
             cp dist/lib/rime.dll ${WORK}/rime-x64.dll && \
             rm -rf librime.7z dist
 
-      - name: Upload Binaries
+      - name: Upload Rime
         uses: actions/upload-artifact@v4
         with:
-          name: Binaries
+          name: Rime
           path: |
-            AutoHotkey32.exe
-            AutoHotkey64.exe
             rime-x86.dll
             rime-x64.dll
 
@@ -88,6 +98,41 @@ jobs:
           name: SharedSupport
           path: SharedSupport
 
+  prepare-autohotkey-binaries:
+    name: Prepare AutoHotkey Binaries
+    runs-on: windows-latest
+    needs: prepare-icon
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download Dependencies
+        uses: actions/download-artifact@v4
+        with:
+          name: Icon
+
+      - name: Fetch AutoHotkey
+        run: |
+          $RcEditVer = (Invoke-RestMethod "https://api.github.com/repos/electron/rcedit/releases/latest").tag_name
+          $RcEditUrl = "https://github.com/electron/rcedit/releases/download/$RcEditVer/rcedit-x64.exe"
+          Invoke-WebRequest $RcEditUrl -Out rcedit.exe
+          $AhkVer = Invoke-RestMethod "https://www.autohotkey.com/download/2.0/version.txt"
+          $AhkUrl = "https://www.autohotkey.com/download/2.0/AutoHotkey_$AhkVer.zip"
+          Invoke-WebRequest $AhkUrl -Out ahk.zip
+          Expand-Archive -Path ahk.zip -DestinationPath temp -Force
+          Move-Item -Path .\temp\AutoHotkey*.exe -Destination .\
+          Remove-Item -Recurse temp,ahk.zip
+          .\rcedit.exe .\AutoHotkey32.exe --set-icon .\Rabbit.ico
+          .\rcedit.exe .\AutoHotkey64.exe --set-icon .\Rabbit.ico
+
+      - name: Upload AutoHotkey
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoHotkey
+          path: |
+            AutoHotkey32.exe
+            AutoHotkey64.exe
+
   build-rabbit:
     strategy:
       matrix:
@@ -97,7 +142,7 @@ jobs:
           - { target: x64, ahk: AutoHotkey64.exe, rime: rime-x64.dll }
     name: Build for ${{ matrix.target }}
     runs-on: ubuntu-latest
-    needs: prepare-dependency
+    needs: [ prepare-dependency, prepare-autohotkey-binaries ]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -107,15 +152,11 @@ jobs:
       - name: Download Dependencies
         uses: actions/download-artifact@v4
 
-      - name: Copy Binaries
+      - name: Copy Artifacts
         run: |
-          cp Binaries/${{ matrix.ahk }} Rabbit.exe
-          cp Binaries/${{ matrix.rime }} rime.dll
-
-      - name: Make Icon
-        run: |
-          sudo apt-get install -y imagemagick
-          convert -background transparent -define 'icon:auto-resize=16,24,32,64' icon.svg Rabbit.ico
+          cp AutoHotkey/${{ matrix.ahk }} Rabbit.exe
+          cp Rime/${{ matrix.rime }} rime.dll
+          cp Icon/Rabbit.ico Rabbit.ico
 
       - name: Upload Rabbit ${{ matrix.target }}
         uses: actions/upload-artifact@v4
