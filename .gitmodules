@@ -7,6 +7,6 @@
 [submodule "schemas/essay"]
 	path = schemas/essay
 	url = https://github.com/rime/rime-essay
-[submodule "schemas/rime-pinyin-simp"]
-	path = schemas/rime-pinyin-simp
+[submodule "schemas/pinyin-simp"]
+	path = schemas/pinyin-simp
 	url = https://github.com/rime/rime-pinyin-simp
