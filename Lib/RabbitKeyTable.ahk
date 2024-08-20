@@ -149,7 +149,7 @@ class KeyDef {
         "Enter",        0x00ff0d, ; Return
         ; "Pause",        0x00ff13,
         ; "ScrollLock",   0x00ff14,
-        ; "Escape",       0x00ff1b,
+        "Escape",       0x00ff1b,
         "Home",         0x00ff50,
         "Left",         0x00ff51,
         "Up",           0x00ff52,
