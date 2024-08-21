@@ -106,6 +106,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install RcEdit
+        uses: MinoruSekine/setup-scoop@v4
+        with:
+          apps: rcedit
+
       - name: Download Dependencies
         uses: actions/download-artifact@v4
         with:
@@ -113,17 +118,14 @@ jobs:
 
       - name: Fetch AutoHotkey
         run: |
-          $RcEditVer = (Invoke-RestMethod "https://api.github.com/repos/electron/rcedit/releases/latest").tag_name
-          $RcEditUrl = "https://github.com/electron/rcedit/releases/download/$RcEditVer/rcedit-x64.exe"
-          Invoke-WebRequest $RcEditUrl -Out rcedit.exe
           $AhkVer = Invoke-RestMethod "https://www.autohotkey.com/download/2.0/version.txt"
           $AhkUrl = "https://www.autohotkey.com/download/2.0/AutoHotkey_$AhkVer.zip"
           Invoke-WebRequest $AhkUrl -Out ahk.zip
           Expand-Archive -Path ahk.zip -DestinationPath temp -Force
           Move-Item -Path .\temp\AutoHotkey*.exe -Destination .\
           Remove-Item -Recurse temp,ahk.zip
-          .\rcedit.exe .\AutoHotkey32.exe --set-icon .\Rabbit.ico
-          .\rcedit.exe .\AutoHotkey64.exe --set-icon .\Rabbit.ico
+          rcedit .\AutoHotkey32.exe --set-icon .\Rabbit.ico
+          rcedit .\AutoHotkey64.exe --set-icon .\Rabbit.ico
 
       - name: Upload AutoHotkey
         uses: actions/upload-artifact@v4
