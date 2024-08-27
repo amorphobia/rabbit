@@ -30,6 +30,7 @@ global TRAY_MENU_GRAYOUT := false
 global session_id := 0
 global box := CandidateBox()
 global mutex := RabbitMutex()
+global last_is_hide := false
 
 RabbitMain(A_Args)
 
@@ -171,6 +172,7 @@ RegisterHotKeys() {
 }
 
 ProcessKey(key, mask, this_hotkey) {
+    global last_is_hide
     local code := 0
     Loop 4 {
         local key_map
@@ -224,8 +226,9 @@ ProcessKey(key, mask, this_hotkey) {
 
     local status_text := ""
     local status_changed := false
+    local ascii_changed := false
     if old_ascii_mode != new_ascii_mode {
-        status_changed := true
+        ascii_changed := true
         status_text := new_ascii_mode ? ASCII_MODE_TRUE_LABEL_ABBR : ASCII_MODE_FALSE_LABEL_ABBR
     } else if old_full_shape != new_full_shape {
         status_changed := true
@@ -235,17 +238,22 @@ ProcessKey(key, mask, this_hotkey) {
         status_text := new_ascii_punct ? ASCII_PUNCT_TRUE_LABEL_ABBR : ASCII_PUNCT_FALSE_LABEL_ABBR
     }
 
-    if status_changed {
+    if status_changed || ascii_changed {
         ToolTip(status_text, , , STATUS_TOOLTIP)
         SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
     }
 
     if commit := rime.get_commit(session_id) {
+        if ascii_changed
+            last_is_hide := true
+        else
+            last_is_hide := false
         SendText(commit.text)
         ToolTip()
         box.Show("Hide")
         rime.free_commit(commit)
-    }
+    } else
+        last_is_hide := false
 
     if context := rime.get_context(session_id) {
         if context.composition.length > 0 {
@@ -270,7 +278,8 @@ ProcessKey(key, mask, this_hotkey) {
                     if new_y + box_height > workspace_height
                         new_y := caret_y - 4 - box_height
                 }
-                box.Show("AutoSize NA x" . new_x . " y" . new_y)
+                if !last_is_hide
+                    box.Show("AutoSize NA x" . new_x . " y" . new_y)
             } else {
                 has_selected := GetCompositionText(context.composition, &pre_selected, &selected, &post_selected)
                 preedit_text := pre_selected
