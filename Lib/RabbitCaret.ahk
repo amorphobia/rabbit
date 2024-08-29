@@ -21,6 +21,8 @@
  * with MIT License
  */
 
+#Include <GetCaretPosEx\GetCaretPosEx>
+
 /**
  * Gets the position of the caret with UIA, Acc or CaretGetPos.
  * Credit: plankoe (https://www.reddit.com/r/AutoHotkey/comments/ysuawq/get_the_caret_location_in_any_program/)
@@ -106,17 +108,32 @@ GetCaretPos(&caret_x?, &caret_y?, &caret_w?, &caret_h?) {
         }
     }
 
-    local saved_caret := A_CoordModeCaret
-    CoordMode("Caret", "Screen")
-    local found := CaretGetPos(&caret_x, &caret_y)
-    CoordMode("Caret", saved_caret)
-    if found {
-        caret_w := 4
-        caret_h := 20
-    } else {
-        caret_x := 0
-        caret_y := 0
+    if GetCaretPosEx(&left, &top, &right, &bottom, true) {
+        if !IsSet(left) || !IsSet(top) || !IsSet(right) || !IsSet(bottom)
+            return GetBuiltInCaretPos(&caret_x, &caret_y, &caret_w, &caret_h)
+
+        caret_x := left
+        caret_y := top
+        caret_w := right - left
+        caret_h := bottom - top
+
+        return true
     }
 
+    return GetBuiltInCaretPos(&caret_x, &caret_y, &caret_w, &caret_h)
+}
+
+GetBuiltInCaretPos(&x, &y, &w, &h) {
+    local saved_caret := A_CoordModeCaret
+    CoordMode("Caret", "Screen")
+    local found := CaretGetPos(&x, &y)
+    CoordMode("Caret", saved_caret)
+    if found {
+        w := 4
+        h := 20
+    } else {
+        x := 0
+        y := 0
+    }
     return found
 }
