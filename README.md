@@ -14,8 +14,6 @@
 
 前往 [Actions 页面](https://github.com/amorphobia/rabbit/actions) 找到最近成功构建的一次，在生成的 Artifacts 中点击 `Rabbit-Full` 下载，将压缩包内容解压到一个新建目录中，运行 `Rabbit.exe` 即可。之后更新时，可只下载 `Rabbit` 或 `SharedSupport` 覆盖相应的文件。
 
-一般来说，Action 版比 Release 版更新，可能会修复一些问题，也可能会引入更多问题（我太菜了😭️）
-
 ### Release 版
 
 发行版会在 [Release 页面](https://github.com/amorphobia/rabbit/releases) 的 Assets 中，下载最新的 `rabbit-v<版本号>.zip`，解压到一个新建文件夹，运行 `Rabbit.exe` 即可。
@@ -30,6 +28,7 @@
 - [OpenCC](https://github.com/BYVoid/OpenCC)
 - [librime-ahk](https://github.com/amorphobia/librime-ahk)
 - [GetCaretPos](https://github.com/Descolada/AHK-v2-libraries)
+- [GetCaretPosEx](https://github.com/Tebayaki/AutoHotkeyScripts/tree/main/lib/GetCaretPosEx)
 - [rime-prelude](https://github.com/rime/rime-prelude)
 - [🌟️星空键道](https://github.com/amorphobia/rime-jiandao)
 - [袖珍简化字拼音](https://github.com/rime/rime-pinyin-simp)
@@ -40,6 +39,6 @@
 ## 已知问题
 
 - 候选框图形界面较为简陋，有闪烁等问题
-- 某些情况无法获得输入光标的坐标
+- ~~某些情况无法获得输入光标的坐标~~已在 x64 版本中修复，使用 x86 版本某些在应用中依旧无法获取光标的坐标
 - 因热键冲突而取消了一些按键注册
 - 与某些软件适配较差
