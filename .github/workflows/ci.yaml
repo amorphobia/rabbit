@@ -106,20 +106,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Compile Caret Hook
-        run: |
-          Push-Location .\Lib\GetCaretPosEx\
-          $VsPath = &(Join-Path ${env:ProgramFiles(x86)} "\Microsoft Visual Studio\Installer\vswhere.exe") -Latest -Products * -Requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -Property InstallationPath
-          Import-Module (Join-Path $VsPath "Common7\Tools\Microsoft.VisualStudio.DevShell.dll")
-          $targets = @("x64", "x86")
-          foreach ( $arch in $targets )
-          {
-              Enter-VsDevShell -VsInstallPath $VsPath -SkipAutomaticLocation -DevCmdArguments "-arch=$arch"
-              cl /Fo"GetCaretPosFromHook-$arch" /O2 /Ob1 /c /GS- /std:c++20 /d1reportSingleClassLayoutCaretPosHookData GetCaretPosFromHook.cpp
-          }
-          Pop-Location
-          Move-Item .\Lib\GetCaretPosEx\*.obj .\
-
       - name: Install RcEdit
         uses: MinoruSekine/setup-scoop@v4
         with:
@@ -148,8 +134,6 @@ jobs:
           path: |
             AutoHotkey32.exe
             AutoHotkey64.exe
-            GetCaretPosFromHook-x86.obj
-            GetCaretPosFromHook-x64.obj
 
   build-rabbit:
     strategy:
@@ -173,7 +157,6 @@ jobs:
       - name: Copy Artifacts
         run: |
           cp AutoHotkey/${{ matrix.ahk }} Rabbit.exe
-          cp AutoHotkey/GetCaretPosFromHook-${{ matrix.target }}.obj Lib/GetCaretPosEx/GetCaretPosFromHook.obj
           cp Rime/${{ matrix.rime }} rime.dll
           cp Icon/Rabbit.ico Rabbit.ico
 
@@ -185,7 +168,6 @@ jobs:
             Lib/librime-ahk/*.ahk
             Lib/librime-ahk/LICENSE
             Lib/GetCaretPosEx/*.ahk
-            Lib/GetCaretPosEx/*.obj
             Lib/GetCaretPosEx/LICENSE.txt
             Lib/*.ahk
             rime.dll
@@ -204,7 +186,6 @@ jobs:
             Lib/librime-ahk/*.ahk
             Lib/librime-ahk/LICENSE
             Lib/GetCaretPosEx/*.ahk
-            Lib/GetCaretPosEx/*.obj
             Lib/GetCaretPosEx/LICENSE.txt
             Lib/*.ahk
             rime.dll
