@@ -19,7 +19,8 @@ jobs:
       - name: Make Icon
         run: |
           sudo apt-get install -y imagemagick
-          convert -background transparent -define 'icon:auto-resize=16,24,32,64' icon.svg Rabbit.ico
+          # https://learn.microsoft.com/windows/apps/design/style/iconography/app-icon-construction
+          convert -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon.svg Rabbit.ico
 
       - name: Upload Icon
         uses: actions/upload-artifact@v4
@@ -166,6 +167,7 @@ jobs:
           name: Rabbit-${{ matrix.target }}
           path: |
             Lib/librime-ahk/*.ahk
+            Lib/librime-ahk/utils
             Lib/librime-ahk/LICENSE
             Lib/GetCaretPosEx/*.ahk
             Lib/GetCaretPosEx/LICENSE.txt
@@ -184,6 +186,7 @@ jobs:
           path: |
             SharedSupport
             Lib/librime-ahk/*.ahk
+            Lib/librime-ahk/utils
             Lib/librime-ahk/LICENSE
             Lib/GetCaretPosEx/*.ahk
             Lib/GetCaretPosEx/LICENSE.txt
