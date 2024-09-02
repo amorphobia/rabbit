@@ -16,6 +16,15 @@
  *
  */
 
+global RABBIT_VERSION := "0.1.4"
+;@Ahk2Exe-SetCompanyName amorphobia
+;@Ahk2Exe-SetCopyright Copyright (c) 2023`, 2024 Xuesong Peng
+;@Ahk2Exe-SetDescription 由 AutoHotkey 实现的 Rime 输入法
+;@Ahk2Exe-Let U_version = %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
+;@Ahk2Exe-SetVersion %U_version%
+;@Ahk2Exe-SetLanguage 0x0804
+;@Ahk2Exe-SetMainIcon Rabbit.ico
+
 #Include <librime-ahk\rime_api>
 #Include <librime-ahk\rime_levers_api>
 
@@ -26,7 +35,6 @@ global WM_LBUTTONUP := 0x202
 global rime := RimeApi()
 global RABBIT_IME_NAME := "玉兔毫"
 global RABBIT_CODE_NAME := "Rabbit"
-global RABBIT_VERSION := "0.1.4"
 global RABBIT_NO_MAINTENANCE := "0"
 global RABBIT_PARTIAL_MAINTENANCE := "1"
 global RABBIT_FULL_MAINTENANCE := "2"

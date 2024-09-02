@@ -17,6 +17,10 @@
  */
 #Requires AutoHotkey v2.0
 
+;@Ahk2Exe-SetInternalName rabbit-deployer
+;@Ahk2Exe-SetProductName 玉兔毫部署应用
+;@Ahk2Exe-SetOrigFilename RabbitDeployer.ahk
+
 global TRAY_MENU_GRAYOUT := true
 
 #Include <RabbitCommon>
