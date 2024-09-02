@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-TraySetIcon("Rabbit.ico")
+
 A_IconTip := "玉兔毫"
 
 global TRAY_SCHEMA_NAME := ""
