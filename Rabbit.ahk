@@ -127,31 +127,34 @@ RegisterHotKeys() {
         if modifier == "LWin" or modifier == "RWin" or modifier == "LAlt" or modifier == "RAlt"
             continue ; do not register Win / Alt keys for now
         local mask := KeyDef.mask[modifier]
-        Hotkey("$" . modifier, ProcessKey.Bind(modifier, mask))
-        Hotkey("$" . modifier . " Up", ProcessKey.Bind(modifier, mask | up))
+        Hotkey("$" . modifier, ProcessKey.Bind(modifier, mask), "S0")
+        Hotkey("$" . modifier . " Up", ProcessKey.Bind(modifier, mask | up), "S0")
     }
 
     ; Plain
     Loop 2 {
         local key_map := A_Index = 1 ? KeyDef.plain_keycode : KeyDef.other_keycode
         for key, _ in key_map {
-            Hotkey("$" . key, ProcessKey.Bind(key, 0))
+            Hotkey("$" . key, ProcessKey.Bind(key, 0), "S0")
             ; need specify left/right to prevent fallback to modifier down/up hotkeys
-            Hotkey("$<^" . key, ProcessKey.Bind(key, ctrl))
+            if key = "Space"
+                Hotkey("$<^" . key, ProcessKey.Bind(key, ctrl), "S")
+            else
+                Hotkey("$<^" . key, ProcessKey.Bind(key, ctrl), "S0")
             ; do not register Alt + single key now
             ; if not key = "Tab" {
-            ;     Hotkey("$<!" . key, ProcessKey.Bind(key, alt))
-            ;     Hotkey("$>!" . key, ProcessKey.Bind(key, alt))
+            ;     Hotkey("$<!" . key, ProcessKey.Bind(key, alt), "S0")
+            ;     Hotkey("$>!" . key, ProcessKey.Bind(key, alt), "S0")
             ; }
-            Hotkey("$>^" . key, ProcessKey.Bind(key, ctrl))
-            Hotkey("$^!" . key, ProcessKey.Bind(key, ctrl | alt))
-            Hotkey("$!#" . key, ProcessKey.Bind(key, alt | win))
+            Hotkey("$>^" . key, ProcessKey.Bind(key, ctrl), "S0")
+            Hotkey("$^!" . key, ProcessKey.Bind(key, ctrl | alt), "S0")
+            Hotkey("$!#" . key, ProcessKey.Bind(key, alt | win), "S0")
 
             ; Do not register Win keys for now
-            ; Hotkey("$<#" . key, ProcessKey.Bind(key, win))
-            ; Hotkey("$>#" . key, ProcessKey.Bind(key, win))
-            ; Hotkey("$^#" . key, ProcessKey.Bind(key, ctrl | win))
-            ; Hotkey("$^!#" . key, ProcessKey.Bind(key, ctrl | alt | win))
+            ; Hotkey("$<#" . key, ProcessKey.Bind(key, win), "S0")
+            ; Hotkey("$>#" . key, ProcessKey.Bind(key, win), "S0")
+            ; Hotkey("$^#" . key, ProcessKey.Bind(key, ctrl | win), "S0")
+            ; Hotkey("$^!#" . key, ProcessKey.Bind(key, ctrl | alt | win), "S0")
         }
     }
 
@@ -159,23 +162,29 @@ RegisterHotKeys() {
     Loop 2 {
         local key_map := A_Index = 1 ? KeyDef.shifted_keycode : KeyDef.other_keycode
         for key, _ in key_map {
-            Hotkey("$<+" . key, ProcessKey.Bind(key, shift))
-            Hotkey("$>+" . key, ProcessKey.Bind(key, shift))
-            Hotkey("$+^" . key, ProcessKey.Bind(key, shift | ctrl))
+            Hotkey("$<+" . key, ProcessKey.Bind(key, shift), "S0")
+            Hotkey("$>+" . key, ProcessKey.Bind(key, shift), "S0")
+            Hotkey("$+^" . key, ProcessKey.Bind(key, shift | ctrl), "S0")
             if not key == "Tab"
-                Hotkey("$+!" . key, ProcessKey.Bind(key, shift | alt))
-            Hotkey("$+^!" . key, ProcessKey.Bind(key, shift | ctrl | alt))
+                Hotkey("$+!" . key, ProcessKey.Bind(key, shift | alt), "S0")
+            Hotkey("$+^!" . key, ProcessKey.Bind(key, shift | ctrl | alt), "S0")
 
             ; Do not register Win keys for now
-            ; Hotkey("$+#" . key, ProcessKey.Bind(key, shift | win))
-            ; Hotkey("$+^#" . key, ProcessKey.Bind(key, shift | ctrl | win))
-            ; Hotkey("$+!#" . key, ProcessKey.Bind(key, shift | alt | win))
-            ; Hotkey("$+^!#" . key, ProcessKey.Bind(key, shift | ctrl | alt | win))
+            ; Hotkey("$+#" . key, ProcessKey.Bind(key, shift | win), "S0")
+            ; Hotkey("$+^#" . key, ProcessKey.Bind(key, shift | ctrl | win), "S0")
+            ; Hotkey("$+!#" . key, ProcessKey.Bind(key, shift | alt | win), "S0")
+            ; Hotkey("$+^!#" . key, ProcessKey.Bind(key, shift | ctrl | alt | win), "S0")
         }
     }
 }
 
 ProcessKey(key, mask, this_hotkey) {
+    if key = "Space" and mask == KeyDef.mask["Ctrl"] {
+        Suspend(-1)
+        ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
+        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
+        return
+    }
     global last_is_hide
     local code := 0
     Loop 4 {
