@@ -93,11 +93,11 @@ jobs:
             rime-x86.dll
             rime-x64.dll
 
-      - name: Prepare SharedSupport
+      - name: Prepare Data
         run: |
           WORK=`pwd`
           SCHEMAS=${WORK}/schemas
-          SHARED=${WORK}/SharedSupport
+          SHARED=${WORK}/Data
           rm -rf ${SHARED} && mkdir -p ${SHARED}
           cp ${SCHEMAS}/prelude/*.yaml ${SHARED}/
           cp ${SCHEMAS}/essay/essay.txt ${SHARED}/
@@ -106,11 +106,11 @@ jobs:
           cp -r ${SCHEMAS}/jiandao/* ${SHARED}/
           cp ${WORK}/opencc/* ${SHARED}/opencc/
 
-      - name: Upload SharedSupport
+      - name: Upload Data
         uses: actions/upload-artifact@v4
         with:
-          name: SharedSupport
-          path: SharedSupport
+          name: Data
+          path: Data
 
   prepare-autohotkey-binaries:
     name: Prepare AutoHotkey Binaries
@@ -195,7 +195,7 @@ jobs:
         with:
           name: Rabbit-Full-${{ matrix.target }}
           path: |
-            SharedSupport
+            Data
             Lib/librime-ahk/*.ahk
             Lib/librime-ahk/utils
             Lib/librime-ahk/LICENSE

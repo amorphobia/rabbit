@@ -81,7 +81,7 @@ CreateTraits() {
     traits.distribution_code_name := RABBIT_CODE_NAME
     traits.distribution_version := RABBIT_VERSION
     traits.app_name := "rime.rabbit"
-    traits.shared_data_dir := "SharedSupport"
+    traits.shared_data_dir := "Data"
     traits.user_data_dir := "Rime"
 
     return traits
