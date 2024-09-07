@@ -42,3 +42,5 @@
 - ~~某些情况无法获得输入光标的坐标~~已在 x64 版本中修复，使用 x86 版本某些在应用中依旧无法获取光标的坐标 (Tebayaki/AutoHotkeyScripts#4)
 - 因热键冲突而取消了一些按键注册
 - 与某些软件适配较差
+- 桌面版 QQ 的密码输入框无法使用：[QQ密码输入框（防键盘钩子）原理分析](https://blog.csdn.net/muyedongfeng/article/details/49308993)，
+（[页面存档备份](https://web.archive.org/web/20240907052640/https://blog.csdn.net/muyedongfeng/article/details/49308993)，存于互联网档案馆）
