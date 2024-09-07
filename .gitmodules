@@ -10,3 +10,6 @@
 [submodule "schemas/pinyin-simp"]
 	path = schemas/pinyin-simp
 	url = https://github.com/rime/rime-pinyin-simp
+[submodule "schemas/jiandao-src"]
+	path = schemas/jiandao-src
+	url = https://github.com/amorphobia/rime-jiandao

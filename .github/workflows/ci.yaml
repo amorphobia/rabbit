@@ -37,16 +37,29 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Fetch Jiandao
+      - name: Build Jiandao
         run: |
           WORK=`pwd`
-          JIANDAO_TAG=$(curl -s https://api.github.com/repos/amorphobia/rime-jiandao/releases/latest | jq -r '.tag_name')
-          JIANDAO_URL="https://github.com/amorphobia/rime-jiandao/releases/download/${JIANDAO_TAG}/jiandao-${JIANDAO_TAG}.zip"
-          wget -O jiandao.zip ${JIANDAO_URL} && \
-            rm -rf ${WORK}/schemas/jiandao && \
-            mkdir ${WORK}/schemas/jiandao && \
-            unzip jiandao.zip -d ${WORK}/schemas/jiandao/ && \
-            rm jiandao.zip
+          JIANDAO_DIR=${WORK}/schemas/jiandao-src
+          pushd ${JIANDAO_DIR}
+            JIANDAO_TAG=$(curl -s https://api.github.com/repos/amorphobia/rime-jiandao/releases/latest | jq -r '.tag_name')
+            make dicts DEWEIGHT=1 VERSION="${JIANDAO_TAG}-rabbit-${{ github.ref_name }}"
+          popd
+          sudo apt-get install -y opencc
+          if command -v opencc &> /dev/null; then
+            echo "$(opencc --version)"
+            mkdir -p ${JIANDAO_DIR}/schema/opencc
+            opencc -c t2s.json -i ${JIANDAO_DIR}/deps/rime-emoji/opencc/emoji_category.txt | awk '!seen[$1]++' > ${JIANDAO_DIR}/schema/opencc/emoji_category.txt
+            opencc -c t2s.json -i ${JIANDAO_DIR}/deps/rime-emoji/opencc/emoji_word.txt | awk '!seen[$1]++' > ${JIANDAO_DIR}/schema/opencc/emoji_word.txt
+            # https://github.com/rime/rime-emoji/issues/48
+            sed -i 's/鼔/鼓/g' ${JIANDAO_DIR}/schema/opencc/emoji_word.txt
+            cp ${JIANDAO_DIR}/deps/rime-emoji/opencc/emoji.json ${JIANDAO_DIR}/schema/opencc/
+            make -C ${JIANDAO_DIR}/deps/opencc-tonggui
+            cp ${JIANDAO_DIR}/deps/opencc-tonggui/opencc/* ${JIANDAO_DIR}/schema/opencc/
+          fi
+          rm ${JIANDAO_DIR}/schema/recipe.yaml
+          mkdir -p ${WORK}/schemas/jiandao
+          cp -r ${JIANDAO_DIR}/schema/* ${WORK}/schemas/jiandao/
 
       - name: Fetch Librime
         run: |
