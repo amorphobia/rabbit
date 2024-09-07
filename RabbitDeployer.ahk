@@ -119,7 +119,7 @@ class Configurator extends Class {
 
         {
             rime.deploy()
-            ; rime.deploy_config_file("rabbit.yaml", "config_version")
+            rime.deploy_config_file("rabbit.yaml", "config_version")
         }
 
         mutex.Close()

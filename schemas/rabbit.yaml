@@ -1,0 +1,8 @@
+# Rabbit settings
+# encoding: utf-8
+
+config_version: "0.1"
+
+# Define the hotkey to suspend Rabbit
+# Must use Control in modifiers
+suspend_hotkey: Control+space

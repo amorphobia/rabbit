@@ -61,8 +61,8 @@ RabbitMain(args) {
 
     local m := (args.Length == 0) ? RABBIT_PARTIAL_MAINTENANCE : args[1]
     if m != RABBIT_NO_MAINTENANCE {
-        if rime.start_maintenance(m == RABBIT_FULL_MAINTENANCE)
-            rime.join_maintenance_thread()
+        SetDefaultKeyboard(layout)
+        Deploy()
     } else {
         TrayTip()
         TrayTip("维护完成", RABBIT_IME_NAME)
@@ -116,6 +116,7 @@ ExitRabbit(layout, reason, code) {
 }
 
 RegisterHotKeys() {
+    global rime
     local shift := KeyDef.mask["Shift"]
     local ctrl := KeyDef.mask["Ctrl"]
     local alt := KeyDef.mask["Alt"]
@@ -137,10 +138,7 @@ RegisterHotKeys() {
         for key, _ in key_map {
             Hotkey("$" . key, ProcessKey.Bind(key, 0), "S0")
             ; need specify left/right to prevent fallback to modifier down/up hotkeys
-            if key = "Space"
-                Hotkey("$<^" . key, ProcessKey.Bind(key, ctrl), "S")
-            else
-                Hotkey("$<^" . key, ProcessKey.Bind(key, ctrl), "S0")
+            Hotkey("$<^" . key, ProcessKey.Bind(key, ctrl), "S0")
             ; do not register Alt + single key now
             ; if not key = "Tab" {
             ;     Hotkey("$<!" . key, ProcessKey.Bind(key, alt), "S0")
@@ -176,15 +174,81 @@ RegisterHotKeys() {
             ; Hotkey("$+^!#" . key, ProcessKey.Bind(key, shift | ctrl | alt | win), "S0")
         }
     }
+
+    ; Read the hotkey to suspend / resume Rabbit
+    if config := rime.config_open("rabbit") {
+        global suspend_hotkey_mask := 0
+        global suspend_hotkey := ""
+        local suspend_hotkey_set := false
+        if suspend_hotkey_conf := rime.config_get_string(config, "suspend_hotkey") {
+            local keys := StrSplit(suspend_hotkey_conf, "+", " ", 4)
+            local mask := 0
+            local target_key := ""
+            local num_modifiers := 0
+            for k in keys {
+                if k = "Control" {
+                    num_modifiers += !(mask & ctrl)
+                    mask |= ctrl
+                } else if k = "Alt" {
+                    num_modifiers += !(mask & alt)
+                    mask |= alt
+                } else if k = "Shift" {
+                    num_modifiers += !(mask & shift)
+                    mask |= shift
+                } else if not target_key {
+                    target_key := k
+                }
+            }
+
+            if target_key {
+                if num_modifiers = 1 {
+                    if mask & ctrl {
+                        Hotkey("$<^" . target_key, , "S")
+                        Hotkey("$>^" . target_key, , "S")
+                        suspend_hotkey_mask := mask
+                        suspend_hotkey := target_key
+                        suspend_hotkey_set := true
+                    } else if mask & alt {
+                        ; do not support
+                    } else if mask & shift {
+                        ; do not support
+                    }
+                } else if num_modifiers > 1 {
+                    local m := "$" . (mask & shift ? "+" : "") .
+                                     (mask & ctrl ? "^" : "") .
+                                     (mask & alt ? "!" : "")
+                    Hotkey("m" . target_key, , "S")
+                    suspend_hotkey_mask := mask
+                    suspend_hotkey := target_key
+                    suspend_hotkey_set := true
+                }
+            } else if keys.Length == 1 {
+                if keys[1] = "Shift" {
+                    ; do not support now
+                    Hotkey("$LShift", , "S")
+                    Hotkey("$RShift", , "S")
+                    Hotkey("$LShift Up", , "S")
+                    Hotkey("$RShift Up", , "S")
+                    suspend_hotkey_mask := mask | up
+                    suspend_hotkey := "Shift"
+                    suspend_hotkey_set := true
+                } else {
+                    ; do not support
+                }
+            }
+        }
+        if not suspend_hotkey_set {
+            Hotkey("$<^Space", , "S")
+            suspend_hotkey_mask := ctrl
+            suspend_hotkey := "Space"
+            suspend_hotkey_set := true
+        }
+        rime.config_close(config)
+    }
 }
 
 ProcessKey(key, mask, this_hotkey) {
-    if key = "Space" and mask == KeyDef.mask["Ctrl"] {
-        Suspend(-1)
-        ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
-        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
-        return
-    }
+    global suspend_hotkey_mask, suspend_hotkey
     global last_is_hide
     local code := 0
     Loop 4 {
@@ -267,6 +331,16 @@ ProcessKey(key, mask, this_hotkey) {
         rime.free_commit(commit)
     } else
         last_is_hide := false
+
+    if (key = suspend_hotkey or SubStr(key, 2) = suspend_hotkey) and (mask = suspend_hotkey_mask) {
+        ToolTip()
+        box.Show("Hide")
+        rime.clear_composition(session_id)
+        Suspend(-1)
+        ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
+        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
+        return
+    }
 
     if context := rime.get_context(session_id) {
         if context.composition.length > 0 {
