@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Xuesong Peng <pengxuesong.cn@gmail.com>
+ * Copyright (c) 2023, 2024 Xuesong Peng <pengxuesong.cn@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,7 +53,6 @@ if TRAY_MENU_GRAYOUT {
     A_TrayMenu.Disable("脚本文件夹")
     A_TrayMenu.Disable("仓库主页")
     A_TrayMenu.Disable("重新部署")
-    A_TrayMenu.Disable("退出玉兔毫")
 }
 
 ClickHandler(wParam, lParam, msg, hWnd) {

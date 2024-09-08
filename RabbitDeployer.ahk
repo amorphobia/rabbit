@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Xuesong Peng <pengxuesong.cn@gmail.com>
+ * Copyright (c) 2023, 2024 Xuesong Peng <pengxuesong.cn@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  *
  */
 #Requires AutoHotkey v2.0
+#SingleInstance Ignore
 
 ;@Ahk2Exe-SetInternalName rabbit-deployer
 ;@Ahk2Exe-SetProductName 玉兔毫部署应用
