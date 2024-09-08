@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Xuesong Peng <pengxuesong.cn@gmail.com>
+ * Copyright (c) 2023, 2024 Xuesong Peng <pengxuesong.cn@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,7 +115,8 @@ GetCompositionText(composition, &pre_selected, &selected, &post_selected) {
     local preedit_buffer ; insert caret text into preedit text if applicable
     if 0 <= composition.cursor_pos and composition.cursor_pos <= preedit_length {
         preedit_buffer := Buffer(preedit_length + cursor_size, 0)
-        local temp_preedit := RimeStruct.c_str(preedit)
+        local temp_preedit := Buffer(preedit_length, 0)
+        StrPut(preedit, temp_preedit, "UTF-8")
         local src := temp_preedit.Ptr
         local tgt := preedit_buffer.Ptr
         Loop composition.cursor_pos {

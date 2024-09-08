@@ -22,11 +22,10 @@
 ;@Ahk2Exe-SetProductName 玉兔毫部署应用
 ;@Ahk2Exe-SetOrigFilename RabbitDeployer.ahk
 
-global TRAY_MENU_GRAYOUT := true
-
 #Include <RabbitCommon>
 #Include <RabbitTrayMenu>
 
+global TRAY_MENU_GRAYOUT := true
 global rime
 global INVALID_FILE_ATTRIBUTES := -1
 global FILE_ATTRIBUTE_DIRECTORY := 0x00000010

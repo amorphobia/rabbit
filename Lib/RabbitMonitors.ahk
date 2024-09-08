@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Xuesong Peng <pengxuesong.cn@gmail.com>
+ * Copyright (c) 2023, 2024 Xuesong Peng <pengxuesong.cn@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,8 @@
  *
  */
 
-A_WCharSize := 2
+global A_IntSize := 4
+global A_WCharSize := 2
 
 global CCHDEVICENAME := 32
 global MONITOR_DEFAULTTONULL := 0

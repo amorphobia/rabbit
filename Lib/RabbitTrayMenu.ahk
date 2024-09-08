@@ -16,6 +16,8 @@
  *
  */
 
+#Include <RabbitCommon>
+
 A_IconTip := "玉兔毫"
 
 global TRAY_SCHEMA_NAME := ""

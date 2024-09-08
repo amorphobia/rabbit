@@ -22,8 +22,6 @@
 ;@Ahk2Exe-SetProductName 玉兔毫
 ;@Ahk2Exe-SetOrigFilename Rabbit.ahk
 
-global TRAY_MENU_GRAYOUT := false
-
 #Include <RabbitCommon>
 #Include <RabbitKeyTable>
 #Include <RabbitCandidateBox>
@@ -31,6 +29,7 @@ global TRAY_MENU_GRAYOUT := false
 #Include <RabbitTrayMenu>
 #Include <RabbitMonitors>
 
+global TRAY_MENU_GRAYOUT := false
 global session_id := 0
 global box := CandidateBox()
 global mutex := RabbitMutex()
