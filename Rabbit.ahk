@@ -180,7 +180,9 @@ RegisterHotKeys() {
         global suspend_hotkey_mask := 0
         global suspend_hotkey := ""
         local suspend_hotkey_set := false
-        if suspend_hotkey_conf := rime.config_get_string(config, "suspend_hotkey") {
+        local suspend_hotkey_conf := rime.config_get_string(config, "suspend_hotkey")
+        rime.config_close(config)
+        if suspend_hotkey_conf {
             local keys := StrSplit(suspend_hotkey_conf, "+", " ", 4)
             local mask := 0
             local target_key := ""
@@ -201,6 +203,8 @@ RegisterHotKeys() {
             }
 
             if target_key {
+                if KeyDef.rime_to_ahk.Has(target_key)
+                    target_key := KeyDef.rime_to_ahk[target_key]
                 if num_modifiers = 1 {
                     if mask & ctrl {
                         Hotkey("$<^" . target_key, , "S")
@@ -217,7 +221,7 @@ RegisterHotKeys() {
                     local m := "$" . (mask & shift ? "+" : "") .
                                      (mask & ctrl ? "^" : "") .
                                      (mask & alt ? "!" : "")
-                    Hotkey("m" . target_key, , "S")
+                    Hotkey(m . target_key, , "S")
                     suspend_hotkey_mask := mask
                     suspend_hotkey := target_key
                     suspend_hotkey_set := true
@@ -238,12 +242,8 @@ RegisterHotKeys() {
             }
         }
         if not suspend_hotkey_set {
-            Hotkey("$<^Space", , "S")
-            suspend_hotkey_mask := ctrl
-            suspend_hotkey := "Space"
-            suspend_hotkey_set := true
+            ; do not enable suspend hotkey
         }
-        rime.config_close(config)
     }
 }
 
@@ -332,7 +332,9 @@ ProcessKey(key, mask, this_hotkey) {
     } else
         last_is_hide := false
 
-    if (key = suspend_hotkey or SubStr(key, 2) = suspend_hotkey) and (mask = suspend_hotkey_mask) {
+    if (suspend_hotkey and suspend_hotkey_mask)
+            and (key = suspend_hotkey or SubStr(key, 2) = suspend_hotkey)
+            and (mask = suspend_hotkey_mask) {
         ToolTip()
         box.Show("Hide")
         rime.clear_composition(session_id)
