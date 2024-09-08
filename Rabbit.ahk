@@ -277,6 +277,11 @@ ProcessKey(key, mask, this_hotkey) {
     if not code
         return
 
+    if caps := GetKeyState("CapsLock", "T") {
+        if StrLen(key) == 1 and Ord(key) >= Ord("a") and Ord(key) <= Ord("z") ; small case letters
+            code += (Ord("A") - Ord("a"))
+    }
+
     if status := rime.get_status(session_id) {
         local old_schema_id := status.schema_id
         local old_ascii_mode := status.is_ascii_mode
