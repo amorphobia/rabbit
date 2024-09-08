@@ -339,12 +339,7 @@ ProcessKey(key, mask, this_hotkey) {
     if (suspend_hotkey and suspend_hotkey_mask)
             and (key = suspend_hotkey or SubStr(key, 2) = suspend_hotkey)
             and (mask = suspend_hotkey_mask) {
-        ToolTip()
-        box.Show("Hide")
-        rime.clear_composition(session_id)
-        Suspend(-1)
-        ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
-        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
+        ToggleSuspend()
         return
     }
 

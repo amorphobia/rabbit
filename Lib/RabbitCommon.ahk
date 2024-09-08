@@ -41,6 +41,7 @@ global RABBIT_FULL_MAINTENANCE := "2"
 
 global TRAY_MENU_GRAYOUT := false
 global STATUS_TOOLTIP := 2
+global box := 0
 global ASCII_MODE_FALSE_LABEL := "中文"
 global ASCII_MODE_TRUE_LABEL := "西文"
 global ASCII_MODE_FALSE_LABEL_ABBR := "中"

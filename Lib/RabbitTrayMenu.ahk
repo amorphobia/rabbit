@@ -36,6 +36,7 @@ A_TrayMenu.add()
 A_TrayMenu.add("仓库主页", (*) => Run("https://github.com/amorphobia/rabbit"))
 A_TrayMenu.add()
 A_TrayMenu.add("重新部署", (*) => Deploy())
+A_TrayMenu.add("禁用/启用玉兔毫", (*) => ToggleSuspend())
 A_TrayMenu.add("退出玉兔毫", (*) => ExitApp())
 
 Sync() {
@@ -45,6 +46,17 @@ Sync() {
 Deploy() {
     Run(A_AhkPath . " " . A_ScriptDir . "\RabbitDeployer.ahk deploy 1")
     ExitApp()
+}
+ToggleSuspend() {
+    global rime, session_id, box, STATUS_TOOLTIP
+    ToolTip()
+    if box
+        box.Show("Hide")
+    rime.clear_composition(session_id)
+    Suspend(-1)
+    UpdateTrayTip()
+    ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
+    SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
 }
 
 if TRAY_MENU_GRAYOUT {
@@ -58,7 +70,7 @@ if TRAY_MENU_GRAYOUT {
 }
 
 ClickHandler(wParam, lParam, msg, hWnd) {
-    if !rime || !IsSet(session_id) || !session_id
+    if !rime || !IsSet(session_id) || !session_id || A_IsSuspended
         return
     if lParam == WM_LBUTTONUP {
         local old_ascii_mode := rime.get_option(session_id, "ascii_mode")
@@ -77,8 +89,9 @@ UpdateTrayTip(schema_name := TRAY_SCHEMA_NAME, ascii_mode := TRAY_ASCII_MODE, fu
     TRAY_ASCII_MODE := !!ascii_mode
     TRAY_FULL_SHAPE := !!full_shape
     TRAY_ASCII_PUNCT := !!ascii_punct
+    local ss := A_IsSuspended ? "（已禁用）" : ""
     A_IconTip := Format(
-        "玉兔毫　{}`n左键切换模式，右键打开菜单`n{} | {} | {}", TRAY_SCHEMA_NAME,
+        "玉兔毫 {} {}`n左键切换模式，右键打开菜单`n{} | {} | {}", ss, TRAY_SCHEMA_NAME,
         (TRAY_ASCII_MODE ? ASCII_MODE_TRUE_LABEL : ASCII_MODE_FALSE_LABEL),
         (TRAY_FULL_SHAPE ? FULL_SHAPE_TRUE_LABEL : FULL_SHAPE_FALSE_LABEL),
         (TRAY_ASCII_PUNCT ? ASCII_PUNCT_TRUE_LABEL : ASCII_PUNCT_FALSE_LABEL)

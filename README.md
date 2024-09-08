@@ -43,4 +43,4 @@
 - 因热键冲突而取消了一些按键注册
 - 与某些软件适配较差
 - 桌面版 QQ 的密码输入框无法使用：[QQ密码输入框（防键盘钩子）原理分析](https://blog.csdn.net/muyedongfeng/article/details/49308993)，
-（[页面存档备份](https://web.archive.org/web/20240907052640/https://blog.csdn.net/muyedongfeng/article/details/49308993)，存于互联网档案馆），请使用 <kbd>LCtrl</kbd> + <kbd>Space</kbd> 禁用 / 启用玉兔毫（左控制键加空格键，暂不支持自定义按键）
+（[页面存档备份](https://web.archive.org/web/20240907052640/https://blog.csdn.net/muyedongfeng/article/details/49308993)，存于互联网档案馆），可右键点击任务栏图标选择禁用/启用玉兔毫，或是在 `rabbit.custom.yaml` 里设置 `suspend_hotkey` 指定快捷键来禁用/启用玉兔毫

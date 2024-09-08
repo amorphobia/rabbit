@@ -57,7 +57,7 @@ jobs:
             make -C ${JIANDAO_DIR}/deps/opencc-tonggui
             cp ${JIANDAO_DIR}/deps/opencc-tonggui/opencc/* ${JIANDAO_DIR}/schema/opencc/
           fi
-          rm ${JIANDAO_DIR}/schema/recipe.yaml
+          rm -f ${JIANDAO_DIR}/schema/recipe.yaml ${JIANDAO_DIR}/schema/rime.lua
           mkdir -p ${WORK}/schemas/jiandao
           cp -r ${JIANDAO_DIR}/schema/* ${WORK}/schemas/jiandao/
 
