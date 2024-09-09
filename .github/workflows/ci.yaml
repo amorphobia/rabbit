@@ -9,24 +9,46 @@ on:
       - 'v*'
 
 jobs:
-  prepare-icon:
-    name: Prepare Icon
-    runs-on: ubuntu-latest
+  prepare-autohotkey-binaries:
+    name: Prepare AutoHotkey Binaries
+    runs-on: windows-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Make Icon
+      - name: Install Dependencies
+        uses: MinoruSekine/setup-scoop@v4.0.1
+        with:
+          buckets: extras
+          apps: rcedit autohotkey imagemagick-lean
+
+      - name: Prepare binaries
         run: |
-          sudo apt-get install -y imagemagick
+          Push-Location assets
           # https://learn.microsoft.com/windows/apps/design/style/iconography/app-icon-construction
-          convert -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon.svg Rabbit.ico
+          magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon.svg rabbit.ico
+          magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon-alt.svg rabbit-alt.ico
+          Copy-Item "$(scoop prefix autohotkey)/v2/AutoHotkey32.exe","$(scoop prefix autohotkey)/v2/AutoHotkey64.exe" .
+          rcedit.exe AutoHotkey32.exe --set-icon rabbit.ico
+          rcedit.exe AutoHotkey64.exe --set-icon rabbit.ico
+          Pop-Location
+          Move-Item "assets/AutoHotkey32.exe","assets/AutoHotkey64.exe","assets/rabbit.ico","assets/rabbit-alt.ico" .
 
       - name: Upload Icon
         uses: actions/upload-artifact@v4
         with:
           name: Icon
-          path: Rabbit.ico
+          path: |
+            rabbit.ico
+            rabbit-alt.ico
+
+      - name: Upload AutoHotkey
+        uses: actions/upload-artifact@v4
+        with:
+          name: AutoHotkey
+          path: |
+            AutoHotkey32.exe
+            AutoHotkey64.exe
 
   prepare-dependency:
     name: Prepare Dependency
@@ -113,43 +135,6 @@ jobs:
           name: Data
           path: Data
 
-  prepare-autohotkey-binaries:
-    name: Prepare AutoHotkey Binaries
-    runs-on: windows-latest
-    needs: prepare-icon
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Install RcEdit
-        uses: MinoruSekine/setup-scoop@v4
-        with:
-          apps: rcedit
-
-      - name: Download Dependencies
-        uses: actions/download-artifact@v4
-        with:
-          name: Icon
-
-      - name: Fetch AutoHotkey
-        run: |
-          $AhkVer = Invoke-RestMethod "https://www.autohotkey.com/download/2.0/version.txt"
-          $AhkUrl = "https://www.autohotkey.com/download/2.0/AutoHotkey_$AhkVer.zip"
-          Invoke-WebRequest $AhkUrl -Out ahk.zip
-          Expand-Archive -Path ahk.zip -DestinationPath temp -Force
-          Move-Item -Path .\temp\AutoHotkey*.exe -Destination .\
-          Remove-Item -Recurse temp,ahk.zip
-          rcedit .\AutoHotkey32.exe --set-icon .\Rabbit.ico
-          rcedit .\AutoHotkey64.exe --set-icon .\Rabbit.ico
-
-      - name: Upload AutoHotkey
-        uses: actions/upload-artifact@v4
-        with:
-          name: AutoHotkey
-          path: |
-            AutoHotkey32.exe
-            AutoHotkey64.exe
-
   build-rabbit:
     strategy:
       matrix:
@@ -173,6 +158,7 @@ jobs:
         run: |
           cp AutoHotkey/${{ matrix.ahk }} Rabbit.exe
           cp Rime/${{ matrix.rime }} rime.dll
+          cp Icon/* Lib/
 
       - name: Upload Rabbit ${{ matrix.target }}
         uses: actions/upload-artifact@v4
@@ -185,6 +171,7 @@ jobs:
             Lib/GetCaretPosEx/*.ahk
             Lib/GetCaretPosEx/LICENSE.txt
             Lib/*.ahk
+            Lib/*.ico
             rime.dll
             Rabbit.exe
             *.ahk
@@ -203,6 +190,7 @@ jobs:
             Lib/GetCaretPosEx/*.ahk
             Lib/GetCaretPosEx/LICENSE.txt
             Lib/*.ahk
+            Lib/*.ico
             rime.dll
             Rabbit.exe
             *.ahk

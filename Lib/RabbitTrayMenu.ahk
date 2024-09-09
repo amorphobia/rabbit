@@ -18,6 +18,7 @@
 
 #Include <RabbitCommon>
 
+TraySetIcon("Lib\rabbit.ico")
 A_IconTip := "玉兔毫"
 
 global TRAY_SCHEMA_NAME := ""
@@ -54,6 +55,7 @@ ToggleSuspend() {
         box.Show("Hide")
     rime.clear_composition(session_id)
     Suspend(-1)
+    TraySetIcon(A_IsSuspended ? "Lib\rabbit-alt.ico" : "Lib\rabbit.ico", , true)
     UpdateTrayTip()
     ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
     SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
