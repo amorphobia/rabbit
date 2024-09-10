@@ -112,10 +112,16 @@ GetCaretPos(&caret_x?, &caret_y?, &caret_w?, &caret_h?) {
         if !IsSet(left) || !IsSet(top) || !IsSet(right) || !IsSet(bottom)
             return GetBuiltInCaretPos(&caret_x, &caret_y, &caret_w, &caret_h)
 
+        local max_int := 2147483647
+        local max_uint := 4294967295
         caret_x := left
         caret_y := top
         caret_w := right - left
         caret_h := bottom - top
+        if caret_x > max_int
+            caret_x := caret_x - max_uint - 1
+        if caret_y > max_int
+            caret_y := caret_y - max_uint - 1
 
         return true
     }

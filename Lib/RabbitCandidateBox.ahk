@@ -17,6 +17,8 @@
  */
 
 global LVM_GETCOLUMNWIDTH := 0x101D
+; https://learn.microsoft.com/windows/win32/winmsg/extended-window-styles
+global WS_EX_NOACTIVATE := "+E0x8000000"
 
 class CandidateBox extends Gui {
     static min_width := 150
@@ -27,7 +29,7 @@ class CandidateBox extends Gui {
 
     __New() {
         super.__New(, , this)
-        this.Opt("-Caption +Owner AlwaysOnTop")
+        this.Opt("-Caption +Owner AlwaysOnTop " . WS_EX_NOACTIVATE)
         this.MarginX := 3
         this.MarginY := 3
         this.SetFont("S12", "Microsoft YaHei UI")
