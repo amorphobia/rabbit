@@ -57,8 +57,10 @@ ToggleSuspend() {
     Suspend(-1)
     TraySetIcon(A_IsSuspended ? "Lib\rabbit-alt.ico" : "Lib\rabbit.ico", , true)
     UpdateTrayTip()
-    ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
-    SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
+    if RabbitConfig.show_tips {
+        ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
+        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -RabbitConfig.show_tips_time)
+    }
 }
 
 if TRAY_MENU_GRAYOUT {
@@ -80,8 +82,10 @@ ClickHandler(wParam, lParam, msg, hWnd) {
         local new_ascii_mode := rime.get_option(session_id, "ascii_mode")
         UpdateTrayTip(, new_ascii_mode)
         status_text := new_ascii_mode ? ASCII_MODE_TRUE_LABEL_ABBR : ASCII_MODE_FALSE_LABEL_ABBR
-        ToolTip(status_text, , , STATUS_TOOLTIP)
-        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
+        if RabbitConfig.show_tips {
+            ToolTip(status_text, , , STATUS_TOOLTIP)
+            SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -RabbitConfig.show_tips_time)
+        }
     }
 }
 

@@ -107,3 +107,26 @@ OnRimeMessage(context_object, session_id, message_type, message_value) {
         ; TrayTip(msg_type . ": " . msg_value . " (" . session_id . ")", RABBIT_IME_NAME)
     }
 }
+
+class RabbitConfig {
+    static suspend_hotkey := ""
+    static show_tips := true
+    static show_tips_time := 1200
+
+    static load() {
+        global rime
+        if !rime || !config := rime.config_open("rabbit")
+            return
+
+        RabbitConfig.suspend_hotkey := rime.config_get_string(config, "suspend_hotkey")
+        if rime.config_test_get_bool(config, "show_tips", &result)
+            RabbitConfig.show_tips := !!result
+        if rime.config_test_get_int(config, "show_tips_time", &result) {
+            RabbitConfig.show_tips_time := Abs(result)
+            if result == 0
+                RabbitConfig.show_tips := false
+        }
+
+        rime.config_close(config)
+    }
+}

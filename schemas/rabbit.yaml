@@ -5,3 +5,7 @@ config_version: "0.1"
 
 # Define the hotkey to suspend Rabbit
 suspend_hotkey: null
+
+show_tips: true
+# How long a period tips shows
+show_tips_time: 1200

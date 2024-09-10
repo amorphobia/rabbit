@@ -75,6 +75,7 @@ RabbitMain(args) {
         throw Error("未能成功创建 RIME 会话。")
     }
 
+    RabbitConfig.load()
     RegisterHotKeys()
     UpdateStateLabels()
     if status := rime.get_status(session_id) {
@@ -175,73 +176,56 @@ RegisterHotKeys() {
     }
 
     ; Read the hotkey to suspend / resume Rabbit
-    if config := rime.config_open("rabbit") {
-        global suspend_hotkey_mask := 0
-        global suspend_hotkey := ""
-        local suspend_hotkey_set := false
-        local suspend_hotkey_conf := rime.config_get_string(config, "suspend_hotkey")
-        rime.config_close(config)
-        if suspend_hotkey_conf {
-            local keys := StrSplit(suspend_hotkey_conf, "+", " ", 4)
-            local mask := 0
-            local target_key := ""
-            local num_modifiers := 0
-            for k in keys {
-                if k = "Control" {
-                    num_modifiers += !(mask & ctrl)
-                    mask |= ctrl
-                } else if k = "Alt" {
-                    num_modifiers += !(mask & alt)
-                    mask |= alt
-                } else if k = "Shift" {
-                    num_modifiers += !(mask & shift)
-                    mask |= shift
-                } else if not target_key {
-                    target_key := k
-                }
-            }
-
-            if target_key {
-                if KeyDef.rime_to_ahk.Has(target_key)
-                    target_key := KeyDef.rime_to_ahk[target_key]
-                if num_modifiers = 1 {
-                    if mask & ctrl {
-                        Hotkey("$<^" . target_key, , "S")
-                        Hotkey("$>^" . target_key, , "S")
-                        suspend_hotkey_mask := mask
-                        suspend_hotkey := target_key
-                        suspend_hotkey_set := true
-                    } else if mask & alt {
-                        ; do not support
-                    } else if mask & shift {
-                        ; do not support
-                    }
-                } else if num_modifiers > 1 {
-                    local m := "$" . (mask & shift ? "+" : "") .
-                                     (mask & ctrl ? "^" : "") .
-                                     (mask & alt ? "!" : "")
-                    Hotkey(m . target_key, , "S")
-                    suspend_hotkey_mask := mask
-                    suspend_hotkey := target_key
-                    suspend_hotkey_set := true
-                }
-            } else if keys.Length == 1 {
-                if keys[1] = "Shift" {
-                    ; do not support now
-                    Hotkey("$LShift", , "S")
-                    Hotkey("$RShift", , "S")
-                    Hotkey("$LShift Up", , "S")
-                    Hotkey("$RShift Up", , "S")
-                    suspend_hotkey_mask := mask | up
-                    suspend_hotkey := "Shift"
-                    suspend_hotkey_set := true
-                } else {
-                    ; do not support
-                }
-            }
+    global suspend_hotkey_mask := 0
+    global suspend_hotkey := ""
+    if !RabbitConfig.suspend_hotkey
+        return
+    local keys := StrSplit(RabbitConfig.suspend_hotkey, "+", " ", 4)
+    local mask := 0
+    local target_key := ""
+    local num_modifiers := 0
+    for k in keys {
+        if k = "Control" {
+            num_modifiers += !(mask & ctrl)
+            mask |= ctrl
+        } else if k = "Alt" {
+            num_modifiers += !(mask & alt)
+            mask |= alt
+        } else if k = "Shift" {
+            num_modifiers += !(mask & shift)
+            mask |= shift
+        } else if not target_key {
+            target_key := k
         }
-        if not suspend_hotkey_set {
-            ; do not enable suspend hotkey
+    }
+
+    if target_key {
+        if KeyDef.rime_to_ahk.Has(target_key)
+            target_key := KeyDef.rime_to_ahk[target_key]
+        if num_modifiers = 1 {
+            if mask & ctrl {
+                Hotkey("$<^" . target_key, , "S")
+                Hotkey("$>^" . target_key, , "S")
+                suspend_hotkey_mask := mask
+                suspend_hotkey := target_key
+            }
+        } else if num_modifiers > 1 {
+            local m := "$" . (mask & shift ? "+" : "") .
+                                (mask & ctrl ? "^" : "") .
+                                (mask & alt ? "!" : "")
+            Hotkey(m . target_key, , "S")
+            suspend_hotkey_mask := mask
+            suspend_hotkey := target_key
+        }
+    } else if keys.Length == 1 {
+        if keys[1] = "Shift" {
+            ; do not support now
+            Hotkey("$LShift", , "S")
+            Hotkey("$RShift", , "S")
+            Hotkey("$LShift Up", , "S")
+            Hotkey("$RShift Up", , "S")
+            suspend_hotkey_mask := mask | up
+            suspend_hotkey := "Shift"
         }
     }
 }
@@ -319,9 +303,9 @@ ProcessKey(key, mask, this_hotkey) {
         status_text := new_ascii_punct ? ASCII_PUNCT_TRUE_LABEL_ABBR : ASCII_PUNCT_FALSE_LABEL_ABBR
     }
 
-    if status_changed || ascii_changed {
+    if RabbitConfig.show_tips && (status_changed || ascii_changed) {
         ToolTip(status_text, , , STATUS_TOOLTIP)
-        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -2000)
+        SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -RabbitConfig.show_tips_time)
     }
 
     if commit := rime.get_commit(session_id) {
