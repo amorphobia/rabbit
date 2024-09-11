@@ -154,8 +154,11 @@ jobs:
       - name: Download Dependencies
         uses: actions/download-artifact@v4
 
-      - name: Copy Artifacts
+      - name: Copy Artifacts and Apply Patches
         run: |
+          git apply --stat ./Lib/GetCaretPosEx/GetCaretPosEx.patch
+          git apply --check ./Lib/GetCaretPosEx/GetCaretPosEx.patch
+          git apply ./Lib/GetCaretPosEx/GetCaretPosEx.patch
           cp AutoHotkey/${{ matrix.ahk }} Rabbit.exe
           cp Rime/${{ matrix.rime }} rime.dll
           cp Icon/* Lib/
