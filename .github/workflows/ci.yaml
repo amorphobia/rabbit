@@ -165,7 +165,7 @@ jobs:
 
       - name: Set Version
         run: |
-          if [[ ${{ github.ref_name }} == refs/tags/v* ]]; then
+          if [[ ${{ github.ref_name }} == v* ]]; then
             VER=${{ github.ref_name }}
           else
             VER=${{ github.ref_name }}-$(git rev-parse --short ${{ github.sha }})
