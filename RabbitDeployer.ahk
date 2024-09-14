@@ -25,7 +25,7 @@
 #Include <RabbitCommon>
 #Include <RabbitTrayMenu>
 
-global TRAY_MENU_GRAYOUT := true
+global IN_MAINTENANCE := true
 global rime
 global INVALID_FILE_ATTRIBUTES := -1
 global FILE_ATTRIBUTE_DIRECTORY := 0x00000010
@@ -35,6 +35,8 @@ OnExit(ExitRabbitDeployer)
 RunDeployer(A_Args)
 
 RunDeployer(args) {
+    IN_MAINTENANCE := true
+    UpdateTrayIcon()
     TrayTip()
     TrayTip("维护中", RABBIT_IME_NAME)
 

@@ -39,7 +39,7 @@ global RABBIT_NO_MAINTENANCE := "0"
 global RABBIT_PARTIAL_MAINTENANCE := "1"
 global RABBIT_FULL_MAINTENANCE := "2"
 
-global TRAY_MENU_GRAYOUT := false
+global IN_MAINTENANCE := false
 global STATUS_TOOLTIP := 2
 global box := 0
 global ASCII_MODE_FALSE_LABEL := "中文"

@@ -18,7 +18,6 @@
 
 #Include <RabbitCommon>
 
-TraySetIcon("Lib\rabbit.ico")
 A_IconTip := "玉兔毫"
 
 global TRAY_SCHEMA_NAME := ""
@@ -27,6 +26,7 @@ global TRAY_FULL_SHAPE := 0
 global TRAY_ASCII_PUNCT := 0
 
 SetupTrayMenu()
+UpdateTrayIcon()
 
 SetupTrayMenu() {
     A_TrayMenu.Delete()
@@ -79,8 +79,8 @@ ToggleSuspend() {
         box.Show("Hide")
     rime.clear_composition(session_id)
     Suspend(-1)
-    TraySetIcon(A_IsSuspended ? "Lib\rabbit-alt.ico" : "Lib\rabbit.ico", , true)
     UpdateTrayTip()
+    UpdateTrayIcon()
     if RabbitConfig.show_tips {
         ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
         SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -RabbitConfig.show_tips_time)
@@ -88,7 +88,7 @@ ToggleSuspend() {
     SetupTrayMenu()
 }
 
-if TRAY_MENU_GRAYOUT {
+if IN_MAINTENANCE {
     A_TrayMenu.Disable( "1&") ; 用户资料同步
     ; A_TrayMenu.Disable( "2&") ; seperator
     A_TrayMenu.Disable( "3&") ; 用户文件夹
@@ -134,4 +134,9 @@ UpdateTrayTip(schema_name := TRAY_SCHEMA_NAME, ascii_mode := TRAY_ASCII_MODE, fu
         (TRAY_FULL_SHAPE ? FULL_SHAPE_TRUE_LABEL : FULL_SHAPE_FALSE_LABEL),
         (TRAY_ASCII_PUNCT ? ASCII_PUNCT_TRUE_LABEL : ASCII_PUNCT_FALSE_LABEL)
     )
+}
+
+UpdateTrayIcon() {
+    global TRAY_ASCII_MODE
+    TraySetIcon((A_IsSuspended || IN_MAINTENANCE) ? "Lib\rabbit-alt.ico" : (TRAY_ASCII_MODE ? "Lib\rabbit-ascii.ico" : "Lib\rabbit.ico"))
 }

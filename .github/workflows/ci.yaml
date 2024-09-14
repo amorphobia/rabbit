@@ -28,11 +28,12 @@ jobs:
           # https://learn.microsoft.com/windows/apps/design/style/iconography/app-icon-construction
           magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon.svg rabbit.ico
           magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon-alt.svg rabbit-alt.ico
+          magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon-ascii.svg rabbit-ascii.ico
           Copy-Item "$(scoop prefix autohotkey)/v2/AutoHotkey32.exe","$(scoop prefix autohotkey)/v2/AutoHotkey64.exe" .
           rcedit.exe AutoHotkey32.exe --set-icon rabbit.ico
           rcedit.exe AutoHotkey64.exe --set-icon rabbit.ico
           Pop-Location
-          Move-Item "assets/AutoHotkey32.exe","assets/AutoHotkey64.exe","assets/rabbit.ico","assets/rabbit-alt.ico" .
+          Move-Item "assets/AutoHotkey32.exe","assets/AutoHotkey64.exe","assets/rabbit.ico","assets/rabbit-alt.ico","assets/rabbit-ascii.ico" .
 
       - name: Upload Icon
         uses: actions/upload-artifact@v4
@@ -41,6 +42,7 @@ jobs:
           path: |
             rabbit.ico
             rabbit-alt.ico
+            rabbit-ascii.ico
 
       - name: Upload AutoHotkey
         uses: actions/upload-artifact@v4

@@ -29,7 +29,7 @@
 #Include <RabbitTrayMenu>
 #Include <RabbitMonitors>
 
-global TRAY_MENU_GRAYOUT := false
+global IN_MAINTENANCE := false
 global session_id := 0
 global box := CandidateBox()
 global mutex := RabbitMutex()
@@ -439,4 +439,5 @@ UpdateWinAscii(set_to_current := false) {
         rime.set_option(session_id, "ascii_mode", target)
     }
     UpdateTrayTip(, target)
+    UpdateTrayIcon()
 }
