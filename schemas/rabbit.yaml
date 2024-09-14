@@ -9,3 +9,14 @@ suspend_hotkey: null
 show_tips: true
 # How long a period tips shows
 show_tips_time: 1200
+
+app_options:
+  cmd.exe:
+    ascii_mode: true
+  conhost.exe:
+    ascii_mode: true
+  windowsterminal.exe:
+    ascii_mode: true
+
+# Use global ascii mode
+global_ascii: false

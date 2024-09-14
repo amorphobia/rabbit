@@ -88,6 +88,8 @@ RabbitMain(args) {
         UpdateTrayTip(schema_name, ascii_mode, full_shape, ascii_punct)
     }
     OnMessage(AHK_NOTIFYICON, ClickHandler.Bind())
+    if !RabbitConfig.global_ascii
+        SetTimer(UpdateWinAscii)
 
     OnExit(ExitRabbit.Bind(layout))
 }
@@ -294,6 +296,7 @@ ProcessKey(key, mask, this_hotkey) {
     local ascii_changed := false
     if old_ascii_mode != new_ascii_mode {
         ascii_changed := true
+        UpdateWinAscii(true)
         status_text := new_ascii_mode ? ASCII_MODE_TRUE_LABEL_ABBR : ASCII_MODE_FALSE_LABEL_ABBR
     } else if old_full_shape != new_full_shape {
         status_changed := true
@@ -404,4 +407,36 @@ UpdateStateLabels() {
     ASCII_PUNCT_FALSE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "。"
     slice := rime.get_state_label_abbreviated(session_id, "ascii_punct", true, true)
     ASCII_PUNCT_TRUE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "."
+}
+
+UpdateWinAscii(set_to_current := false) {
+    if A_IsSuspended
+        return
+    global rime, session_id
+    act := WinExist("A")
+    if !act || !rime || !session_id {
+        return
+    }
+    proc_name := StrLower(WinGetProcessName())
+    current := rime.get_option(session_id, "ascii_mode")
+    target := !!current
+    if set_to_current {
+        ; force to keep current mode
+        RabbitConfig.process_ascii[proc_name] := target
+    } else if RabbitConfig.process_ascii.Has(proc_name) {
+        ; not first time to active window, restore the ascii_mode
+        target := RabbitConfig.process_ascii[proc_name]
+        rime.set_option(session_id, "ascii_mode", target)
+    } else if RabbitConfig.preset_process_ascii.Has(proc_name) {
+        ; in preset, set ascii_mode as preset
+        target := RabbitConfig.preset_process_ascii[proc_name]
+        RabbitConfig.process_ascii[proc_name] := target
+        rime.set_option(session_id, "ascii_mode", target)
+    } else {
+        ; not in preset, set ascii_mode to false
+        target := false
+        RabbitConfig.process_ascii[proc_name] := target
+        rime.set_option(session_id, "ascii_mode", target)
+    }
+    UpdateTrayTip(, target)
 }

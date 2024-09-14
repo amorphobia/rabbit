@@ -112,6 +112,9 @@ class RabbitConfig {
     static suspend_hotkey := ""
     static show_tips := true
     static show_tips_time := 1200
+    static global_ascii := false
+    static preset_process_ascii := Map()
+    static process_ascii := Map()
 
     static load() {
         global rime
@@ -125,6 +128,20 @@ class RabbitConfig {
             RabbitConfig.show_tips_time := Abs(result)
             if result == 0
                 RabbitConfig.show_tips := false
+        }
+
+        if rime.config_test_get_bool(config, "global_ascii", &result)
+            RabbitConfig.global_ascii := !!result
+
+        if iter := rime.config_begin_map(config, "app_options") {
+            while rime.config_next(iter) {
+                proc_name := StrLower(iter.key)
+                if rime.config_test_get_bool(config, "app_options/" . proc_name . "/ascii_mode", &result) {
+                    RabbitConfig.preset_process_ascii[proc_name] := !!result
+                    RabbitConfig.process_ascii[proc_name] := !!result
+                }
+            }
+            rime.config_end(iter)
         }
 
         rime.config_close(config)
