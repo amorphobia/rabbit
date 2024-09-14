@@ -26,19 +26,42 @@ global TRAY_ASCII_MODE := 0
 global TRAY_FULL_SHAPE := 0
 global TRAY_ASCII_PUNCT := 0
 
-A_TrayMenu.Delete()
-; A_TrayMenu.add("输入法设定")
-; A_TrayMenu.add("用户词典管理")
-A_TrayMenu.add("用户资料同步", (*) => Sync())
-A_TrayMenu.add()
-A_TrayMenu.add("用户文件夹", (*) => Run(A_ScriptDir . "\Rime"))
-A_TrayMenu.add("脚本文件夹", (*) => Run(A_ScriptDir))
-A_TrayMenu.add()
-A_TrayMenu.add("仓库主页", (*) => Run("https://github.com/amorphobia/rabbit"))
-A_TrayMenu.add()
-A_TrayMenu.add("重新部署", (*) => Deploy())
-A_TrayMenu.add("禁用/启用玉兔毫", (*) => ToggleSuspend())
-A_TrayMenu.add("退出玉兔毫", (*) => ExitApp())
+SetupTrayMenu()
+
+SetupTrayMenu() {
+    A_TrayMenu.Delete()
+    ; A_TrayMenu.Add("输入法设定")
+    ; A_TrayMenu.Add("用户词典管理")
+    A_TrayMenu.Add("用户资料同步", (*) => Sync())
+
+    A_TrayMenu.Add()
+
+    A_TrayMenu.Add("用户文件夹", (*) => Run(A_ScriptDir . "\Rime"))
+    A_TrayMenu.Add("脚本文件夹", (*) => Run(A_ScriptDir))
+
+    A_TrayMenu.Add()
+
+    if FileExist(A_Startup . "\Rabbit.lnk") {
+        A_TrayMenu.Add("从开机启动删除", (*) => (FileDelete(A_Startup . "\Rabbit.lnk"), SetupTrayMenu()))
+    } else {
+        A_TrayMenu.Add("添加到开机启动", (*) => (FileCreateShortcut(A_AhkPath, A_Startup . "\Rabbit.lnk", A_ScriptDir, A_ScriptDir . "\Rabbit.ahk", "玉兔毫输入法", A_ScriptDir . "\Lib\rabbit.ico"), SetupTrayMenu()))
+    }
+
+    A_TrayMenu.Add()
+
+    A_TrayMenu.Add("仓库主页", (*) => Run("https://github.com/amorphobia/rabbit"))
+    A_TrayMenu.Add("参加讨论", (*) => Run("https://github.com/amorphobia/rabbit/discussions"))
+
+    A_TrayMenu.Add()
+
+    A_TrayMenu.Add("重新部署", (*) => Deploy())
+    if (A_IsSuspended) {
+        A_TrayMenu.Add("启用玉兔毫", (*) => ToggleSuspend())
+    } else {
+        A_TrayMenu.Add("禁用玉兔毫", (*) => ToggleSuspend())
+    }
+    A_TrayMenu.Add("退出玉兔毫", (*) => ExitApp())
+}
 
 Sync() {
     Run(A_AhkPath . " " . A_ScriptDir . "\RabbitDeployer.ahk sync 1")
@@ -61,6 +84,7 @@ ToggleSuspend() {
         ToolTip(A_IsSuspended ? "禁用" : "启用", , , STATUS_TOOLTIP)
         SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -RabbitConfig.show_tips_time)
     }
+    SetupTrayMenu()
 }
 
 if TRAY_MENU_GRAYOUT {
