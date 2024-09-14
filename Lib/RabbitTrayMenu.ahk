@@ -51,6 +51,7 @@ SetupTrayMenu() {
 
     A_TrayMenu.Add("仓库主页", (*) => Run("https://github.com/amorphobia/rabbit"))
     A_TrayMenu.Add("参加讨论", (*) => Run("https://github.com/amorphobia/rabbit/discussions"))
+    A_TrayMenu.Add("关于", (*) => MsgBox(Format("由 AutoHotkey 实现的 Rime 输入法引擎前端`r`n版本：{}", RABBIT_VERSION), "玉兔毫输入法"))
 
     A_TrayMenu.Add()
 

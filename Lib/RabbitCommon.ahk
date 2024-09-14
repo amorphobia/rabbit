@@ -16,7 +16,7 @@
  *
  */
 
-global RABBIT_VERSION := "0.1.4"
+global RABBIT_VERSION := "dev"
 ;@Ahk2Exe-SetCompanyName amorphobia
 ;@Ahk2Exe-SetCopyright Copyright (c) 2023`, 2024 Xuesong Peng
 ;@Ahk2Exe-SetDescription 由 AutoHotkey 实现的 Rime 输入法

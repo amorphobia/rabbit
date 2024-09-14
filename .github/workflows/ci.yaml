@@ -163,6 +163,16 @@ jobs:
           cp Rime/${{ matrix.rime }} rime.dll
           cp Icon/* Lib/
 
+      - name: Set Version
+        run: |
+          if [[ ${{ github.ref_name }} == refs/tags/v* ]]; then
+            VER=${{ github.ref_name }}
+          else
+            VER=${{ github.ref_name }}-$(git rev-parse --short ${{ github.sha }})
+          fi
+          echo $VER
+          sed -i -E 's/global RABBIT_VERSION := .+/global RABBIT_VERSION := \"'"$VER"'\"/' Lib/RabbitCommon.ahk
+
       - name: Upload Rabbit ${{ matrix.target }}
         uses: actions/upload-artifact@v4
         with:
