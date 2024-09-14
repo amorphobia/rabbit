@@ -89,13 +89,20 @@ ToggleSuspend() {
 }
 
 if TRAY_MENU_GRAYOUT {
-    ; A_TrayMenu.Disable("输入法设定")
-    ; A_TrayMenu.Disable("用户词典管理")
-    A_TrayMenu.Disable("用户资料同步")
-    A_TrayMenu.Disable("用户文件夹")
-    A_TrayMenu.Disable("脚本文件夹")
-    A_TrayMenu.Disable("仓库主页")
-    A_TrayMenu.Disable("重新部署")
+    A_TrayMenu.Disable( "1&") ; 用户资料同步
+    ; A_TrayMenu.Disable( "2&") ; seperator
+    A_TrayMenu.Disable( "3&") ; 用户文件夹
+    A_TrayMenu.Disable( "4&") ; 脚本文件夹
+    ; A_TrayMenu.Disable( "5&") ; seperator
+    A_TrayMenu.Disable( "6&") ; 开机启动
+    ; A_TrayMenu.Disable( "7&") ; seperator
+    A_TrayMenu.Disable( "8&") ; 仓库主页
+    A_TrayMenu.Disable( "9&") ; 参加讨论
+    A_TrayMenu.Disable("10&") ; 关于
+    ; A_TrayMenu.Disable("11&") ; seperator
+    A_TrayMenu.Disable("12&") ; 重新部署
+    A_TrayMenu.Disable("13&") ; 禁用/启用
+    A_TrayMenu.Disable("14&") ; 退出玉兔毫
 }
 
 ClickHandler(wParam, lParam, msg, hWnd) {
