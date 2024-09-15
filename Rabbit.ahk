@@ -296,7 +296,7 @@ ProcessKey(key, mask, this_hotkey) {
     local ascii_changed := false
     if old_ascii_mode != new_ascii_mode {
         ascii_changed := true
-        UpdateWinAscii(true)
+        UpdateWinAscii(new_ascii_mode, true)
         status_text := new_ascii_mode ? ASCII_MODE_TRUE_LABEL_ABBR : ASCII_MODE_FALSE_LABEL_ABBR
     } else if old_full_shape != new_full_shape {
         status_changed := true
@@ -409,33 +409,36 @@ UpdateStateLabels() {
     ASCII_PUNCT_TRUE_LABEL_ABBR := (slice and slice.slice !== "") ? slice.slice : "."
 }
 
-UpdateWinAscii(set_to_current := false) {
+UpdateWinAscii(target := false, use_target := false, proc_name := "", by_tray_icon := false) {
     if A_IsSuspended
         return
-    global rime, session_id
-    act := WinExist("A")
-    if !act || !rime || !session_id {
+    if RabbitGlobals.on_tray_icon_click && !by_tray_icon
         return
+    global rime, session_id
+    if !rime || !session_id
+        return
+    if not proc_name {
+        if not act := WinExist("A")
+            return
+        proc_name := StrLower(WinGetProcessName())
     }
-    proc_name := StrLower(WinGetProcessName())
-    current := rime.get_option(session_id, "ascii_mode")
-    target := !!current
-    if set_to_current {
-        ; force to keep current mode
-        RabbitConfig.process_ascii[proc_name] := target
-    } else if RabbitConfig.process_ascii.Has(proc_name) {
+    RabbitGlobals.active_win := proc_name
+    if use_target {
+        ; force to use passed target
+        RabbitGlobals.process_ascii[proc_name] := target
+    } else if RabbitGlobals.process_ascii.Has(proc_name) {
         ; not first time to active window, restore the ascii_mode
-        target := RabbitConfig.process_ascii[proc_name]
+        target := RabbitGlobals.process_ascii[proc_name]
         rime.set_option(session_id, "ascii_mode", target)
     } else if RabbitConfig.preset_process_ascii.Has(proc_name) {
         ; in preset, set ascii_mode as preset
         target := RabbitConfig.preset_process_ascii[proc_name]
-        RabbitConfig.process_ascii[proc_name] := target
+        RabbitGlobals.process_ascii[proc_name] := target
         rime.set_option(session_id, "ascii_mode", target)
     } else {
         ; not in preset, set ascii_mode to false
         target := false
-        RabbitConfig.process_ascii[proc_name] := target
+        RabbitGlobals.process_ascii[proc_name] := target
         rime.set_option(session_id, "ascii_mode", target)
     }
     UpdateTrayTip(, target)

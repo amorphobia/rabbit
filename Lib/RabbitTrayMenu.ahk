@@ -108,16 +108,22 @@ if IN_MAINTENANCE {
 ClickHandler(wParam, lParam, msg, hWnd) {
     if !rime || !IsSet(session_id) || !session_id || A_IsSuspended
         return
-    if lParam == WM_LBUTTONUP {
+    if lParam == WM_LBUTTONDOWN {
+        RabbitGlobals.on_tray_icon_click := true
+    } else if lParam == WM_LBUTTONUP {
         local old_ascii_mode := rime.get_option(session_id, "ascii_mode")
         rime.set_option(session_id, "ascii_mode", !old_ascii_mode)
         local new_ascii_mode := rime.get_option(session_id, "ascii_mode")
-        UpdateTrayTip(, new_ascii_mode)
+        if IsSet(UpdateWinAscii) {
+            UpdateWinAscii(new_ascii_mode, true, RabbitGlobals.active_win, true)
+        }
         status_text := new_ascii_mode ? ASCII_MODE_TRUE_LABEL_ABBR : ASCII_MODE_FALSE_LABEL_ABBR
         if RabbitConfig.show_tips {
             ToolTip(status_text, , , STATUS_TOOLTIP)
             SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -RabbitConfig.show_tips_time)
         }
+        WinActivate("ahk_exe " . RabbitGlobals.active_win)
+        RabbitGlobals.on_tray_icon_click := false
     }
 }
 
@@ -138,5 +144,5 @@ UpdateTrayTip(schema_name := TRAY_SCHEMA_NAME, ascii_mode := TRAY_ASCII_MODE, fu
 
 UpdateTrayIcon() {
     global TRAY_ASCII_MODE
-    TraySetIcon((A_IsSuspended || IN_MAINTENANCE) ? "Lib\rabbit-alt.ico" : (TRAY_ASCII_MODE ? "Lib\rabbit-ascii.ico" : "Lib\rabbit.ico"))
+    TraySetIcon((A_IsSuspended || IN_MAINTENANCE) ? "Lib\rabbit-alt.ico" : (TRAY_ASCII_MODE ? "Lib\rabbit-ascii.ico" : "Lib\rabbit.ico"), , true)
 }

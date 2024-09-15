@@ -57,6 +57,12 @@ global ASCII_PUNCT_TRUE_LABEL_ABBR := "."
 
 global ERROR_ALREADY_EXISTS := 183 ; https://learn.microsoft.com/windows/win32/debug/system-error-codes--0-499-
 
+class RabbitGlobals {
+    static process_ascii := Map()
+    static on_tray_icon_click := false
+    static active_win := ""
+}
+
 class RabbitMutex {
     handle := 0
     errmsg := ""
@@ -114,7 +120,6 @@ class RabbitConfig {
     static show_tips_time := 1200
     static global_ascii := false
     static preset_process_ascii := Map()
-    static process_ascii := Map()
 
     static load() {
         global rime
@@ -138,7 +143,7 @@ class RabbitConfig {
                 proc_name := StrLower(iter.key)
                 if rime.config_test_get_bool(config, "app_options/" . proc_name . "/ascii_mode", &result) {
                     RabbitConfig.preset_process_ascii[proc_name] := !!result
-                    RabbitConfig.process_ascii[proc_name] := !!result
+                    RabbitGlobals.process_ascii[proc_name] := !!result
                 }
             }
             rime.config_end(iter)
