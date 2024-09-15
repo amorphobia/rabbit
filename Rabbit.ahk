@@ -420,7 +420,11 @@ UpdateWinAscii(target := false, use_target := false, proc_name := "", by_tray_ic
     if not proc_name {
         if not act := WinExist("A")
             return
-        proc_name := StrLower(WinGetProcessName())
+        try {
+            proc_name := StrLower(WinGetProcessName())
+        }
+        if not proc_name
+            return
     }
     RabbitGlobals.active_win := proc_name
     if use_target {
