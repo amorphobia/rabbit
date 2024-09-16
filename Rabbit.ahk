@@ -60,8 +60,8 @@ RabbitMain(args) {
 
     local m := (args.Length == 0) ? RABBIT_PARTIAL_MAINTENANCE : args[1]
     if m != RABBIT_NO_MAINTENANCE {
-        SetDefaultKeyboard(layout)
-        Deploy()
+        if rime.start_maintenance(m == RABBIT_FULL_MAINTENANCE)
+            rime.join_maintenance_thread()
     } else {
         TrayTip()
         TrayTip("维护完成", RABBIT_IME_NAME)
