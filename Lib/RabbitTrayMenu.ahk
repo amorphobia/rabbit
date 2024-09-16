@@ -46,6 +46,7 @@ SetupTrayMenu() {
     } else {
         A_TrayMenu.Add("添加到开机启动", (*) => (FileCreateShortcut(A_AhkPath, A_Startup . "\Rabbit.lnk", A_ScriptDir, A_ScriptDir . "\Rabbit.ahk", "玉兔毫输入法", A_ScriptDir . "\Lib\rabbit.ico"), SetupTrayMenu()))
     }
+    A_TrayMenu.Add("添加到桌面快捷方式", (*) => (FileCreateShortcut(A_AhkPath, A_Desktop . "\Rabbit.lnk", A_ScriptDir, A_ScriptDir . "\Rabbit.ahk", "玉兔毫输入法", A_ScriptDir . "\Lib\rabbit.ico"), SetupTrayMenu()))
 
     A_TrayMenu.Add()
 
