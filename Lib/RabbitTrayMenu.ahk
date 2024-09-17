@@ -29,6 +29,8 @@ SetupTrayMenu()
 UpdateTrayIcon()
 
 SetupTrayMenu() {
+    static rabbit_script := Format("`"{}\Rabbit.ahk`"", A_ScriptDir)
+    static rabbit_ico    := Format("{}\Lib\rabbit.ico", A_ScriptDir)
     A_TrayMenu.Delete()
     ; A_TrayMenu.Add("输入法设定")
     ; A_TrayMenu.Add("用户词典管理")
@@ -44,9 +46,9 @@ SetupTrayMenu() {
     if FileExist(A_Startup . "\Rabbit.lnk") {
         A_TrayMenu.Add("从开机启动删除", (*) => (FileDelete(A_Startup . "\Rabbit.lnk"), SetupTrayMenu()))
     } else {
-        A_TrayMenu.Add("添加到开机启动", (*) => (FileCreateShortcut(A_AhkPath, A_Startup . "\Rabbit.lnk", A_ScriptDir, A_ScriptDir . "\Rabbit.ahk", "玉兔毫输入法", A_ScriptDir . "\Lib\rabbit.ico"), SetupTrayMenu()))
+        A_TrayMenu.Add("添加到开机启动", (*) => (FileCreateShortcut(A_AhkPath, A_Startup . "\Rabbit.lnk", A_ScriptDir, rabbit_script, "玉兔毫输入法", rabbit_ico), SetupTrayMenu()))
     }
-    A_TrayMenu.Add("添加到桌面快捷方式", (*) => (FileCreateShortcut(A_AhkPath, A_Desktop . "\Rabbit.lnk", A_ScriptDir, A_ScriptDir . "\Rabbit.ahk", "玉兔毫输入法", A_ScriptDir . "\Lib\rabbit.ico"), SetupTrayMenu()))
+    A_TrayMenu.Add("添加到桌面快捷方式", (*) => FileCreateShortcut(A_AhkPath, A_Desktop . "\Rabbit.lnk", A_ScriptDir, rabbit_script, "玉兔毫输入法", rabbit_ico))
 
     A_TrayMenu.Add()
 
@@ -66,11 +68,11 @@ SetupTrayMenu() {
 }
 
 Sync() {
-    Run(A_AhkPath . " " . A_ScriptDir . "\RabbitDeployer.ahk sync 1")
+    Run(Format("{} `"{}\RabbitDeployer.ahk`" sync 1", A_AhkPath, A_ScriptDir))
     ExitApp()
 }
 Deploy() {
-    Run(A_AhkPath . " " . A_ScriptDir . "\RabbitDeployer.ahk deploy 1")
+    Run(Format("{} `"{}\RabbitDeployer.ahk`" deploy 1", A_AhkPath, A_ScriptDir))
     ExitApp()
 }
 ToggleSuspend() {

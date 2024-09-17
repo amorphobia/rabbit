@@ -59,9 +59,7 @@ RunDeployer(args) {
     }
 
     if args.Length > 1 {
-        sp := " "
-        target := A_AhkPath . sp . A_ScriptDir . "\Rabbit.ahk"
-        Run(target . sp . opt . sp . String(res))
+        Run(Format("{} `"{}\Rabbit.ahk`" {} {}", A_AhkPath, A_ScriptDir, opt, res))
         ExitApp()
     }
     return res
