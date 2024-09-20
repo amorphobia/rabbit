@@ -25,7 +25,6 @@ global TRAY_ASCII_MODE := 0
 global TRAY_FULL_SHAPE := 0
 global TRAY_ASCII_PUNCT := 0
 
-SetupTrayMenu()
 UpdateTrayIcon()
 
 SetupTrayMenu() {
@@ -38,7 +37,7 @@ SetupTrayMenu() {
 
     A_TrayMenu.Add()
 
-    A_TrayMenu.Add("用户文件夹", (*) => Run(A_ScriptDir . "\Rime"))
+    A_TrayMenu.Add("用户文件夹", (*) => Run(rime.get_user_data_dir_s()))
     A_TrayMenu.Add("脚本文件夹", (*) => Run(A_ScriptDir))
 
     A_TrayMenu.Add()

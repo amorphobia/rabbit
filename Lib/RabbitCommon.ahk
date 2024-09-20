@@ -89,10 +89,35 @@ CreateTraits() {
     traits.distribution_code_name := RABBIT_CODE_NAME
     traits.distribution_version := RABBIT_VERSION
     traits.app_name := "rime.rabbit"
-    traits.shared_data_dir := "Data"
-    traits.user_data_dir := "Rime"
+    traits.shared_data_dir := RabbitSharedDataPath()
+    traits.user_data_dir := RabbitUserDataPath()
+    traits.log_dir := RabbitLogPath()
 
     return traits
+}
+
+RabbitUserDataPath() {
+    try {
+        local dir := RegRead("HKEY_CURRENT_USER\Software\Rime\Rabbit", "RimeUserDir")
+    }
+    if dir && Type(dir) = "String" {
+        size := DllCall("ExpandEnvironmentStrings", "Str", dir, "Ptr", 0, "UInt", 0)
+        path := Buffer(size * 2, 0)
+        DllCall("ExpandEnvironmentStrings", "Str", dir, "Ptr", path, "UInt", path.Size)
+        return StrGet(path)
+    }
+    return A_ScriptDir . "\Rime"
+}
+
+RabbitSharedDataPath() {
+    return A_ScriptDir . "\Data"
+}
+
+RabbitLogPath() {
+    path := A_Temp . "\rime.rabbit"
+    if !DirExist(path)
+        DirCreate(path)
+    return path
 }
 
 OnRimeMessage(context_object, session_id, message_type, message_value) {

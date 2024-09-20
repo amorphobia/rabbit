@@ -70,7 +70,7 @@ ExitRabbitDeployer(reason, code) {
 }
 
 CreateFileIfNotExist(filename) {
-    user_data_dir := A_ScriptDir . "\Rime\"
+    user_data_dir := RabbitUserDataPath() . "\"
     if not InStr(DirExist(user_data_dir), "D")
         DirCreate(user_data_dir)
     filepath := user_data_dir . filename

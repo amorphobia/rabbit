@@ -52,6 +52,11 @@ RabbitMain(args) {
         }
     }
 
+    ; TODO: better handling of first run
+    local first_run := !FileExist(RabbitUserDataPath() . "\default.custom.yaml")
+                    || !FileExist(RabbitUserDataPath() . "\rabbit.custom.yaml")
+                    || !FileExist(RabbitUserDataPath() . "\user.yaml")
+
     rabbit_traits := CreateTraits()
     global rime
     rime.setup(rabbit_traits)
@@ -60,7 +65,10 @@ RabbitMain(args) {
 
     local m := (args.Length == 0) ? RABBIT_PARTIAL_MAINTENANCE : args[1]
     if m != RABBIT_NO_MAINTENANCE {
-        if rime.start_maintenance(m == RABBIT_FULL_MAINTENANCE)
+        if first_run {
+            SetDefaultKeyboard(layout)
+            Deploy()
+        } else if rime.start_maintenance(m == RABBIT_FULL_MAINTENANCE)
             rime.join_maintenance_thread()
     } else {
         TrayTip()
@@ -87,6 +95,7 @@ RabbitMain(args) {
 
         UpdateTrayTip(schema_name, ascii_mode, full_shape, ascii_punct)
     }
+    SetupTrayMenu()
     OnMessage(AHK_NOTIFYICON, ClickHandler.Bind())
     if !RabbitConfig.global_ascii
         SetTimer(UpdateWinAscii)
@@ -427,23 +436,28 @@ UpdateWinAscii(target := false, use_target := false, proc_name := "", by_tray_ic
             return
     }
     RabbitGlobals.active_win := proc_name
+    ; TODO: current state might not be accurate due to non-atomic
+    current := !!rime.get_option(session_id, "ascii_mode")
     if use_target {
         ; force to use passed target
-        RabbitGlobals.process_ascii[proc_name] := target
+        RabbitGlobals.process_ascii[proc_name] := !!target
     } else if RabbitGlobals.process_ascii.Has(proc_name) {
         ; not first time to active window, restore the ascii_mode
         target := RabbitGlobals.process_ascii[proc_name]
-        rime.set_option(session_id, "ascii_mode", target)
+        if current !== target
+            rime.set_option(session_id, "ascii_mode", target)
     } else if RabbitConfig.preset_process_ascii.Has(proc_name) {
         ; in preset, set ascii_mode as preset
         target := RabbitConfig.preset_process_ascii[proc_name]
-        RabbitGlobals.process_ascii[proc_name] := target
-        rime.set_option(session_id, "ascii_mode", target)
+        RabbitGlobals.process_ascii[proc_name] := !!target
+        if current !== target
+            rime.set_option(session_id, "ascii_mode", target)
     } else {
         ; not in preset, set ascii_mode to false
         target := false
-        RabbitGlobals.process_ascii[proc_name] := target
-        rime.set_option(session_id, "ascii_mode", target)
+        RabbitGlobals.process_ascii[proc_name] := !!target
+        if current !== target
+            rime.set_option(session_id, "ascii_mode", target)
     }
     UpdateTrayTip(, target)
     UpdateTrayIcon()
