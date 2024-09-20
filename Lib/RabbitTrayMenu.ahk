@@ -31,37 +31,40 @@ SetupTrayMenu() {
     static rabbit_script := Format("`"{}\Rabbit.ahk`"", A_ScriptDir)
     static rabbit_ico    := Format("{}\Lib\rabbit.ico", A_ScriptDir)
     A_TrayMenu.Delete()
-    ; A_TrayMenu.Add("输入法设定")
-    ; A_TrayMenu.Add("用户词典管理")
-    A_TrayMenu.Add("用户资料同步", (*) => Sync())
+    if !IN_MAINTENANCE {
+        ; A_TrayMenu.Add("输入法设定")
+        ; A_TrayMenu.Add("用户词典管理")
+        A_TrayMenu.Add("用户资料同步", (*) => Sync())
 
-    A_TrayMenu.Add()
+        A_TrayMenu.Add()
 
-    A_TrayMenu.Add("用户文件夹", (*) => Run(rime.get_user_data_dir_s()))
-    A_TrayMenu.Add("脚本文件夹", (*) => Run(A_ScriptDir))
+        A_TrayMenu.Add("用户文件夹", (*) => Run(RabbitUserDataPath()))
+        A_TrayMenu.Add("脚本文件夹", (*) => Run(A_ScriptDir))
+        A_TrayMenu.Add("日志文件夹", (*) => Run(RabbitLogPath()))
 
-    A_TrayMenu.Add()
+        A_TrayMenu.Add()
 
-    if FileExist(A_Startup . "\Rabbit.lnk") {
-        A_TrayMenu.Add("从开机启动删除", (*) => (FileDelete(A_Startup . "\Rabbit.lnk"), SetupTrayMenu()))
-    } else {
-        A_TrayMenu.Add("添加到开机启动", (*) => (FileCreateShortcut(A_AhkPath, A_Startup . "\Rabbit.lnk", A_ScriptDir, rabbit_script, "玉兔毫输入法", rabbit_ico), SetupTrayMenu()))
-    }
-    A_TrayMenu.Add("添加到桌面快捷方式", (*) => FileCreateShortcut(A_AhkPath, A_Desktop . "\Rabbit.lnk", A_ScriptDir, rabbit_script, "玉兔毫输入法", rabbit_ico))
+        if FileExist(A_Startup . "\Rabbit.lnk") {
+            A_TrayMenu.Add("从开机启动删除", (*) => (FileDelete(A_Startup . "\Rabbit.lnk"), SetupTrayMenu()))
+        } else {
+            A_TrayMenu.Add("添加到开机启动", (*) => (FileCreateShortcut(A_AhkPath, A_Startup . "\Rabbit.lnk", A_ScriptDir, rabbit_script, "玉兔毫输入法", rabbit_ico), SetupTrayMenu()))
+        }
+        A_TrayMenu.Add("添加到桌面快捷方式", (*) => FileCreateShortcut(A_AhkPath, A_Desktop . "\Rabbit.lnk", A_ScriptDir, rabbit_script, "玉兔毫输入法", rabbit_ico))
 
-    A_TrayMenu.Add()
+        A_TrayMenu.Add()
 
-    A_TrayMenu.Add("仓库主页", (*) => Run("https://github.com/amorphobia/rabbit"))
-    A_TrayMenu.Add("参加讨论", (*) => Run("https://github.com/amorphobia/rabbit/discussions"))
-    A_TrayMenu.Add("关于", (*) => MsgBox(Format("由 AutoHotkey 实现的 Rime 输入法引擎前端`r`n版本：{}", RABBIT_VERSION), "玉兔毫输入法"))
+        A_TrayMenu.Add("仓库主页", (*) => Run("https://github.com/amorphobia/rabbit"))
+        A_TrayMenu.Add("参加讨论", (*) => Run("https://github.com/amorphobia/rabbit/discussions"))
+        A_TrayMenu.Add("关于", (*) => MsgBox(Format("由 AutoHotkey 实现的 Rime 输入法引擎前端`r`n版本：{}", RABBIT_VERSION), "玉兔毫输入法"))
 
-    A_TrayMenu.Add()
+        A_TrayMenu.Add()
 
-    A_TrayMenu.Add("重新部署", (*) => Deploy())
-    if (A_IsSuspended) {
-        A_TrayMenu.Add("启用玉兔毫", (*) => ToggleSuspend())
-    } else {
-        A_TrayMenu.Add("禁用玉兔毫", (*) => ToggleSuspend())
+        A_TrayMenu.Add("重新部署", (*) => Deploy())
+        if (A_IsSuspended) {
+            A_TrayMenu.Add("启用玉兔毫", (*) => ToggleSuspend())
+        } else {
+            A_TrayMenu.Add("禁用玉兔毫", (*) => ToggleSuspend())
+        }
     }
     A_TrayMenu.Add("退出玉兔毫", (*) => ExitApp())
 }
@@ -88,23 +91,6 @@ ToggleSuspend() {
         SetTimer(() => ToolTip(, , , STATUS_TOOLTIP), -RabbitConfig.show_tips_time)
     }
     SetupTrayMenu()
-}
-
-if IN_MAINTENANCE {
-    A_TrayMenu.Disable( "1&") ; 用户资料同步
-    ; A_TrayMenu.Disable( "2&") ; seperator
-    A_TrayMenu.Disable( "3&") ; 用户文件夹
-    A_TrayMenu.Disable( "4&") ; 脚本文件夹
-    ; A_TrayMenu.Disable( "5&") ; seperator
-    A_TrayMenu.Disable( "6&") ; 开机启动
-    ; A_TrayMenu.Disable( "7&") ; seperator
-    A_TrayMenu.Disable( "8&") ; 仓库主页
-    A_TrayMenu.Disable( "9&") ; 参加讨论
-    A_TrayMenu.Disable("10&") ; 关于
-    ; A_TrayMenu.Disable("11&") ; seperator
-    A_TrayMenu.Disable("12&") ; 重新部署
-    A_TrayMenu.Disable("13&") ; 禁用/启用
-    A_TrayMenu.Disable("14&") ; 退出玉兔毫
 }
 
 ClickHandler(wParam, lParam, msg, hWnd) {

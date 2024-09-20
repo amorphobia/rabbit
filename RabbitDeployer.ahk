@@ -39,6 +39,7 @@ RunDeployer(args) {
     UpdateTrayIcon()
     TrayTip()
     TrayTip("维护中", RABBIT_IME_NAME)
+    SetupTrayMenu()
 
     command := args.Length > 0 ? args[1] : ""
     conf := Configurator()
