@@ -56,6 +56,8 @@ RabbitMain(args) {
     local first_run := !FileExist(RabbitUserDataPath() . "\default.custom.yaml")
                     || !FileExist(RabbitUserDataPath() . "\rabbit.custom.yaml")
                     || !FileExist(RabbitUserDataPath() . "\user.yaml")
+                    || !FileExist(RabbitUserDataPath() . "\installation.yaml")
+                    || !FileExist(RabbitUserDataPath() . "\build\rabbit.yaml") ; in staging dir
 
     rabbit_traits := CreateTraits()
     global rime
