@@ -67,6 +67,8 @@ RabbitMain(args) {
 
     local m := (args.Length == 0) ? RABBIT_PARTIAL_MAINTENANCE : args[1]
     if m != RABBIT_NO_MAINTENANCE {
+        global IN_MAINTENANCE := true
+        UpdateTrayIcon()
         if first_run {
             SetDefaultKeyboard(layout)
             Deploy()
@@ -77,6 +79,7 @@ RabbitMain(args) {
         TrayTip("维护完成", RABBIT_IME_NAME)
         SetTimer(TrayTip, -2000)
     }
+    IN_MAINTENANCE := false
 
     global session_id := rime.create_session()
     if not session_id {
