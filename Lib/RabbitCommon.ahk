@@ -100,7 +100,7 @@ RabbitUserDataPath() {
     try {
         local dir := RegRead("HKEY_CURRENT_USER\Software\Rime\Rabbit", "RimeUserDir")
     }
-    if dir && Type(dir) = "String" {
+    if IsSet(dir) && dir && Type(dir) = "String" {
         size := DllCall("ExpandEnvironmentStrings", "Str", dir, "Ptr", 0, "UInt", 0)
         path := Buffer(size * 2, 0)
         DllCall("ExpandEnvironmentStrings", "Str", dir, "Ptr", path, "UInt", path.Size)
