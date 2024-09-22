@@ -26,9 +26,9 @@ jobs:
         run: |
           Push-Location assets
           # https://learn.microsoft.com/windows/apps/design/style/iconography/app-icon-construction
-          magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon.svg rabbit.ico
-          magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon-alt.svg rabbit-alt.ico
-          magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' icon-ascii.svg rabbit-ascii.ico
+          magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' zhuyin-t.svg rabbit.ico
+          magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' zhuyin-t-alt.svg rabbit-alt.ico
+          magick.exe -background transparent -define 'icon:auto-resize=16,24,32,48,256' pinyin-t.svg rabbit-ascii.ico
           Copy-Item "$(scoop prefix autohotkey)/v2/AutoHotkey32.exe","$(scoop prefix autohotkey)/v2/AutoHotkey64.exe" .
           rcedit.exe AutoHotkey32.exe --set-icon rabbit.ico
           rcedit.exe AutoHotkey64.exe --set-icon rabbit.ico
