@@ -162,7 +162,7 @@ jobs:
           git apply --check ./Lib/GetCaretPosEx/GetCaretPosEx.patch
           git apply ./Lib/GetCaretPosEx/GetCaretPosEx.patch
           cp AutoHotkey/${{ matrix.ahk }} Rabbit.exe
-          cp Rime/${{ matrix.rime }} rime.dll
+          cp Rime/${{ matrix.rime }} ./Lib/librime-ahk/rime.dll
           cp Icon/* Lib/
 
       - name: Set Version
@@ -181,13 +181,13 @@ jobs:
           name: Rabbit-${{ matrix.target }}
           path: |
             Lib/librime-ahk/*.ahk
+            Lib/librime-ahk/rime.dll
             Lib/librime-ahk/utils
             Lib/librime-ahk/LICENSE
             Lib/GetCaretPosEx/*.ahk
             Lib/GetCaretPosEx/LICENSE.txt
             Lib/*.ahk
             Lib/*.ico
-            rime.dll
             Rabbit.exe
             *.ahk
             LICENSE
@@ -200,13 +200,13 @@ jobs:
           path: |
             Data
             Lib/librime-ahk/*.ahk
+            Lib/librime-ahk/rime.dll
             Lib/librime-ahk/utils
             Lib/librime-ahk/LICENSE
             Lib/GetCaretPosEx/*.ahk
             Lib/GetCaretPosEx/LICENSE.txt
             Lib/*.ahk
             Lib/*.ico
-            rime.dll
             Rabbit.exe
             *.ahk
             LICENSE

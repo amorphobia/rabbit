@@ -32,7 +32,7 @@ global AHK_NOTIFYICON := 0x404
 global WM_LBUTTONDOWN := 0x201
 global WM_LBUTTONUP := 0x202
 
-global rime := RimeApi()
+global rime := RimeApi(A_ScriptDir . "\Lib\librime-ahk\rime.dll")
 global RABBIT_IME_NAME := "玉兔毫"
 global RABBIT_CODE_NAME := "Rabbit"
 global RABBIT_NO_MAINTENANCE := "0"
