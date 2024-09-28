@@ -346,7 +346,22 @@ ProcessKey(key, mask, this_hotkey) {
 
     if context := rime.get_context(session_id) {
         if context.composition.length > 0 {
-            if GetCaretPos(&caret_x, &caret_y, &caret_w, &caret_h) {
+            DetectHiddenWindows True
+            local start_menu := WinActive("ahk_class Windows.UI.Core.CoreWindow ahk_exe StartMenuExperienceHost.exe")
+                             || WinActive("ahk_class Windows.UI.Core.CoreWindow ahk_exe SearchHost.exe")
+                             || WinActive("ahk_class Windows.UI.Core.CoreWindow ahk_exe SearchApp.exe")
+            DetectHiddenWindows False
+            local show_at_left_top := false
+            if start_menu {
+                hMon := MonitorManage.MonitorFromWindow(start_menu)
+                info := MonitorManage.GetMonitorInfo(hMon)
+                show_at_left_top := !!info
+                if show_at_left_top && !last_is_hide {
+                    box.Build(context, &box_width, &box_height)
+                    box.Show("AutoSize NA x" . info.work.left + 4 . " y" . info.work.top + 4)
+                }
+            }
+            if !show_at_left_top && GetCaretPos(&caret_x, &caret_y, &caret_w, &caret_h) {
                 box.Build(context, &box_width, &box_height)
                 new_x := caret_x + caret_w
                 new_y := caret_y + caret_h + 4

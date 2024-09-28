@@ -24,61 +24,57 @@ global MONITOR_DEFAULTTONULL := 0
 global MONITOR_DEFAULTTOPRIMARY := 1
 global MONITOR_DEFAULTTONEAREST := 2
 
-class Point extends Class {
+class Point extends Buffer {
     __New(x := 0, y := 0) {
-        this.buff := Buffer(Point.struct_size(), 0)
+        super.__New(Point.struct_size, 0)
         this.x := x
         this.y := y
     }
 
-    static x_offset := (*) => 0
-    static y_offset := (*) => Point.x_offset() + A_IntSize
-    static struct_size := (*) => Point.y_offset() + A_IntSize
-
-    struct_ptr := (*) => this.buff.Ptr
+    static x_offset := 0
+    static y_offset := Point.x_offset + A_IntSize
+    static struct_size := Point.y_offset + A_IntSize
 
     x {
-        get => NumGet(this.struct_ptr(), Point.x_offset(), "Int")
-        set => NumPut("Int", Value, this.struct_ptr(), Point.x_offset())
+        get => NumGet(this, Point.x_offset, "Int")
+        set => NumPut("Int", Value, this, Point.x_offset)
     }
     y {
-        get => NumGet(this.struct_ptr(), Point.y_offset(), "Int")
-        set => NumPut("Int", Value, this.struct_ptr(), Point.y_offset())
+        get => NumGet(this, Point.y_offset, "Int")
+        set => NumPut("Int", Value, this, Point.y_offset)
     }
-}
+} ; Point
 
-class Rect extends Class {
+class Rect extends Buffer {
     __New(left := 0, top := 0, right := 0, bottom := 0) {
-        this.buff := Buffer(Rect.struct_size(), 0)
+        super.__New(Rect.struct_size, 0)
         this.left := left
         this.top := top
         this.right := right
         this.bottom := bottom
     }
 
-    static left_offset := (*) => 0
-    static top_offset := (*) => Rect.left_offset() + A_IntSize
-    static right_offset := (*) => Rect.top_offset() + A_IntSize
-    static bottom_offset := (*) => Rect.right_offset() + A_IntSize
-    static struct_size := (*) => Rect.bottom_offset() + A_IntSize
-
-    struct_ptr := (*) => this.buff.Ptr
+    static left_offset := 0
+    static top_offset := Rect.left_offset + A_IntSize
+    static right_offset := Rect.top_offset + A_IntSize
+    static bottom_offset := Rect.right_offset + A_IntSize
+    static struct_size := Rect.bottom_offset + A_IntSize
 
     left {
-        get => NumGet(this.struct_ptr(), Rect.left_offset(), "Int")
-        set => NumPut("Int", Value, this.struct_ptr(), Rect.left_offset())
+        get => NumGet(this, Rect.left_offset, "Int")
+        set => NumPut("Int", Value, this, Rect.left_offset)
     }
     top {
-        get => NumGet(this.struct_ptr(), Rect.top_offset(), "Int")
-        set => NumPut("Int", Value, this.struct_ptr(), Rect.top_offset())
+        get => NumGet(this, Rect.top_offset, "Int")
+        set => NumPut("Int", Value, this, Rect.top_offset)
     }
     right {
-        get => NumGet(this.struct_ptr(), Rect.right_offset(), "Int")
-        set => NumPut("Int", Value, this.struct_ptr(), Rect.right_offset())
+        get => NumGet(this, Rect.right_offset, "Int")
+        set => NumPut("Int", Value, this, Rect.right_offset)
     }
     bottom {
-        get => NumGet(this.struct_ptr(), Rect.bottom_offset(), "Int")
-        set => NumPut("Int", Value, this.struct_ptr(), Rect.bottom_offset())
+        get => NumGet(this, Rect.bottom_offset, "Int")
+        set => NumPut("Int", Value, this, Rect.bottom_offset)
     }
 
     width() {
@@ -89,55 +85,53 @@ class Rect extends Class {
     }
 } ; Rect
 
-class MonitorInfo extends Class {
-    __New() {
-        this.buff := Buffer(MonitorInfo.struct_size(), 0)
-        NumPut("Int", MonitorInfo.struct_size(), this.struct_ptr())
+class MonitorInfo extends Buffer {
+    __New(bytes := MonitorInfo.struct_size, fill := 0) {
+        super.__New(bytes, fill)
+        NumPut("Int", MonitorInfo.struct_size, this, MonitorInfo.size_offset)
     }
 
-    static size_offset := (*) => 0
-    static monitor_offset := (*) => MonitorInfo.size_offset() + A_IntSize
-    static work_offset := (*) => MonitorInfo.monitor_offset() + Rect.struct_size()
-    static flags_offset := (*) => MonitorInfo.work_offset() + Rect.struct_size()
-    static struct_size := (*) => MonitorInfo.flags_offset() + A_IntSize
-
-    struct_ptr := (*) => this.buff.Ptr
+    static size_offset := 0
+    static monitor_offset := MonitorInfo.size_offset + A_IntSize
+    static work_offset := MonitorInfo.monitor_offset + Rect.struct_size
+    static flags_offset := MonitorInfo.work_offset + Rect.struct_size
+    static struct_size := MonitorInfo.flags_offset + A_IntSize
 
     size {
-        get => NumGet(this.struct_ptr(), MonitorInfo.size_offset(), "Int")
+        get => NumGet(this, MonitorInfo.size_offset, "Int")
     }
     monitor {
         get => Rect(
-            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset(), "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset() + A_IntSize, "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset() + A_IntSize * 2, "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.monitor_offset() + A_IntSize * 3, "Int")
+            NumGet(this, MonitorInfo.monitor_offset, "Int"),
+            NumGet(this, MonitorInfo.monitor_offset + A_IntSize, "Int"),
+            NumGet(this, MonitorInfo.monitor_offset + A_IntSize * 2, "Int"),
+            NumGet(this, MonitorInfo.monitor_offset + A_IntSize * 3, "Int")
         )
     }
     work {
         get => Rect(
-            NumGet(this.struct_ptr(), MonitorInfo.work_offset(), "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.work_offset() + A_IntSize, "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.work_offset() + A_IntSize * 2, "Int"),
-            NumGet(this.struct_ptr(), MonitorInfo.work_offset() + A_IntSize * 3, "Int")
+            NumGet(this, MonitorInfo.work_offset, "Int"),
+            NumGet(this, MonitorInfo.work_offset + A_IntSize, "Int"),
+            NumGet(this, MonitorInfo.work_offset + A_IntSize * 2, "Int"),
+            NumGet(this, MonitorInfo.work_offset + A_IntSize * 3, "Int")
         )
     }
     flags {
-        get => NumGet(this.struct_ptr(), MonitorInfo.flags_offset(), "Int")
+        get => NumGet(this, MonitorInfo.flags_offset, "Int")
     }
 } ; MonitorInfo
 
 class MonitorInfoEx extends MonitorInfo {
     __New() {
-        this.buff := Buffer(MonitorInfoEx.struct_size(), 0)
-        NumPut("Int", MonitorInfoEx.struct_size(), this.struct_ptr())
+        super.__New(MonitorInfoEx.struct_size, 0)
+        NumPut("Int", MonitorInfoEx.struct_size, this, MonitorInfoEx.size_offset)
     }
 
-    static device_offset := (*) => MonitorInfoEx.flags_offset() + A_IntSize
-    static struct_size := (*) => MonitorInfoEx.device_offset() + A_WCharSize * CCHDEVICENAME
+    static device_offset := MonitorInfoEx.flags_offset + A_IntSize
+    static struct_size := MonitorInfoEx.device_offset + A_WCharSize * CCHDEVICENAME
 
     device {
-        get => StrGet(this.struct_ptr() + MonitorInfoEx.device_offset(), CCHDEVICENAME)
+        get => StrGet(this + MonitorInfoEx.device_offset, CCHDEVICENAME)
     }
 } ; MonitorInfoEx
 
@@ -163,12 +157,12 @@ class MonitorManage extends Class {
     }
 
     static MonitorFromRect(rect, flags := MONITOR_DEFAULTTONULL) {
-        return DllCall("MonitorFromRect", "Ptr", rect.struct_ptr(), "UInt", flags)
+        return DllCall("MonitorFromRect", "Ptr", rect, "UInt", flags)
     }
 
     static GetMonitorInfo(hMon) {
         info := MonitorInfoEx()
-        res := DllCall("GetMonitorInfo", "Ptr", hMon, "Ptr", info.struct_ptr())
+        res := DllCall("GetMonitorInfo", "Ptr", hMon, "Ptr", info)
         return res ? info : 0
     }
 } ; MonitorManage
