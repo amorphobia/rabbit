@@ -384,7 +384,7 @@ ProcessKey(key, mask, this_hotkey) {
                 }
                 if !last_is_hide
                     box.Show("AutoSize NA x" . new_x . " y" . new_y)
-            } else {
+            } else if !show_at_left_top {
                 has_selected := GetCompositionText(context.composition, &pre_selected, &selected, &post_selected)
                 preedit_text := pre_selected
                 if has_selected
