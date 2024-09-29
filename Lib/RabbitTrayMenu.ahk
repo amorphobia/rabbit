@@ -32,7 +32,7 @@ SetupTrayMenu() {
     static rabbit_ico    := Format("{}\Lib\rabbit.ico", A_ScriptDir)
     A_TrayMenu.Delete()
     if !IN_MAINTENANCE {
-        ; A_TrayMenu.Add("输入法设定")
+        A_TrayMenu.Add("输入法设定", (*) => Configure())
         ; A_TrayMenu.Add("用户词典管理")
         A_TrayMenu.Add("用户资料同步", (*) => Sync())
 
@@ -69,6 +69,10 @@ SetupTrayMenu() {
     A_TrayMenu.Add("退出玉兔毫", (*) => ExitApp())
 }
 
+Configure() {
+    Run(Format("{} `"{}\RabbitDeployer.ahk`" configure 1", A_AhkPath, A_ScriptDir))
+    ExitApp()
+}
 Sync() {
     Run(Format("{} `"{}\RabbitDeployer.ahk`" sync 1", A_AhkPath, A_ScriptDir))
     ExitApp()
