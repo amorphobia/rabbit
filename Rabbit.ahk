@@ -133,6 +133,8 @@ ExitRabbit(layout, reason, code) {
 
 RegisterHotKeys() {
     global rime
+    global suspend_hotkey_mask := 0
+    global suspend_hotkey := ""
     local shift := KeyDef.mask["Shift"]
     local ctrl := KeyDef.mask["Ctrl"]
     local alt := KeyDef.mask["Alt"]
@@ -192,8 +194,6 @@ RegisterHotKeys() {
     }
 
     ; Read the hotkey to suspend / resume Rabbit
-    global suspend_hotkey_mask := 0
-    global suspend_hotkey := ""
     if !RabbitConfig.suspend_hotkey
         return
     local keys := StrSplit(RabbitConfig.suspend_hotkey, "+", " ", 4)
