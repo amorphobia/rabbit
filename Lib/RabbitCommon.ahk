@@ -91,6 +91,7 @@ CreateTraits() {
     traits.app_name := "rime.rabbit"
     traits.shared_data_dir := RabbitSharedDataPath()
     traits.user_data_dir := RabbitUserDataPath()
+    traits.prebuilt_data_dir := traits.shared_data_dir
     traits.log_dir := RabbitLogPath()
 
     return traits
