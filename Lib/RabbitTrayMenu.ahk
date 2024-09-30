@@ -85,6 +85,11 @@ Deploy() {
     Run(Format("{} `"{}\RabbitDeployer.ahk`" deploy 1", A_AhkPath, A_ScriptDir))
     ExitApp()
 }
+Install() {
+    Run(Format("{} `"{}\RabbitDeployer.ahk`" install 1", A_AhkPath, A_ScriptDir))
+    ExitApp()
+}
+
 ToggleSuspend() {
     global rime, session_id, box, STATUS_TOOLTIP
     ToolTip()

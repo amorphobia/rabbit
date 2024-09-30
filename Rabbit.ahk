@@ -72,7 +72,7 @@ RabbitMain(args) {
         UpdateTrayIcon()
         if first_run {
             SetDefaultKeyboard(layout)
-            Deploy()
+            Install()
         } else if rime.start_maintenance(m == RABBIT_FULL_MAINTENANCE)
             rime.join_maintenance_thread()
     } else {
