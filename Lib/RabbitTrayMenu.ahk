@@ -33,7 +33,7 @@ SetupTrayMenu() {
     A_TrayMenu.Delete()
     if !IN_MAINTENANCE {
         A_TrayMenu.Add("输入法设定", (*) => Configure())
-        ; A_TrayMenu.Add("用户词典管理")
+        A_TrayMenu.Add("用户词典管理", (*) => Dict())
         A_TrayMenu.Add("用户资料同步", (*) => Sync())
 
         A_TrayMenu.Add()
@@ -71,6 +71,10 @@ SetupTrayMenu() {
 
 Configure() {
     Run(Format("{} `"{}\RabbitDeployer.ahk`" configure 1", A_AhkPath, A_ScriptDir))
+    ExitApp()
+}
+Dict() {
+    Run(Format("{} `"{}\RabbitDeployer.ahk`" dict 1", A_AhkPath, A_ScriptDir))
     ExitApp()
 }
 Sync() {

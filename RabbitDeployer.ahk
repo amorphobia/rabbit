@@ -49,7 +49,7 @@ RunDeployer(args) {
             res := conf.UpdateWorkspace()
             opt := RABBIT_NO_MAINTENANCE
         case "dict":
-            res := 0 ; conf.DictManagement()
+            res := conf.DictManagement()
             opt := RABBIT_PARTIAL_MAINTENANCE
         case "sync":
             res := conf.SyncUserData()
@@ -139,6 +139,15 @@ class Configurator extends Class {
             return 1
         }
 
+        if mutex.lasterr == ERROR_ALREADY_EXISTS {
+            ; TODO: log error
+            mutex.Close()
+            if report_errors {
+                MsgBox("正在执行另一项部署任务，方才所做的修改将在输入法再次启动后生效。", "【玉兔毫】", "Ok Iconi")
+            }
+            return 1
+        }
+
         {
             rime.deploy()
             rime.deploy_config_file("rabbit.yaml", "config_version")
@@ -149,12 +158,45 @@ class Configurator extends Class {
         return 0
     }
 
-    ; DictManagement()
+    DictManagement() {
+        mutex := RabbitMutex()
+        if not mutex.Create() {
+            ; TODO: log error
+            return 1
+        }
+
+        if mutex.lasterr == ERROR_ALREADY_EXISTS {
+            ; TODO: log error
+            mutex.Close()
+            MsgBox("正在执行另一项部署任务，请稍后再试。", "【玉兔毫】", "Ok Iconi")
+            return 1
+        }
+
+        {
+            if rime.api_available("run_task") {
+                rime.run_task("installation_update")
+            }
+            dialog := DictManagementDialog()
+            dialog.Show()
+            WinWaitClose(dialog)
+        }
+
+        mutex.Close()
+
+        return 0
+    }
 
     SyncUserData() {
         mutex := RabbitMutex()
         if not mutex.Create() {
             ; TODO: log error
+            return 1
+        }
+
+        if mutex.lasterr == ERROR_ALREADY_EXISTS {
+            ; TODO: log error
+            mutex.Close()
+            MsgBox("正在执行另一项部署任务，请稍后再试。", "【玉兔毫】", "Ok Iconi")
             return 1
         }
 
@@ -172,9 +214,130 @@ class Configurator extends Class {
     }
 }
 
+class DictManagementDialog extends Gui {
+    __New() {
+        super.__New("-MaximizeBox -MinimizeBox", "【玉兔毫】用户词典管理", this)
+        this.api := RimeLeversApi()
+
+        ; Layout
+        this.MarginX := 15
+        this.MarginY := 15
+        this.AddText(, "用户词典列表：")
+        this.dict_list := this.AddListBox("w190 h270", [])
+        this.dict_list.OnEvent("Change", (*) => this.OnUserDictListSelChange())
+        this.AddText("Section X+25 YP w315", " 当你需要将包含输入习惯的用户词典迁移到另一份配备了 Rime 输入法的系统，请在左列选中词典名称，「输出词典快照」将快照文件传到另一系统上，「合入词典快照」快照文件中的词条将合并到其所属的词典中。")
+        this.backup := this.AddButton("Disabled Y+30 w150", "输出词典快照")
+        this.backup.OnEvent("Click", (*) => this.OnBackup())
+        this.AddButton("X+20 YP w150", "合入词典快照").OnEvent("Click", (*) => this.OnRestore())
+        this.AddText("XS w315", "「导出文本码表」是为输入方案制作者设计的功能，将使用期间新造的词组以 Rime 词典中的码表格式导出，以便查看、编辑。「导入文本码表」可用于将其他来源的词库整理成 TSV 格式后导入到 Rime。在 Rime 输入法之间转移数据，请使用词典快照。")
+        this.export := this.AddButton("Disabled Y+30 w150", "导出文本码表")
+        this.export.OnEvent("Click", (*) => this.OnExport())
+        this.import := this.AddButton("Disabled X+20 YP w150", "导入文本码表")
+        this.import.OnEvent("Click", (*) => this.OnImport())
+
+        this.Populate()
+    }
+
+    Populate() {
+        if !iter := this.api.user_dict_iterator_init() {
+            return
+        }
+        while dict := this.api.next_user_dict(iter) {
+            this.dict_list.Add([dict])
+        }
+        this.api.user_dict_iterator_destroy(iter)
+        this.dict_list.Choose(0)
+    }
+
+    OnBackup() {
+        local sel := this.dict_list.Value
+        if sel <= 0 || sel > SendMessage(0x18B, , , this.dict_list) { ; LB_GETCOUNT
+            MsgBox("请在左列选择要导出的词典名称。", ":-(", "Ok Iconi")
+            return
+        }
+
+        local path := rime.get_user_data_sync_dir()
+        if !DirExist(path) {
+            try {
+                DirCreate(path)
+            } catch {
+                MsgBox("未能完成导出操作。会不会是同步文件夹无法访问？", ":-(", "Ok Iconx")
+                return
+            }
+        }
+
+        local dict_name := this.dict_list.Text
+        file := path . "\" . dict_name . ".userdb.txt"
+        if !this.api.backup_user_dict(dict_name) {
+            MsgBox("不知哪里出错了，未能完成导出操作。", ":-(", "Ok Iconx")
+            return
+        } else if !FileExist(file) {
+            MsgBox("咦，输出的快照文件找不着了。", ":-(", "Ok Iconx")
+            return
+        }
+        Run(A_ComSpec . " /c explorer.exe /select,`"" . file . "`"", , "Hide")
+    }
+
+    OnRestore() {
+        local filter := "词典快照 (*.userdb.txt; *.userdb.kct.snapshot)"
+        if selected_path := FileSelect("1", , "打开", filter) { ; file must exist
+            if !this.api.restore_user_dict(selected_path)
+                MsgBox("不知哪里出错了，未能完成操作。", ":-(", "Ok Iconx")
+            else
+                MsgBox("完成了。", ":-)", "Ok Iconi")
+        }
+    }
+
+    OnExport() {
+        local sel := this.dict_list.Value
+        if sel <= 0 || sel > SendMessage(0x18B, , , this.dict_list) { ; LB_GETCOUNT
+            MsgBox("请在左列选择要导出的词典名称。", ":-(", "Ok Iconi")
+            return
+        }
+
+        local dict_name := this.dict_list.Text
+        local file_name := dict_name . "_export.txt"
+        local filter := "文本文档 (*.txt)"
+        if selected_path := FileSelect("S18", file_name, "另存为", filter) { ; path must exist + warning on overwriting
+            if SubStr(selected_path, -4) != ".txt"
+                selected_path .= ".txt"
+            local result := this.api.export_user_dict(dict_name, selected_path)
+            if result < 0
+                MsgBox("不知哪里出错了，未能完成操作。", ":-(", "Ok Iconx")
+            else if !FileExist(selected_path)
+                MsgBox("咦，导出的文件找不着了。", ":-(", "Ok Iconx")
+            else {
+                MsgBox("导出了 " . result . " 条记录。", ":-)", "Ok Iconi")
+                Run(A_ComSpec . " /c explorer.exe /select,`"" . selected_path . "`"", , "Hide")
+            }
+        }
+    }
+
+    OnImport() {
+        local dict_name := this.dict_list.Text
+        local file_name := dict_name . "_export.txt"
+        local filter := "文本文档 (*.txt)"
+        if selected_path := FileSelect("1", file_name, "打开", filter) { ; file must exist
+            local result := this.api.import_user_dict(dict_name, selected_path)
+            if result < 0
+                MsgBox("不知哪里出错了，未能完成操作。", ":-(", "Ok Iconx")
+            else
+                MsgBox("导入了" . " " . result . " 条记录。", ":-)", "Ok Iconi")
+        }
+    }
+
+    OnUserDictListSelChange() {
+        local index := this.dict_list.Value
+        local enabled := index <= 0 ? false : true
+        this.backup.Enabled := enabled
+        this.export.Enabled := enabled
+        this.import.Enabled := enabled
+    }
+}
+
 class SwitcherSettingsDialog extends Gui {
     __New(settings, result) {
-        super.__New(, "【玉兔毫】方案选单设定", this)
+        super.__New("-MaximizeBox -MinimizeBox", "【玉兔毫】方案选单设定", this)
         this.settings := settings
         this.loaded := false
         this.modified := false

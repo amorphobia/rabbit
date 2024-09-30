@@ -65,13 +65,12 @@ class RabbitGlobals {
 
 class RabbitMutex {
     handle := 0
-    errmsg := ""
+    lasterr := 0
     Create() {
-        this.errmsg := ""
+        this.lasterr := 0
         this.handle := DllCall("CreateMutex", "Ptr", 0, "Int", true, "Str", "RabbitDeployerMutex")
         if A_LastError == ERROR_ALREADY_EXISTS {
-            this.Close()
-            this.errmsg := "mutex already exists"
+            this.lasterr := ERROR_ALREADY_EXISTS
         }
         return this.handle
     }

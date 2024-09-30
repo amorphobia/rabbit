@@ -43,6 +43,7 @@ RabbitMain(args) {
 
     fail_count := 0
     while not mutex.Create() {
+        mutex.Close()
         fail_count++
         if fail_count > 500 {
             TrayTip()
