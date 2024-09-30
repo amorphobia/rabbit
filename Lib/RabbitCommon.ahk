@@ -61,6 +61,7 @@ class RabbitGlobals {
     static process_ascii := Map()
     static on_tray_icon_click := false
     static active_win := ""
+    static current_schema_icon := ""
 }
 
 class RabbitMutex {
@@ -144,6 +145,7 @@ class RabbitConfig {
     static show_tips_time := 1200
     static global_ascii := false
     static preset_process_ascii := Map()
+    static schema_icon := Map()
 
     static load() {
         global rime
@@ -174,5 +176,24 @@ class RabbitConfig {
         }
 
         rime.config_close(config)
+
+        if !schema_list := rime.get_schema_list()
+            return
+
+        Loop schema_list.size {
+            local item := schema_list.list[A_Index]
+            if !schema := rime.schema_open(item.schema_id)
+                continue
+
+            if rime.config_test_get_string(schema, "schema/icon", &icon) {
+                icon_path := RabbitUserDataPath() . "\" . LTrim(icon, "\")
+                RabbitConfig.schema_icon[item.schema_id] := icon_path
+            } else
+                RabbitConfig.schema_icon[item.schema_id] := ""
+
+            rime.config_close(schema)
+        }
+
+        rime.free_schema_list(schema_list)
     }
 }

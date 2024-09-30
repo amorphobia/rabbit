@@ -93,6 +93,7 @@ RabbitMain(args) {
     RegisterHotKeys()
     UpdateStateLabels()
     if status := rime.get_status(session_id) {
+        local schema_id := status.schema_id
         local schema_name := status.schema_name
         local ascii_mode := status.is_ascii_mode
         local full_shape := status.is_full_shape
@@ -100,6 +101,10 @@ RabbitMain(args) {
         rime.free_status(status)
 
         UpdateTrayTip(schema_name, ascii_mode, full_shape, ascii_punct)
+
+        if RabbitConfig.schema_icon.Has(schema_id)
+            if RabbitGlobals.current_schema_icon := RabbitConfig.schema_icon[schema_id]
+                UpdateTrayIcon()
     }
     SetupTrayMenu()
     OnMessage(AHK_NOTIFYICON, ClickHandler.Bind())
@@ -305,6 +310,10 @@ ProcessKey(key, mask, this_hotkey) {
     }
 
     UpdateTrayTip(new_schema_name, new_ascii_mode, new_full_shape, new_ascii_punct)
+    if old_schema_id !== new_schema_id && RabbitConfig.schema_icon.Has(new_schema_id) {
+        if RabbitGlobals.current_schema_icon := RabbitConfig.schema_icon[new_schema_id]
+            UpdateTrayIcon()
+    }
 
     local status_text := ""
     local status_changed := false

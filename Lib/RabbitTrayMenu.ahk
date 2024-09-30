@@ -140,5 +140,8 @@ UpdateTrayTip(schema_name := TRAY_SCHEMA_NAME, ascii_mode := TRAY_ASCII_MODE, fu
 
 UpdateTrayIcon() {
     global TRAY_ASCII_MODE
-    TraySetIcon((A_IsSuspended || IN_MAINTENANCE) ? "Lib\rabbit-alt.ico" : (TRAY_ASCII_MODE ? "Lib\rabbit-ascii.ico" : "Lib\rabbit.ico"), , true)
+    icon_path := RabbitGlobals.current_schema_icon
+    if !IsSet(icon_path) || !icon_path
+        icon_path := "Lib\rabbit.ico"
+    TraySetIcon((A_IsSuspended || IN_MAINTENANCE) ? "Lib\rabbit-alt.ico" : (TRAY_ASCII_MODE ? "Lib\rabbit-ascii.ico" : icon_path), , true)
 }
