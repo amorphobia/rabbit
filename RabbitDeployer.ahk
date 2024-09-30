@@ -251,7 +251,7 @@ class DictManagementDialog extends Gui {
 
     OnBackup() {
         local sel := this.dict_list.Value
-        if sel <= 0 || sel > SendMessage(0x18B, , , this.dict_list) { ; LB_GETCOUNT
+        if sel <= 0 || sel > ControlGetItems(this.dict_list).Length {
             MsgBox("请在左列选择要导出的词典名称。", ":-(", "Ok Iconi")
             return
         }
@@ -290,7 +290,7 @@ class DictManagementDialog extends Gui {
 
     OnExport() {
         local sel := this.dict_list.Value
-        if sel <= 0 || sel > SendMessage(0x18B, , , this.dict_list) { ; LB_GETCOUNT
+        if sel <= 0 || sel > ControlGetItems(this.dict_list).Length {
             MsgBox("请在左列选择要导出的词典名称。", ":-(", "Ok Iconi")
             return
         }
@@ -322,7 +322,7 @@ class DictManagementDialog extends Gui {
             if result < 0
                 MsgBox("不知哪里出错了，未能完成操作。", ":-(", "Ok Iconx")
             else
-                MsgBox("导入了" . " " . result . " 条记录。", ":-)", "Ok Iconi")
+                MsgBox("导入了 " . result . " 条记录。", ":-)", "Ok Iconi")
         }
     }
 
