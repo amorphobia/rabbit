@@ -169,6 +169,7 @@ jobs:
         run: |
           if [[ ${{ github.ref_name }} == v* ]]; then
             VER=${{ github.ref_name }}
+            VER=${VER:1}
           else
             VER=${{ github.ref_name }}-$(git rev-parse --short ${{ github.sha }})
           fi
