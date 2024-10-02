@@ -188,7 +188,9 @@ class RabbitConfig {
 
             if rime.config_test_get_string(schema, "schema/icon", &icon) {
                 icon_path := RabbitUserDataPath() . "\" . LTrim(icon, "\")
-                RabbitConfig.schema_icon[item.schema_id] := icon_path
+                if !FileExist(icon_path)
+                    icon_path := RabbitSharedDataPath() . "\" . LTrim(icon, "\")
+                RabbitConfig.schema_icon[item.schema_id] := FileExist(icon_path) ? icon_path : ""
             } else
                 RabbitConfig.schema_icon[item.schema_id] := ""
 
