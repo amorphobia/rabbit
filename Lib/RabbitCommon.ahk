@@ -23,7 +23,9 @@ global RABBIT_VERSION := "dev"
 ;@Ahk2Exe-Let U_version = %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 ;@Ahk2Exe-SetVersion %U_version%
 ;@Ahk2Exe-SetLanguage 0x0804
-;@Ahk2Exe-SetMainIcon Rabbit.ico
+;@Ahk2Exe-SetMainIcon Lib\rabbit.ico
+;@Ahk2Exe-AddResource Lib\rabbit-ascii.ico, 160
+;@Ahk2Exe-AddResource Lib\rabbit-alt.ico,   206
 
 #Include <librime-ahk\rime_api>
 #Include <librime-ahk\rime_levers_api>
@@ -62,6 +64,7 @@ class RabbitGlobals {
     static on_tray_icon_click := false
     static active_win := ""
     static current_schema_icon := ""
+    static keyboard_layout := 0x0409
 }
 
 class RabbitMutex {

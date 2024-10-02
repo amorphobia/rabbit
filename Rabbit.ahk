@@ -37,8 +37,16 @@ global last_is_hide := false
 
 RabbitMain(A_Args)
 
+; args[1]: maintenance option
+; args[2]: deployer result
+; args[3]: keyboard layout
 RabbitMain(args) {
-    local layout := DllCall("GetKeyboardLayout", "UInt", 0)
+    if args.Length >= 3
+        layout := Number(args[3])
+    if !IsSet(layout) || layout == 0 {
+        layout := DllCall("GetKeyboardLayout", "UInt", 0)
+    }
+    RabbitGlobals.keyboard_layout := layout
     SetDefaultKeyboard()
 
     fail_count := 0
@@ -71,8 +79,7 @@ RabbitMain(args) {
         global IN_MAINTENANCE := true
         UpdateTrayIcon()
         if first_run {
-            SetDefaultKeyboard(layout)
-            Install()
+            RunDeployer("install", RabbitGlobals.keyboard_layout)
         } else if rime.start_maintenance(m == RABBIT_FULL_MAINTENANCE)
             rime.join_maintenance_thread()
     } else {
@@ -84,7 +91,7 @@ RabbitMain(args) {
 
     global session_id := rime.create_session()
     if not session_id {
-        SetDefaultKeyboard(layout)
+        SetDefaultKeyboard(RabbitGlobals.keyboard_layout)
         rime.finalize()
         throw Error("未能成功创建 RIME 会话。")
     }
@@ -111,7 +118,7 @@ RabbitMain(args) {
     if !RabbitConfig.global_ascii
         SetTimer(UpdateWinAscii)
 
-    OnExit(ExitRabbit.Bind(layout))
+    OnExit(ExitRabbit.Bind(RabbitGlobals.keyboard_layout))
 }
 
 ; https://www.autohotkey.com/boards/viewtopic.php?f=76&t=101183
@@ -125,7 +132,8 @@ SetDefaultKeyboard(locale_id := 0x0409) {
 }
 
 ExitRabbit(layout, reason, code) {
-    SetDefaultKeyboard(layout)
+    if code == 0
+        SetDefaultKeyboard(layout)
     TrayTip()
     ToolTip()
     ToolTip(, , , STATUS_TOOLTIP)

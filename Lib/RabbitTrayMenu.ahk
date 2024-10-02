@@ -32,9 +32,9 @@ SetupTrayMenu() {
     static rabbit_ico    := Format("{}\Lib\rabbit.ico", A_ScriptDir)
     A_TrayMenu.Delete()
     if !IN_MAINTENANCE {
-        A_TrayMenu.Add("输入法设定", (*) => Configure())
-        A_TrayMenu.Add("用户词典管理", (*) => Dict())
-        A_TrayMenu.Add("用户资料同步", (*) => Sync())
+        A_TrayMenu.Add("输入法设定", (*) => RunDeployer("configure", RabbitGlobals.keyboard_layout))
+        A_TrayMenu.Add("用户词典管理", (*) => RunDeployer("dict", RabbitGlobals.keyboard_layout))
+        A_TrayMenu.Add("用户资料同步", (*) => RunDeployer("sync", RabbitGlobals.keyboard_layout))
 
         A_TrayMenu.Add()
 
@@ -59,7 +59,7 @@ SetupTrayMenu() {
 
         A_TrayMenu.Add()
 
-        A_TrayMenu.Add("重新部署", (*) => Deploy())
+        A_TrayMenu.Add("重新部署", (*) => RunDeployer("deploy", RabbitGlobals.keyboard_layout))
         if (A_IsSuspended) {
             A_TrayMenu.Add("启用玉兔毫", (*) => ToggleSuspend())
         } else {
@@ -69,25 +69,17 @@ SetupTrayMenu() {
     A_TrayMenu.Add("退出玉兔毫", (*) => ExitApp())
 }
 
-Configure() {
-    Run(Format("{} `"{}\RabbitDeployer.ahk`" configure 1", A_AhkPath, A_ScriptDir))
-    ExitApp()
-}
-Dict() {
-    Run(Format("{} `"{}\RabbitDeployer.ahk`" dict 1", A_AhkPath, A_ScriptDir))
-    ExitApp()
-}
-Sync() {
-    Run(Format("{} `"{}\RabbitDeployer.ahk`" sync 1", A_AhkPath, A_ScriptDir))
-    ExitApp()
-}
-Deploy() {
-    Run(Format("{} `"{}\RabbitDeployer.ahk`" deploy 1", A_AhkPath, A_ScriptDir))
-    ExitApp()
-}
-Install() {
-    Run(Format("{} `"{}\RabbitDeployer.ahk`" install 1", A_AhkPath, A_ScriptDir))
-    ExitApp()
+RunDeployer(cmd, argv*) {
+    args := ""
+    for arg in argv
+        args .= " " . arg
+    args := LTrim(args, " ")
+    ; MsgBox(cmd . " " . args)
+    if A_IsCompiled
+        Run(Format("`"{}\RabbitDeployer.exe`" {} {}", A_ScriptDir, cmd, args))
+    else
+        Run(Format("{} `"{}\RabbitDeployer.ahk`" {} {}", A_AhkPath, A_ScriptDir, cmd, args))
+    ExitApp(1)
 }
 
 ToggleSuspend() {
@@ -148,5 +140,13 @@ UpdateTrayIcon() {
     icon_path := RabbitGlobals.current_schema_icon
     if !IsSet(icon_path) || !icon_path
         icon_path := "Lib\rabbit.ico"
-    TraySetIcon((A_IsSuspended || IN_MAINTENANCE) ? "Lib\rabbit-alt.ico" : (TRAY_ASCII_MODE ? "Lib\rabbit-ascii.ico" : icon_path), , true)
+    if A_IsCompiled {
+        icon_num := IN_MAINTENANCE ? 3 : (TRAY_ASCII_MODE ? 2 : (RabbitGlobals.current_schema_icon ? 0 : 1))
+        if icon_num {
+            TraySetIcon(A_ScriptFullPath, icon_num)
+        } else {
+            TraySetIcon(RabbitGlobals.current_schema_icon)
+        }
+    } else
+        TraySetIcon((A_IsSuspended || IN_MAINTENANCE) ? "Lib\rabbit-alt.ico" : (TRAY_ASCII_MODE ? "Lib\rabbit-ascii.ico" : icon_path), , true)
 }

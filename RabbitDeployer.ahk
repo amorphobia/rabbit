@@ -32,9 +32,15 @@ global FILE_ATTRIBUTE_DIRECTORY := 0x00000010
 
 OnExit(ExitRabbitDeployer)
 
-RunDeployer(A_Args)
+RabbitDeployerMain(A_Args)
 
-RunDeployer(args) {
+; args[1]: command
+; args[2]: keyboard layout
+RabbitDeployerMain(args) {
+    if args.Length >= 2
+        layout := Number(args[2])
+    else
+        layout := 0
     IN_MAINTENANCE := true
     UpdateTrayIcon()
     TrayTip()
@@ -60,7 +66,10 @@ RunDeployer(args) {
     }
 
     if args.Length > 1 {
-        Run(Format("{} `"{}\Rabbit.ahk`" {} {}", A_AhkPath, A_ScriptDir, opt, res))
+        if A_IsCompiled
+            Run(Format("`"{}\Rabbit.exe`" {} {} {}", A_ScriptDir, opt, res, layout))
+        else
+            Run(Format("{} `"{}\Rabbit.ahk`" {} {} {}", A_AhkPath, A_ScriptDir, opt, res, layout))
         ExitApp()
     }
     return res
