@@ -122,7 +122,33 @@ RabbitMain(args) {
 }
 
 ; https://www.autohotkey.com/boards/viewtopic.php?f=76&t=101183
-SetDefaultKeyboard(locale_id := 0x0409) {
+SetDefaultKeyboard(locale_id := 0) {
+    if !locale_id {
+        local key_map := Map(
+            "EN_US",    0x0409,
+            "EN_GB",    0x0809,
+            "EN_HK",    0x3c09,
+        )
+        local lang_path := RabbitUserDataPath() . "\.lang"
+        if FileExist(lang_path) {
+            local lang := FileRead(lang_path, "UTF-8")
+            local valid := lang && key_map.Has(StrUpper(StrReplace(lang, "-", "_")))
+            if !lang || !valid {
+                input_box := InputBox("当玉兔毫启动时，会将系统键盘切换到对应语言", "请输入语言代码", , "en_US")
+                if input_box.Result == "OK" {
+                    lang := input_box.Value
+                }
+                if lang && key_map.Has(StrUpper(StrReplace(lang, "-", "_"))) {
+                    FileDelete(lang_path)
+                    FileAppend(lang, lang_path, "UTF-8")
+                }
+            }
+            try
+                locale_id := key_map[StrUpper(StrReplace(lang, "-", "_"))]
+        }
+        if !locale_id
+            locale_id := 0x0409
+    }
     local HWND_BROADCAST := 0xffff
     local LOW_WORD := 0xffff
     local WM_INPUTLANGCHANGEREQUEST := 0x0050
