@@ -362,6 +362,9 @@ ProcessKey(key, mask, this_hotkey) {
     }
 
     if context := rime.get_context(session_id) {
+        static prev_show := false
+        static prev_x := 4
+        static prev_y := 4
         if context.composition.length > 0 {
             DetectHiddenWindows True
             local start_menu := WinActive("ahk_class Windows.UI.Core.CoreWindow ahk_exe StartMenuExperienceHost.exe")
@@ -380,27 +383,34 @@ ProcessKey(key, mask, this_hotkey) {
             }
             if !show_at_left_top && GetCaretPos(&caret_x, &caret_y, &caret_w, &caret_h) {
                 box.Build(context, &box_width, &box_height)
-                new_x := caret_x + caret_w
-                new_y := caret_y + caret_h + 4
-
-                hWnd := WinExist("A")
-                hMon := MonitorManage.MonitorFromWindow(hWnd)
-                info := MonitorManage.GetMonitorInfo(hMon)
-                if info {
-                    if new_x + box_width > info.work.right
-                        new_x := info.work.right - box_width
-                    if new_y + box_height > info.work.bottom
-                        new_y := caret_y - 4 - box_height
+                if RabbitConfig.fix_candidate_box && prev_show {
+                    new_x := prev_x
+                    new_y := prev_y
                 } else {
-                    workspace_width := SysGet(16) ; SM_CXFULLSCREEN
-                    workspace_height := SysGet(17) ; SM_CYFULLSCREEN
-                    if new_x + box_width > workspace_width
-                        new_x := workspace_width - box_width
-                    if new_y + box_height > workspace_height
-                        new_y := caret_y - 4 - box_height
+                    new_x := caret_x + caret_w
+                    new_y := caret_y + caret_h + 4
+
+                    hWnd := WinExist("A")
+                    hMon := MonitorManage.MonitorFromWindow(hWnd)
+                    info := MonitorManage.GetMonitorInfo(hMon)
+                    if info {
+                        if new_x + box_width > info.work.right
+                            new_x := info.work.right - box_width
+                        if new_y + box_height > info.work.bottom
+                            new_y := caret_y - 4 - box_height
+                    } else {
+                        workspace_width := SysGet(16) ; SM_CXFULLSCREEN
+                        workspace_height := SysGet(17) ; SM_CYFULLSCREEN
+                        if new_x + box_width > workspace_width
+                            new_x := workspace_width - box_width
+                        if new_y + box_height > workspace_height
+                            new_y := caret_y - 4 - box_height
+                    }
                 }
                 if !last_is_hide
                     box.Show("AutoSize NA x" . new_x . " y" . new_y)
+                prev_x := new_x
+                prev_y := new_y
             } else if !show_at_left_top {
                 has_selected := GetCompositionText(context.composition, &pre_selected, &selected, &post_selected)
                 preedit_text := pre_selected
@@ -408,9 +418,11 @@ ProcessKey(key, mask, this_hotkey) {
                     preedit_text := preedit_text . "[" . selected "]" . post_selected
                 ToolTip(preedit_text . "`r`n" . GetMenuText(context.menu))
             }
+            prev_show := true
         } else {
             ToolTip()
             box.Show("Hide")
+            prev_show := false
         }
         rime.free_context(context)
     }

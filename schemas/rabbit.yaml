@@ -20,3 +20,6 @@ app_options:
 
 # Use global ascii mode
 global_ascii: false
+
+# Always show candidate box at top-left corner
+fix_candidate_box: false

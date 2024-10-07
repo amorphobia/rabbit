@@ -150,6 +150,7 @@ class RabbitConfig {
     static global_ascii := false
     static preset_process_ascii := Map()
     static schema_icon := Map()
+    static fix_candidate_box := false
 
     static load() {
         global rime
@@ -178,6 +179,9 @@ class RabbitConfig {
             }
             rime.config_end(iter)
         }
+
+        if rime.config_test_get_bool(config, "fix_candidate_box", &result)
+            RabbitConfig.fix_candidate_box := !!result
 
         rime.config_close(config)
 
