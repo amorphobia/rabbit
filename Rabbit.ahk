@@ -96,6 +96,7 @@ RabbitMain(args) {
         throw Error("未能成功创建 RIME 会话。")
     }
 
+    CleanOldLogs()
     RabbitConfig.load()
     RegisterHotKeys()
     UpdateStateLabels()

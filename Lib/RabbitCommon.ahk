@@ -207,3 +207,28 @@ class RabbitConfig {
         rime.free_schema_list(schema_list)
     }
 }
+
+CleanOldLogs() {
+    app_name := "rime.rabbit"
+    dir := RabbitLogPath()
+    if !DirExist(dir)
+        return
+
+    files := []
+    try {
+        loop files dir, "R" {
+            if InStr(A_LoopFileAttrib, "N") && !InStr(A_LoopFileAttrib, "L")
+                    && SubStr(A_LoopFileName, 1, StrLen(app_name)) == app_name
+                    && SubStr(A_LoopFileName, -4) == ".log"
+                    && !InStr(A_LoopFileName, A_YYYY A_MM A_DD) {
+                files.Push(A_LoopFileFullPath)
+            }
+        }
+    }
+
+    for file in files {
+        try {
+            FileDelete(file)
+        }
+    }
+}
