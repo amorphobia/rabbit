@@ -61,30 +61,6 @@ jobs:
         with:
           submodules: 'recursive'
 
-      - name: Build Jiandao
-        run: |
-          WORK=`pwd`
-          JIANDAO_DIR=${WORK}/schemas/jiandao-src
-          pushd ${JIANDAO_DIR}
-            JIANDAO_TAG=$(curl -s https://api.github.com/repos/amorphobia/rime-jiandao/releases/latest | jq -r '.tag_name')
-            make dicts DEWEIGHT=1 VERSION="${JIANDAO_TAG}-rabbit-${{ github.ref_name }}"
-          popd
-          sudo apt-get install -y opencc
-          if command -v opencc &> /dev/null; then
-            echo "$(opencc --version)"
-            mkdir -p ${JIANDAO_DIR}/schema/opencc
-            opencc -c t2s.json -i ${JIANDAO_DIR}/deps/rime-emoji/opencc/emoji_category.txt | awk '!seen[$1]++' > ${JIANDAO_DIR}/schema/opencc/emoji_category.txt
-            opencc -c t2s.json -i ${JIANDAO_DIR}/deps/rime-emoji/opencc/emoji_word.txt | awk '!seen[$1]++' > ${JIANDAO_DIR}/schema/opencc/emoji_word.txt
-            # https://github.com/rime/rime-emoji/issues/48
-            sed -i 's/鼔/鼓/g' ${JIANDAO_DIR}/schema/opencc/emoji_word.txt
-            cp ${JIANDAO_DIR}/deps/rime-emoji/opencc/emoji.json ${JIANDAO_DIR}/schema/opencc/
-            make -C ${JIANDAO_DIR}/deps/opencc-tonggui
-            cp ${JIANDAO_DIR}/deps/opencc-tonggui/opencc/* ${JIANDAO_DIR}/schema/opencc/
-          fi
-          rm -f ${JIANDAO_DIR}/schema/recipe.yaml ${JIANDAO_DIR}/schema/rime.lua
-          mkdir -p ${WORK}/schemas/jiandao
-          cp -r ${JIANDAO_DIR}/schema/* ${WORK}/schemas/jiandao/
-
       - name: Fetch Librime
         run: |
           WORK=`pwd`
@@ -121,15 +97,12 @@ jobs:
         run: |
           WORK=`pwd`
           SCHEMAS=${WORK}/schemas
-          DATA=${WORK}/Data
-          rm -rf ${DATA} && mkdir -p ${DATA}
-          cp ${SCHEMAS}/prelude/*.yaml ${DATA}/
-          cp ${SCHEMAS}/essay/essay.txt ${DATA}/
-          cp ${SCHEMAS}/default.yaml ${DATA}/
-          cp ${SCHEMAS}/rabbit.yaml ${DATA}/
-          cp ${SCHEMAS}/pinyin-simp/*.yaml ${DATA}/
-          cp -r ${SCHEMAS}/jiandao/* ${DATA}/
-          cp ${WORK}/opencc/* ${DATA}/opencc/
+          plum_dir=${WORK}/plum
+          rime_dir=${WORK}/Data
+          rm -rf ${rime_dir} && mkdir -p ${rime_dir}
+          rime_dir=${rime_dir} bash plum/rime-install
+          cp ${SCHEMAS}/rabbit.yaml ${rime_dir}/
+          cp -r ${WORK}/opencc ${rime_dir}/
 
       - name: Upload Data
         uses: actions/upload-artifact@v4
