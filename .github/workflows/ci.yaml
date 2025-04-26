@@ -137,6 +137,7 @@ jobs:
           cp AutoHotkey/${{ matrix.ahk }} Rabbit.exe
           cp Rime/${{ matrix.rime }} ./Lib/librime-ahk/rime.dll
           cp Icon/* Lib/
+          cp plum/rime-install.bat .
 
       - name: Set Version
         run: |
@@ -166,6 +167,7 @@ jobs:
             *.ahk
             LICENSE
             README.md
+            rime-install.bat
 
       - name: Upload Full Zip of Rabbit ${{ matrix.target }}
         uses: actions/upload-artifact@v4
@@ -185,6 +187,7 @@ jobs:
             *.ahk
             LICENSE
             README.md
+            rime-install.bat
 
   create-release:
     name: Create Release

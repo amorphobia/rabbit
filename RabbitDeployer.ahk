@@ -365,7 +365,12 @@ class SwitcherSettingsDialog extends Gui {
         this.description := this.AddText("YP w285 h175", "选中列表中的输入方案以查看简介")
         this.AddText("XS", "在玉兔毫里，以下快捷键可唤出方案选单，以切换模式或选用其他输入方案。")
         this.hotkeys := this.AddEdit("-Multi ReadOnly r1 w505")
-        this.more_schemas := this.AddButton("Disabled w155", "获取更多输入方案…")
+        this.proxy_prompt := this.AddText("XS", "代理服务器：")
+        this.proxy := this.AddEdit("X+10 -Multi r1 w300")
+        this.use_git := this.AddCheckbox("X+20", "使用 Git")
+        this.use_git.Value := 1
+        this.more_schemas := this.AddButton("XS w155", "获取更多输入方案…")
+        this.more_schemas.OnEvent("Click", (*) => this.OnGetSchema())
         this.ok := this.AddButton("X+60 YP w90", "中")
         this.ok.OnEvent("Click", (*) => this.OnOK())
 
@@ -453,6 +458,27 @@ class SwitcherSettingsDialog extends Gui {
             this.api.select_schemas(this.settings, selection)
         }
         this.Exit(true)
+    }
+
+    OnGetSchema() {
+        if !FileExist(Format("{}\rime-install.bat", A_ScriptDir)) {
+            MsgBox("未找到东风破安装脚本，请检查安装目录。", ":-(", "Ok Iconx")
+            return
+        }
+
+        if this.proxy.Value {
+            EnvSet("http_proxy", this.proxy.Value)
+            EnvSet("https_proxy", this.proxy.Value)
+        }
+        if this.use_git.Value {
+            EnvSet("use_plum", "1")
+        } else {
+            EnvSet("use_plum", "0")
+        }
+        EnvSet("rime_dir", RabbitUserDataPath())
+        RunWait(Format("cmd.exe /k {}\rime-install.bat", A_ScriptDir), A_ScriptDir)
+        this.api.load_settings(this.settings)
+        this.Populate()
     }
 
     Exit(yes) {

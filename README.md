@@ -37,12 +37,14 @@ rabbit/
 |  |  ├─ rime.dll       Rime 引擎的动态库，若本机已安装小狼毫，可删除；若没有安装小狼毫，需要 a. 保留在此，或 b. 放到主目录，或 c. 放到环境变量 "LIBRIME_LIB_DIR" 指定的目录
 |  |  ├─ ...            librime-ahk 库的其他脚本，编译后可删除
 |  ├─ ...               其他依赖，编译后可删除
+├─ plum/                若使用东风破，将被安装到此路径
 ├─ Rime/                Rime 用户文件夹，运行后会自动生成；可修改注册表 "HKEY_CURRENT_USER\Software\Rime\Rabbit" 中的 "RimeUserDir" 来指定不同的用户文件夹
 ├─ LICENSE              开源许可，可删除
 ├─ Rabbit.ahk           玉兔毫主程序脚本
 ├─ Rabbit.exe           AutoHotkey 可执行文件，若本机已安装 AutoHotkey 或已编译，可删除
 ├─ RabbitDeployer.ahk   玉兔毫部署应用脚本
 ├─ README.md            本文件，可删除
+├─ rime-install.bat     东风破批处理脚本，删除后无法从设定中调用东风破
 ```
 
 ## 开源许可
