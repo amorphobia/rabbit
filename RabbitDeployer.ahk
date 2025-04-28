@@ -25,6 +25,7 @@
 #Include <RabbitCommon>
 #Include <RabbitTrayMenu>
 
+;@Ahk2Exe-SetMainIcon Lib\rabbit-alt.ico
 global IN_MAINTENANCE := true
 global rime
 global INVALID_FILE_ATTRIBUTES := -1

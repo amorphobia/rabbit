@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024 Xuesong Peng <pengxuesong.cn@gmail.com>
+ * Copyright (c) 2023 - 2025 Xuesong Peng <pengxuesong.cn@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 
 global RABBIT_VERSION := "dev"
 ;@Ahk2Exe-SetCompanyName amorphobia
-;@Ahk2Exe-SetCopyright Copyright (c) 2023`, 2024 Xuesong Peng
+;@Ahk2Exe-SetCopyright Copyright (c) 2023 - 2025 Xuesong Peng
 ;@Ahk2Exe-SetDescription 由 AutoHotkey 实现的 Rime 输入法
 ;@Ahk2Exe-Let U_version = %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%
 ;@Ahk2Exe-SetVersion %U_version%

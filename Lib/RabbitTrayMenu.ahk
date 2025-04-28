@@ -39,7 +39,7 @@ SetupTrayMenu() {
         A_TrayMenu.Add()
 
         A_TrayMenu.Add("用户文件夹", (*) => Run(RabbitUserDataPath()))
-        A_TrayMenu.Add("脚本文件夹", (*) => Run(A_ScriptDir))
+        A_TrayMenu.Add(A_IsCompiled ? "程序文件夹" : "脚本文件夹", (*) => Run(A_ScriptDir))
         A_TrayMenu.Add("日志文件夹", (*) => Run(RabbitLogPath()))
 
         A_TrayMenu.Add()
@@ -55,7 +55,7 @@ SetupTrayMenu() {
 
         A_TrayMenu.Add("仓库主页", (*) => Run("https://github.com/amorphobia/rabbit"))
         A_TrayMenu.Add("参加讨论", (*) => Run("https://github.com/amorphobia/rabbit/discussions"))
-        A_TrayMenu.Add("关于", (*) => MsgBox(Format("由 AutoHotkey 实现的 Rime 输入法引擎前端`r`n版本：{}", RABBIT_VERSION), "玉兔毫输入法"))
+        A_TrayMenu.Add("关于", (*) => MsgBox(Format("由 AutoHotkey 实现的 Rime 输入法引擎前端`r`n版本：{}{}", RABBIT_VERSION, A_IsCompiled ? "（已编译）" : ""), "玉兔毫输入法"))
 
         A_TrayMenu.Add()
 
@@ -63,11 +63,7 @@ SetupTrayMenu() {
         A_TrayMenu.Add("重新部署", (*) => RunDeployer("deploy", RabbitGlobals.keyboard_layout))
 
         A_TrayMenu.Add()
-        if (A_IsSuspended) {
-            A_TrayMenu.Add("启用玉兔毫", (*) => ToggleSuspend())
-        } else {
-            A_TrayMenu.Add("禁用玉兔毫", (*) => ToggleSuspend())
-        }
+        A_TrayMenu.Add(A_IsSuspended ? "启用玉兔毫" : "禁用玉兔毫", (*) => ToggleSuspend())
     }
     A_TrayMenu.Add("退出玉兔毫", (*) => ExitApp())
 }
