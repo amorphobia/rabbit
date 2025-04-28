@@ -476,7 +476,10 @@ class SwitcherSettingsDialog extends Gui {
             EnvSet("use_plum", "0")
         }
         EnvSet("rime_dir", RabbitUserDataPath())
+        this.Opt("+Disabled")
         RunWait(Format("cmd.exe /k {}\rime-install.bat", A_ScriptDir), A_ScriptDir)
+        this.Opt("-Disabled")
+        WinActivate("ahk_id " this.Hwnd)
         this.api.load_settings(this.settings)
         this.Populate()
     }
