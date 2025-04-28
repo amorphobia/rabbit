@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, 2024 Xuesong Peng <pengxuesong.cn@gmail.com>
+ * Copyright (c) 2023 - 2025 Xuesong Peng <pengxuesong.cn@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -59,7 +59,10 @@ SetupTrayMenu() {
 
         A_TrayMenu.Add()
 
+        A_TrayMenu.Add("检查新版本", (*) => CheckNewVersion())
         A_TrayMenu.Add("重新部署", (*) => RunDeployer("deploy", RabbitGlobals.keyboard_layout))
+
+        A_TrayMenu.Add()
         if (A_IsSuspended) {
             A_TrayMenu.Add("启用玉兔毫", (*) => ToggleSuspend())
         } else {
@@ -149,4 +152,56 @@ UpdateTrayIcon() {
         }
     } else
         TraySetIcon((A_IsSuspended || IN_MAINTENANCE) ? "Lib\rabbit-alt.ico" : (TRAY_ASCII_MODE ? "Lib\rabbit-ascii.ico" : icon_path), , true)
+}
+
+CheckNewVersion() {
+    if !IsDigit(SubStr(RABBIT_VERSION, 1, 1)) {
+        MsgBox("非正式版本，请前往仓库检查新版本", "玉兔毫输入法")
+        return
+    }
+
+    http := ComObject("WinHttp.WinHttpRequest.5.1")
+    url := "https://api.github.com/repos/amorphobia/rabbit/releases/latest"
+    local ver := ""
+    try {
+        http.Open("GET", url, true)
+        http.SetRequestHeader("Accept", "application/vnd.github+json")
+        http.SetRequestHeader("X-GitHub-Api-Version", "2022-11-28")
+        http.SetRequestHeader("User-Agent", "AutoHotkey")
+
+        http.Send()
+        http.WaitForResponse()
+
+        status := http.Status
+        if (status != 200) {
+            MsgBox("无法获取最新版本信息，请检查网络连接", "玉兔毫输入法")
+            return
+        }
+
+        responseText := http.ResponseText
+        if RegExMatch(responseText, '"name"\s*:\s*"(.*?)"', &match) {
+            if SubStr(match[1], 1, 1) == "v"
+                ver := SubStr(match[1], 2)
+            else
+                ver := match[1]
+        } else {
+            MsgBox("无法解析版本字段，请稍后再试", "玉兔毫输入法")
+            return
+        }
+    }
+
+    if ver == "" {
+        MsgBox("无法获取最新版本号，请稍后再试", "玉兔毫输入法")
+        return
+    }
+
+    if VerCompare(ver, RABBIT_VERSION) > 0 {
+        down := MsgBox(Format("发现新版本：{}`r`n是否前往下载？", ver), "玉兔毫输入法", "YesNo")
+        if down == "Yes" {
+            arch := A_Is64BitOS ? "x64" : "x86"
+            Run(Format("https://github.com/amorphobia/rabbit/releases/download/v{1}/rabbit-v{1}-{2}.zip", ver, arch))
+        }
+    } else {
+        MsgBox("当前已是最新版本", "玉兔毫输入法")
+    }
 }
