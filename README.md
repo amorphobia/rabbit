@@ -18,11 +18,18 @@
 
 发行版会在 [Release 页面](https://github.com/amorphobia/rabbit/releases) 的 Assets 中，下载最新的 `rabbit-v<版本号>.zip`，解压到一个新建文件夹，运行 `Rabbit.exe` 即可。
 
+#### 通过 [scoop](https://scoop.sh/) 安装
+
+```PowerShell
+scoop bucket add siku https://github.com/amorphobia/siku
+scoop install siku/rabbit
+```
+
 ## 脚本编译
 
 本仓库提供*源码形式的玉兔毫脚本*以及*仅修改主图标的 AutoHotkey 可执行文件*，用户可根据需要自行编译为可执行文件以及压缩。编译方式可参照 AutoHotkey 的[官方文档](https://www.autohotkey.com/docs/v2/Scripts.htm#ahk2exe)。
 
-编译并使用 `upx` 压缩后，64 位的可执行文件大小可减少为 `Rabbit.exe` - 约 570 KB, `RabbitDeployer.exe` - 约 562 KB。
+编译并使用 `upx` 压缩后，64 位的可执行文件大小可减少为 `Rabbit.exe` - 约 570+ KB, `RabbitDeployer.exe` - 约 560+ KB。
 
 ## 目录结构
 
@@ -70,3 +77,4 @@ rabbit/
 - 与某些软件适配较差
 - 桌面版 QQ 的密码输入框无法使用：[QQ密码输入框（防键盘钩子）原理分析](https://blog.csdn.net/muyedongfeng/article/details/49308993)，
 （[页面存档备份](https://web.archive.org/web/20240907052640/https://blog.csdn.net/muyedongfeng/article/details/49308993)，存于互联网档案馆），可右键点击任务栏图标选择禁用/启用玉兔毫，或是在 `rabbit.custom.yaml` 里设置 `suspend_hotkey` 指定快捷键来禁用/启用玉兔毫
+- 在 Windows 7 中打开玉兔毫时可能会造成系统一段时间无响应，需等待初始化完成，原因未知
