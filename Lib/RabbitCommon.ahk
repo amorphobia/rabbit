@@ -17,7 +17,7 @@
  */
 
 global RABBIT_VERSION := "dev"
-;@Ahk2Exe-SetCompanyName amorphobia
+;@Ahk2Exe-SetCompanyName rimeinn
 ;@Ahk2Exe-SetCopyright Copyright (c) 2023 - 2025 Xuesong Peng
 ;@Ahk2Exe-SetDescription 由 AutoHotkey 实现的 Rime 输入法
 ;@Ahk2Exe-Let U_version = %A_PriorLine~U)^(.+"){1}(.+)".*$~$2%

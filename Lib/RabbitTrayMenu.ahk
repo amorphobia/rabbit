@@ -53,8 +53,8 @@ SetupTrayMenu() {
 
         A_TrayMenu.Add()
 
-        A_TrayMenu.Add("仓库主页", (*) => Run("https://github.com/amorphobia/rabbit"))
-        A_TrayMenu.Add("参加讨论", (*) => Run("https://github.com/amorphobia/rabbit/discussions"))
+        A_TrayMenu.Add("仓库主页", (*) => Run("https://github.com/rimeinn/rabbit"))
+        A_TrayMenu.Add("参加讨论", (*) => Run("https://github.com/rimeinn/rabbit/discussions"))
         A_TrayMenu.Add("关于", (*) => MsgBox(Format("由 AutoHotkey 实现的 Rime 输入法引擎前端`r`n版本：{}{}", RABBIT_VERSION, A_IsCompiled ? "（已编译）" : ""), "玉兔毫输入法"))
 
         A_TrayMenu.Add()
@@ -157,7 +157,7 @@ CheckNewVersion() {
     }
 
     http := ComObject("WinHttp.WinHttpRequest.5.1")
-    url := "https://api.github.com/repos/amorphobia/rabbit/releases/latest"
+    url := "https://api.github.com/repos/rimeinn/rabbit/releases/latest"
     local ver := ""
     try {
         http.Open("GET", url, true)
@@ -195,7 +195,7 @@ CheckNewVersion() {
         down := MsgBox(Format("发现新版本：{}`r`n是否前往下载？", ver), "玉兔毫输入法", "YesNo")
         if down == "Yes" {
             arch := A_Is64BitOS ? "x64" : "x86"
-            Run(Format("https://github.com/amorphobia/rabbit/releases/download/v{1}/rabbit-v{1}-{2}.zip", ver, arch))
+            Run(Format("https://github.com/rimeinn/rabbit/releases/download/v{1}/rabbit-v{1}-{2}.zip", ver, arch))
         }
     } else {
         MsgBox("当前已是最新版本", "玉兔毫输入法")

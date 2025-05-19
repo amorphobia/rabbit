@@ -4,19 +4,19 @@
 
 ## 下载体验
 
-> [!WARNING]
-> ⚠️正在施工⚠️
-> 现在已经可轻量地使用，遇到问题可以在 [Issues](https://github.com/amorphobia/rime-jiandao/issues/new/choose) 反馈。
+> [!NOTE]
+> ⚠️正在施工
+> 现在已经可轻量地使用，遇到问题可以在 [Issues](https://github.com/rimeinn/rabbit/issues/new/choose) 反馈。
 
 ### Action 版
 
 需要先登录你的 GitHub 账号。
 
-前往 [Actions 页面](https://github.com/amorphobia/rabbit/actions) 找到最近成功构建的一次，在生成的 Artifacts 中点击 `Rabbit-Full` 下载，将压缩包内容解压到一个新建目录中，运行 `Rabbit.exe` 即可。之后更新时，可只下载 `Rabbit` 或 `Data` 覆盖相应的文件。
+前往 [Actions 页面](https://github.com/rimeinn/rabbit/actions) 找到最近成功构建的一次，在生成的 Artifacts 中点击 `Rabbit-Full` 下载，将压缩包内容解压到一个新建目录中，运行 `Rabbit.exe` 即可。之后更新时，可只下载 `Rabbit` 或 `Data` 覆盖相应的文件。
 
 ### Release 版
 
-发行版会在 [Release 页面](https://github.com/amorphobia/rabbit/releases) 的 Assets 中，下载最新的 `rabbit-v<版本号>.zip`，解压到一个新建文件夹，运行 `Rabbit.exe` 即可。
+发行版会在 [Release 页面](https://github.com/rimeinn/rabbit/releases) 的 Assets 中，下载最新的 `rabbit-v<版本号>.zip`，解压到一个新建文件夹，运行 `Rabbit.exe` 即可。
 
 #### 通过 [scoop](https://scoop.sh/) 安装
 
@@ -62,7 +62,7 @@ rabbit/
 
 - [librime](https://github.com/rime/librime)
 - [OpenCC](https://github.com/BYVoid/OpenCC)
-- [librime-ahk](https://github.com/amorphobia/librime-ahk)
+- [librime-ahk](https://github.com/rimeinn/librime-ahk)
 - [GetCaretPos](https://github.com/Descolada/AHK-v2-libraries)
 - [GetCaretPosEx](https://github.com/Tebayaki/AutoHotkeyScripts/tree/main/lib/GetCaretPosEx)
 - [东风破](https://github.com/rime/plum)

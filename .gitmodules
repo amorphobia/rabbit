@@ -1,6 +1,6 @@
 [submodule "Lib/librime-ahk"]
 	path = Lib/librime-ahk
-	url = https://github.com/amorphobia/librime-ahk
+	url = https://github.com/rimeinn/librime-ahk
 [submodule "plum"]
 	path = plum
 	url = https://github.com/rime/plum
